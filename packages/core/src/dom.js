@@ -1,0 +1,45 @@
+/**
+ * @fileoverview DOM helper utilities for Closure Next.
+ * @license Apache-2.0
+ */
+/**
+ * Helper class for DOM manipulation
+ */
+export class DomHelper {
+    constructor(opt_document) {
+        this.document = opt_document || document;
+    }
+    /**
+     * Creates an element
+     */
+    createElement(tagName) {
+        return this.document.createElement(tagName);
+    }
+    /**
+     * Gets an element by ID
+     */
+    getElement(id) {
+        return this.document.getElementById(id);
+    }
+    /**
+     * Gets elements by class name
+     */
+    getElementsByClass(className, opt_element) {
+        const root = opt_element || this.document;
+        return Array.from(root.getElementsByClassName(className));
+    }
+    /**
+     * Gets the first element with the given class name
+     */
+    getElementByClass(className, opt_element) {
+        const elements = this.getElementsByClass(className, opt_element);
+        return elements[0] || null;
+    }
+    /**
+     * Returns the document object being used
+     */
+    getDocument() {
+        return this.document;
+    }
+}
+//# sourceMappingURL=dom.js.map
