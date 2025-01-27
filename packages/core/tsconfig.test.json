@@ -1,0 +1,26 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["jest", "node"],
+    "esModuleInterop": true,
+    "jsx": "react",
+    "module": "commonjs",
+    "target": "es2018",
+    "sourceMap": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "strictPropertyInitialization": false,
+    "useDefineForClassFields": false,
+    "declaration": true,
+    "composite": true,
+    "noImplicitOverride": true,
+    "baseUrl": ".",
+    "rootDir": ".",
+    "paths": {
+      "@closure-next/core": ["./src"],
+      "@closure-next/core/*": ["./src/*"]
+    }
+  },
+  "include": ["src/**/*", "__tests__/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
