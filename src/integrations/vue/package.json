@@ -1,0 +1,54 @@
+{
+  "name": "@closure-next/vue",
+  "version": "0.1.0",
+  "description": "Vue integration for Closure Next",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc --build",
+    "test:compile": "tsc --build tsconfig.test.json",
+    "test": "npm run test:compile && jest",
+    "test:watch": "jest --watch",
+    "pretest": "npm run build"
+  },
+  "peerDependencies": {
+    "@closure-next/core": "^1.0.0",
+    "vue": "3.3.0"
+  },
+  "dependencies": {
+    "@closure-next/core": "^0.1.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/plugin-transform-modules-commonjs": "^7.26.3",
+    "@babel/plugin-transform-runtime": "^7.25.9",
+    "@babel/preset-env": "^7.26.0",
+    "@babel/preset-typescript": "^7.26.0",
+    "@babel/runtime": "^7.26.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/vue": "^8.1.0",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.10.7",
+    "@vue/babel-plugin-jsx": "^1.2.5",
+    "@vue/compiler-core": "^3.3.0",
+    "@vue/compiler-dom": "^3.3.0",
+    "@vue/compiler-sfc": "3.3.0",
+    "@vue/reactivity": "3.3.0",
+    "@vue/runtime-core": "^3.3.0",
+    "@vue/runtime-dom": "^3.3.0",
+    "@vue/server-renderer": "^3.3.0",
+    "@vue/shared": "^3.3.0",
+    "@vue/test-utils": "^2.4.6",
+    "@vue/vue3-jest": "^29.2.6",
+    "babel-jest": "^29.7.0",
+    "estree-walker": "^2.0.2",
+    "jest": "^29.0.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "jest-serializer-html": "^7.1.0",
+    "jsdom": "^22.1.0",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.0.0",
+    "vue": "^3.3.0"
+  }
+}
