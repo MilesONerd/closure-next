@@ -1,0 +1,25 @@
+{
+  "extends": "../../../tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "types": ["jest", "@testing-library/jest-dom", "./types/jest"],
+    "baseUrl": ".",
+    "paths": {
+      "@closure-next/core": ["../../../packages/core/src"],
+      "@closure-next/core/*": ["../../../packages/core/src/*"]
+    },
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "strict": false,
+    "noImplicitAny": false,
+    "skipLibCheck": true
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "__tests__/**/*.ts",
+    "__tests__/**/*.tsx"
+  ]
+}
