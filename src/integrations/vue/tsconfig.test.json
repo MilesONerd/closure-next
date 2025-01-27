@@ -1,0 +1,27 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["jest", "node", "vue"],
+    "baseUrl": ".",
+    "paths": {
+      "@closure-next/core": ["../../../packages/core/src"]
+    },
+    "rootDir": ".",
+    "composite": true,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "allowJs": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "isolatedModules": true,
+    "jsx": "preserve"
+  },
+  "include": [
+    "src/**/*",
+    "__tests__/**/*",
+    "../../../packages/core/src/**/*"
+  ],
+  "references": [
+    { "path": "../../../packages/core" }
+  ]
+}
