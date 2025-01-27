@@ -1,0 +1,30 @@
+{
+  "extends": "../../../tsconfig.json",
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "types": ["jest", "@testing-library/jest-dom", "svelte", "node", "./types/jest"],
+    "baseUrl": ".",
+    "paths": {
+      "@closure-next/core": ["../../../packages/core/src"],
+      "@closure-next/core/*": ["../../../packages/core/src/*"]
+    },
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "strict": false,
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "module": "ESNext",
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "experimentalDecorators": true,
+    "allowJs": true,
+    "checkJs": false
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.svelte",
+    "__tests__/**/*.ts",
+    "__mocks__/**/*.ts"
+  ]
+}
