@@ -17,7 +17,7 @@
     "vue": "3.3.0"
   },
   "dependencies": {
-    "@closure-next/core": "^0.1.0"
+    "@closure-next/core": "^1.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",
