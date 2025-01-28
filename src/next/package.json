@@ -1,0 +1,31 @@
+{
+  "name": "@closure-next/next",
+  "version": "1.0.0",
+  "description": "Next.js integration for Closure Next",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "peerDependencies": {
+    "next": "^14.0.0",
+    "react": "^18.0.0",
+    "@closure-next/core": "^1.0.0"
+  },
+  "dependencies": {
+    "@closure-next/core": "file:../../packages/core"
+  },
+  "devDependencies": {
+    "next": "^14.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "jest": "^29.0.0",
+    "@types/jest": "^29.0.0"
+  }
+}
