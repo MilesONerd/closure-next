@@ -1,0 +1,32 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "types": ["cypress", "node", "jest", "chai", "@testing-library/cypress"],
+    "esModuleInterop": true,
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "module": "esnext",
+    "moduleResolution": "node",
+    "jsx": "preserve",
+    "baseUrl": ".",
+    "paths": {
+      "@closure-next/core/*": ["../../packages/core/src/*"],
+      "@closure-next/core": ["../../packages/core/src"]
+    },
+    "allowJs": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "composite": true,
+    "declaration": true,
+    "outDir": "./dist",
+    "rootDir": "."
+  },
+  "include": [
+    "cypress/**/*",
+    "jest/**/*",
+    "src/**/*"
+  ],
+  "exclude": ["node_modules", "dist"],
+  "references": [
+    { "path": "../../packages/core" }
+  ]
+}
