@@ -1,0 +1,32 @@
+{
+  "name": "@closure-next/testing",
+  "version": "1.0.0",
+  "description": "Testing utilities for Closure Next",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "peerDependencies": {
+    "@closure-next/core": "^1.0.0",
+    "jest": "^29.0.0",
+    "cypress": "^13.0.0"
+  },
+  "dependencies": {
+    "@closure-next/core": "file:../../packages/core"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "cypress": "^13.0.0",
+    "@types/jest": "^29.0.0",
+    "@types/chai": "^4.3.0",
+    "@testing-library/cypress": "^10.0.0",
+    "@testing-library/dom": "^9.0.0",
+    "@testing-library/user-event": "^14.0.0",
+    "@jest/globals": "^29.0.0",
+    "@testing-library/jest-dom": "^6.0.0",
+    "typescript": "^5.0.0"
+  }
+}
