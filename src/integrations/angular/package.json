@@ -32,7 +32,7 @@
   "jest-preset-angular": "^14.0.0",
   "ts-jest": "^29.1.1",
   "typescript": "~5.2.2",
-  "zone.js": "~0.14.0",
+  "zone.js": "~0.15.0",
   "rxjs": "~7.8.0"
   }
 }
