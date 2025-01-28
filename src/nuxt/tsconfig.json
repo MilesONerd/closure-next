@@ -1,0 +1,34 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "types": ["node", "@nuxt/types", "@types/jest"],
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "baseUrl": ".",
+    "paths": {
+      "@closure-next/core/*": ["../../packages/core/src/*"],
+      "@closure-next/core": ["../../packages/core/src"],
+      "~/*": ["./src/*"],
+      "@/*": ["./src/*"],
+      "#app": ["./node_modules/nuxt/dist/app"],
+      "#head": ["./node_modules/nuxt/dist/head/runtime"],
+      "#imports": ["./node_modules/nuxt/dist/app/composables"],
+      "#components": ["./node_modules/nuxt/dist/app/components"]
+    },
+    "composite": true,
+    "declaration": true,
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": ["node_modules", "dist"],
+  "references": [
+    { "path": "../../packages/core" }
+  ]
+}
