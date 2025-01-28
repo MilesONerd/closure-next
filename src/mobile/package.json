@@ -1,0 +1,23 @@
+{
+  "name": "@closure-next/mobile",
+  "version": "1.0.0",
+  "description": "Mobile/hybrid platform integration for Closure Next",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "peerDependencies": {
+    "@closure-next/core": "^1.0.0"
+  },
+  "dependencies": {
+    "@closure-next/core": "file:../../packages/core"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "jest": "^29.0.0",
+    "@types/jest": "^29.0.0"
+  }
+}
