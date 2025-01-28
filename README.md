@@ -7,6 +7,19 @@
 - **TypeScript Support:** Fully written in TypeScript for better maintainability, type safety, and editor support.
 - **High Performance:** Optimized for performance with smaller bundle sizes and faster load times.
 - **Modern Integrations:** Out-of-the-box support for frameworks and libraries.
+  ├── React  
+  ├── Vue  
+  ├── Angular  
+  ├── Svelte  
+  ├── 📦 Modern build tooling support (Webpack, Vite, Rollup)  
+  ├── 🌐 Web Components support  
+  ├── 🖥️ Node.js compatibility (CommonJS/ESM)  
+  ├── 🦕 Deno support  
+  ├── 📱 Mobile/hybrid platform APIs  
+  ├── 🔧 SSR support (Next.js/Nuxt.js)  
+  ├── ⚙️ WebAssembly optimizations  
+  └── 🧪 Comprehensive testing tools  
+  
 - **Modular Design:** Includes a modular structure for easy customization and integration into any project.
 - **Apache 2.0 License:** Open source, and available for everyone to use and contribute.
 
