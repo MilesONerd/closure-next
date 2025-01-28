@@ -20,6 +20,13 @@ npm install closure-next/core
 
 After installing, you can start using the library's features in your code.After installing, you can start using the library's features in your code.
 
+# Development
+
+## Prerequisites
+- Node.js >= 16
+- TypeScript >= 5.0
+- Your favorite package manager (npm/yarn/pnpm)
+
 # Contributing
 
 We’d love for you to contribute to **Closure Next**! Whether you’re fixing bugs, adding new features, or improving documentation, your contributions are always welcome. Follow the steps below to get started:
