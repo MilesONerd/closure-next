@@ -1,18 +1,18 @@
-import { Component } from '@closure-next/core';
+import { Component, ComponentState, ComponentInterface } from '@closure-next/core';
 import { ClosureComponentDirective } from '../../../src';
 
-class TestComponent extends ClosureComponent {
+class TestComponent extends Component implements ComponentInterface {
   private title: string = '';
   
   constructor() {
     super();
-    this.id = 'test-component';
   }
   
   setTitle(title: string): void {
     this.title = title;
-    if (this.element) {
-      this.element.setAttribute('data-title', this.title);
+    const element = this.getElement();
+    if (element) {
+      element.setAttribute('data-title', this.title);
     }
   }
   
@@ -22,9 +22,10 @@ class TestComponent extends ClosureComponent {
 
   protected override createDom(): void {
     super.createDom();
-    if (this.element) {
-      this.element.setAttribute('data-testid', 'test-component');
-      this.element.setAttribute('data-title', this.title);
+    const element = this.getElement();
+    if (element) {
+      element.setAttribute('data-testid', 'test-component');
+      element.setAttribute('data-title', this.title);
     }
   }
 }

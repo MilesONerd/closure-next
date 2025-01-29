@@ -1,13 +1,11 @@
 import { jest } from '@jest/globals';
-import { Component } from '@closure-next/core';
+import { Component, ComponentInterface } from '@closure-next/core';
 import type { DomHelper } from '@closure-next/core';
 import TestWrapper from './TestWrapper.svelte';
 import { render, cleanup } from '@testing-library/svelte';
 
-// Define test component
-class TestComponent extends Component {
+class TestComponent extends Component implements ComponentInterface {
   private title: string = '';
-  protected element: HTMLElement | null = null;
   
   constructor(domHelper?: DomHelper) {
     super(domHelper);
@@ -15,8 +13,9 @@ class TestComponent extends Component {
 
   setTitle(title: string): void {
     this.title = title;
-    if (this.element) {
-      this.element.setAttribute('data-title', this.title);
+    const element = this.getElement();
+    if (element) {
+      element.setAttribute('data-title', this.title);
     }
   }
   
@@ -24,11 +23,12 @@ class TestComponent extends Component {
     return this.title;
   }
 
-  protected createDom(): void {
+  protected override createDom(): void {
     super.createDom();
-    if (this.element) {
-      this.element.setAttribute('data-testid', 'test-component');
-      this.element.setAttribute('data-title', this.title);
+    const element = this.getElement();
+    if (element) {
+      element.setAttribute('data-testid', 'test-component');
+      element.setAttribute('data-title', this.title);
     }
   }
 }

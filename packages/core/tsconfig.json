@@ -8,10 +8,6 @@
     "composite": true,
     "types": ["jest", "node"],
     "baseUrl": ".",
-    "paths": {
-      "@closure-next/core": ["./src"],
-      "@closure-next/core/*": ["./src/*"]
-    },
     "module": "commonjs",
     "moduleResolution": "node",
     "esModuleInterop": true

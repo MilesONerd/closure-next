@@ -1,7 +1,7 @@
 import { mount, type VueWrapper } from '@vue/test-utils';
 import { defineComponent, ref, h, type Ref, type ComponentPublicInstance, type DefineComponent } from 'vue';
 import { useClosureComponent } from '../index';
-import { Component } from '@closure-next/core';
+import { Component, ComponentInterface } from '@closure-next/core';
 
 interface VueComponentProps {
   root: Ref<HTMLElement | null>;
@@ -15,7 +15,7 @@ type TestWrapper = VueWrapper<ComponentPublicInstance<{}, VueComponentProps>>;
 
 // Component props defined above with imports
 
-class TestComponent extends Component {
+class TestComponent extends Component implements ComponentInterface {
   private title: string = '';
   
   setTitle(title: string) {

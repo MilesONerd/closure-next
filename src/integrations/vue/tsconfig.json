@@ -7,11 +7,7 @@
     "composite": true,
     "types": ["jest", "node", "vue"],
     "jsx": "preserve",
-    "baseUrl": "../../..",
-    "paths": {
-      "@closure-next/core/*": ["../../../packages/core/src/*"],
-      "@closure-next/core": ["../../../packages/core/src"]
-    },
+    "baseUrl": ".",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "esModuleInterop": true,

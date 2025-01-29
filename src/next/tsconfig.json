@@ -7,10 +7,6 @@
     "moduleResolution": "node",
     "types": ["node", "react", "jest"],
     "baseUrl": ".",
-    "paths": {
-      "@closure-next/core/*": ["../../packages/core/src/*"],
-      "@closure-next/core": ["../../packages/core/src"]
-    },
     "composite": true,
     "declaration": true,
     "outDir": "dist",
