@@ -31,7 +31,7 @@ To start using **Closure Next** in your project, simply install the core package
 npm install closure-next/core
 ```
 
-After installing, you can start using the library's features in your code.After installing, you can start using the library's features in your code.
+After installing, you can start using the library's features in your code.
 
 # Development
 
