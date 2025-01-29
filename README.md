@@ -54,7 +54,7 @@ We’d love for you to contribute to **Closure Next**! Whether you’re fixing b
 To clone the repository:
 
 ```bash
-git clone https://github.com/MilesONerd/closure-next
+git clone https://github.com/MilesONerd/closure-next.git
 ```
 
 # Licence
