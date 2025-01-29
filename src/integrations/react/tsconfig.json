@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "commonjs",
+    "lib": ["es2020", "dom"],
+    "jsx": "react-jsx",
+    "declaration": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "rootDir": ".",
+    "strict": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "types": ["jest", "node", "react", "@testing-library/jest-dom"],
+    "baseUrl": ".",
+    "paths": {
+      "@closure-next/core": ["../../packages/core/dist"]
+    }
+  },
+  "include": [
+    "src/**/*",
+    "__tests__/**/*"
+  ]
+}
