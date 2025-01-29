@@ -6,7 +6,7 @@
 
 - **TypeScript Support:** Fully written in TypeScript for better maintainability, type safety, and editor support.
 - **High Performance:** Optimized for performance with smaller bundle sizes and faster load times.
-- **Modern Integrations:** Out-of-the-box support for frameworks and libraries.
+- **Modern Integrations:** Out-of-the-box support for frameworks and libraries.  
   ├── React  
   ├── Vue  
   ├── Angular  
