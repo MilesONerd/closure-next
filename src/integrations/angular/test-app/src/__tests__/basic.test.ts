@@ -1,12 +1,13 @@
-import { Component } from '@closure-next/core';
+import { Component, ComponentInterface } from '@closure-next/core';
 
-class TestComponent extends Component {
+class TestComponent extends Component implements ComponentInterface {
   private title: string = '';
   
   setTitle(title: string): void {
     this.title = title;
-    if (this.element) {
-      this.element.setAttribute('data-title', title);
+    const element = this.getElement();
+    if (element) {
+      element.setAttribute('data-title', title);
     }
   }
   
@@ -16,9 +17,10 @@ class TestComponent extends Component {
 
   protected override createDom(): void {
     super.createDom();
-    if (this.element) {
-      this.element.setAttribute('data-testid', 'test-component');
-      this.element.setAttribute('data-title', this.title);
+    const element = this.getElement();
+    if (element) {
+      element.setAttribute('data-testid', 'test-component');
+      element.setAttribute('data-title', this.title);
     }
   }
 }

@@ -6,8 +6,9 @@ class TestMobileComponent extends MobileComponent {
   
   setTitle(title: string): void {
     this.title = title;
-    if (this.element) {
-      this.element.setAttribute('data-title', title);
+    const element = this.getElement();
+    if (element) {
+      element.setAttribute('data-title', title);
     }
   }
   
@@ -17,9 +18,10 @@ class TestMobileComponent extends MobileComponent {
 
   protected override createDom(): void {
     super.createDom();
-    if (this.element) {
-      this.element.setAttribute('data-testid', 'test-component');
-      this.element.setAttribute('data-title', this.title);
+    const element = this.getElement();
+    if (element) {
+      element.setAttribute('data-testid', 'test-component');
+      element.setAttribute('data-title', this.title);
     }
   }
 }
@@ -29,8 +31,9 @@ class TestHybridComponent extends HybridComponent {
   
   setTitle(title: string): void {
     this.title = title;
-    if (this.element) {
-      this.element.setAttribute('data-title', title);
+    const element = this.getElement();
+    if (element) {
+      element.setAttribute('data-title', title);
     }
   }
   
@@ -40,9 +43,10 @@ class TestHybridComponent extends HybridComponent {
 
   protected override createDom(): void {
     super.createDom();
-    if (this.element) {
-      this.element.setAttribute('data-testid', 'test-component');
-      this.element.setAttribute('data-title', this.title);
+    const element = this.getElement();
+    if (element) {
+      element.setAttribute('data-testid', 'test-component');
+      element.setAttribute('data-title', this.title);
     }
   }
 }

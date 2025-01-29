@@ -18,9 +18,7 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "baseUrl": ".",
-    "paths": {
-      "@closure-next/core": ["../../../packages/core/src"]
-    }
+    "moduleResolution": "node"
   },
   "include": [
     "*.ts",

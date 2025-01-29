@@ -65,8 +65,9 @@ class TestComponent extends Component implements ComponentInterface {
 
   setTitle(title: string): void {
     this.title = title;
-    if (this.element) {
-      this.element.setAttribute('data-title', this.title);
+    const element = this.getElement();
+    if (element) {
+      element.setAttribute('data-title', this.title);
     }
   }
   
@@ -76,9 +77,10 @@ class TestComponent extends Component implements ComponentInterface {
 
   protected override createDom(): void {
     super.createDom();
-    if (this.element) {
-      this.element.setAttribute('data-testid', 'test-component');
-      this.element.setAttribute('data-title', this.title);
+    const element = this.getElement();
+    if (element) {
+      element.setAttribute('data-testid', 'test-component');
+      element.setAttribute('data-title', this.title);
     }
   }
 }
