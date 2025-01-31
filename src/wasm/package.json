@@ -28,10 +28,10 @@
     "url": "https://github.com/MilesONerd/closure-next.git"
   },
   "peerDependencies": {
-    "@closure-next/core": "workspace:*"
+    "@closure-next/core": "^1.0.0"
   },
   "dependencies": {
-    "@closure-next/core": "file:../../packages/core"
+    "@closure-next/core": "^1.0.9"
   },
   "devDependencies": {
     "typescript": "^5.0.0",

@@ -32,7 +32,7 @@
     "cypress": "^13.0.0"
   },
   "dependencies": {
-    "@closure-next/core": "file:../../packages/core"
+    "@closure-next/core": "^1.0.9"
   },
   "devDependencies": {
     "jest": "^29.0.0",

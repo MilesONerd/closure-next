@@ -30,7 +30,7 @@
     "@closure-next/core": "^1.0.0"
   },
   "dependencies": {
-    "@closure-next/core": "file:../../packages/core"
+    "@closure-next/core": "^1.0.9"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.1.5",
