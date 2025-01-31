@@ -1,0 +1,27 @@
+{
+  "extends": "../../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "../../../",
+    "baseUrl": "../../../",
+    "types": ["jest", "node", "svelte", "@testing-library/jest-dom"],
+    "verbatimModuleSyntax": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "target": "es2020",
+    "lib": ["es2020", "dom"],
+    "composite": true,
+    "declaration": true,
+    "sourceMap": true,
+    "declarationMap": true,
+    "esModuleInterop": true,
+    "paths": {
+      "@closure-next/core": ["packages/core/src"]
+    }
+  },
+  "include": ["src/integrations/svelte/src/**/*", "src/integrations/svelte/__tests__/**/*"],
+  "exclude": ["node_modules", "dist"],
+  "references": [
+    { "path": "../../../packages/core" }
+  ]
+}
