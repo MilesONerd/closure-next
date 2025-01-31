@@ -9,7 +9,7 @@
     "outDir": "./dist",
     "rootDir": ".",
     "strict": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "baseUrl": ".",
     "paths": {
       "@closure-next/core": ["./packages/core/src"],
