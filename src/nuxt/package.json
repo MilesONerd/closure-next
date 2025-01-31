@@ -25,7 +25,6 @@
     "type": "git",
     "url": "https://github.com/MilesONerd/closure-next.git"
   },
-  },
   "peerDependencies": {
     "nuxt": "^3.0.0",
     "vue": "^3.0.0",
