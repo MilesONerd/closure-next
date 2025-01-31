@@ -2,6 +2,12 @@
 
 **Closure Next** is a modern and optimized version of the iconic [Google Closure Library](https://github.com/google/closure-library), reimagined for the latest JavaScript technologies. It’s designed to bring better performance, modularity, and seamless compatibility with modern frameworks and platforms like Node.js, React, Vue, Angular, WebAssembly, and more. Built with **TypeScript**, Closure Next takes advantage of the best coding patterns and performance optimizations for your applications.
 
+# Social
+
+[![Bluesky](https://img.shields.io/badge/Bluesky-0285FF?logo=bluesky&logoColor=fff&style=for-the-badge)](https://bsky.app/profile/closure-next.bsky.social)
+[![Mastodon](https://img.shields.io/badge/Mastodon-6364FF?style=for-the-badge&logo=Mastodon&logoColor=white)](https://fosstodon.org/@closure_next)
+[![X](https://img.shields.io/badge/X-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/closure_next)
+
 # Key Features:
 
 - **TypeScript Support:** Fully written in TypeScript for better maintainability, type safety, and editor support.
