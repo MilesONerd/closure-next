@@ -1,6 +1,6 @@
 {
   "name": "@closure-next/react",
-  "version": "1.0.0",
+  "version": "1.0.5",
   "description": "React integration for Closure Next framework",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
