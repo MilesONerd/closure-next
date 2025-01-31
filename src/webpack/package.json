@@ -24,7 +24,6 @@
     "type": "git",
     "url": "https://github.com/MilesONerd/closure-next.git"
   },
-  },
   "peerDependencies": {
     "webpack": "^5.0.0",
     "@closure-next/core": "^1.0.0"
