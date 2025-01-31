@@ -25,9 +25,6 @@ interface ClosureComponentConstructor {
   new(): ClosureComponent;
 }
 
-/**
- * Angular directive for using Closure Next components
- */
 @Directive({
   selector: '[closureComponent]',
   standalone: true
@@ -35,10 +32,12 @@ interface ClosureComponentConstructor {
 @Injectable()
 export class ClosureComponentDirective implements OnInit, OnDestroy, OnChanges {
   @Input('closureComponent') component!: ClosureComponent;
+  @Input() errorBoundary = true;
 
   public instance: ClosureComponent | null = null;
   private element: HTMLElement;
   private static componentMap = new WeakMap<HTMLElement, ClosureComponent>();
+  private errorState = false;
 
   constructor(
     @Inject(ElementRef) private elementRef: ElementRef,
@@ -59,55 +58,64 @@ export class ClosureComponentDirective implements OnInit, OnDestroy, OnChanges {
     return ClosureComponentDirective.componentMap.get(this.element);
   }
 
+  private handleError(error: Error): void {
+    if (this.errorBoundary) {
+      this.errorState = true;
+      console.error('ClosureComponent Error:', error);
+      this.element.innerHTML = `<div class="closure-error">Component Error: ${error.message}</div>`;
+    } else {
+      throw error;
+    }
+  }
+
   async ngOnInit(): Promise<void> {
     if (!this.component) {
       throw new Error('Component instance must be provided');
     }
 
-    // Store the component instance
-    this.instance = this.component;
-    
-    // Store reference to Closure component
-    this.setComponentRef(this.instance);
+    try {
+      this.instance = this.component;
+      this.setComponentRef(this.instance);
 
-    // Run rendering in NgZone
-    await this.ngZone.run(async () => {
-      // Render after props are applied
-      this.instance!.render(this.element);
+      await this.ngZone.runOutsideAngular(async () => {
+        this.instance!.render(this.element);
+        await Promise.resolve();
+      });
 
-      // Wait for next tick to ensure component is fully initialized
-      await new Promise(resolve => setTimeout(resolve, 0));
-
-      // Force change detection
       this.ngZone.run(() => {});
-    });
+    } catch (error) {
+      this.handleError(error as Error);
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (!this.instance) return;
+    if (!this.instance || this.errorState) return;
 
     if (changes['component'] && !changes['component'].firstChange) {
-      // Run updates inside NgZone to ensure change detection
-      this.ngZone.run(() => {
-        // Update instance reference
-        this.instance = changes['component'].currentValue;
-        this.setComponentRef(this.instance);
-        
-        // Re-render to ensure DOM is updated
-        this.instance!.render(this.element);
-      });
+      try {
+        this.ngZone.runOutsideAngular(() => {
+          this.instance = changes['component'].currentValue;
+          this.setComponentRef(this.instance);
+          this.instance!.render(this.element);
+        });
+      } catch (error) {
+        this.handleError(error as Error);
+      }
     }
   }
 
   async ngOnDestroy(): Promise<void> {
     if (this.instance) {
-      await this.ngZone.run(async () => {
-        // Clean up component reference before disposal
-        this.setComponentRef(null);
-        this.instance!.dispose();
-        await new Promise(resolve => setTimeout(resolve, 0));
-        this.instance = null;
-      });
+      try {
+        await this.ngZone.runOutsideAngular(async () => {
+          this.setComponentRef(null);
+          this.instance!.dispose();
+          await Promise.resolve();
+          this.instance = null;
+        });
+      } catch (error) {
+        console.error('Error during component disposal:', error);
+      }
     }
   }
 }
