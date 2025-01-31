@@ -31,7 +31,8 @@ interface ClosureComponentConstructor {
 })
 @Injectable()
 export class ClosureComponentDirective implements OnInit, OnDestroy, OnChanges {
-  @Input('closureComponent') component!: ClosureComponent;
+  @Input('closureComponent') component!: ClosureComponentConstructor | ClosureComponent;
+  @Input() closureComponentProps: any;
   @Input() errorBoundary = true;
 
   public instance: ClosureComponent | null = null;
@@ -74,8 +75,19 @@ export class ClosureComponentDirective implements OnInit, OnDestroy, OnChanges {
     }
 
     try {
-      this.instance = this.component;
+      // Handle both constructor and instance inputs
+      if (typeof this.component === 'function') {
+        this.instance = new (this.component as ClosureComponentConstructor)();
+      } else {
+        this.instance = this.component as ClosureComponent;
+      }
+      
       this.setComponentRef(this.instance);
+
+      // Apply props if provided
+      if (this.closureComponentProps) {
+        Object.assign(this.instance, this.closureComponentProps);
+      }
 
       await this.ngZone.runOutsideAngular(async () => {
         this.instance!.render(this.element);
@@ -91,11 +103,22 @@ export class ClosureComponentDirective implements OnInit, OnDestroy, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (!this.instance || this.errorState) return;
 
-    if (changes['component'] && !changes['component'].firstChange) {
+    if ((changes['component'] && !changes['component'].firstChange) || changes['closureComponentProps']) {
       try {
         this.ngZone.runOutsideAngular(() => {
-          this.instance = changes['component'].currentValue;
-          this.setComponentRef(this.instance);
+          if (changes['component']) {
+            if (typeof changes['component'].currentValue === 'function') {
+              this.instance = new (changes['component'].currentValue as ClosureComponentConstructor)();
+            } else {
+              this.instance = changes['component'].currentValue as ClosureComponent;
+            }
+            this.setComponentRef(this.instance);
+          }
+          
+          if (changes['closureComponentProps']) {
+            Object.assign(this.instance!, this.closureComponentProps);
+          }
+          
           this.instance!.render(this.element);
         });
       } catch (error) {

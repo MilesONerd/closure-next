@@ -23,9 +23,17 @@ module.exports = {
   moduleNameMapper: {
     '^@closure-next/core$': '<rootDir>/../../../packages/core/src'
   },
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  setupFilesAfterEnv: ['<rootDir>/test-app/jest.setup.ts'],
   testPathIgnorePatterns: ['/node_modules/'],
   moduleFileExtensions: ['ts', 'html', 'js', 'json', 'mjs'],
+  testTimeout: 10000,
+  testEnvironment: 'jsdom',
+  globals: {
+    'ts-jest': {
+      tsconfig: '<rootDir>/tsconfig.spec.json',
+      isolatedModules: true
+    }
+  },
   transformIgnorePatterns: [
     'node_modules/(?!(@angular|tslib|rxjs))'
   ],

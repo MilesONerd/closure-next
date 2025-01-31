@@ -2,36 +2,37 @@ import 'jest-preset-angular/setup-jest';
 import '@testing-library/jest-dom';
 import 'zone.js';
 import 'zone.js/testing';
-import { getTestBed } from '@angular/core/testing';
+import { getTestBed, TestBed } from '@angular/core/testing';
 import {
   BrowserDynamicTestingModule,
   platformBrowserDynamicTesting
 } from '@angular/platform-browser-dynamic/testing';
 
-// Initialize test environment
-let testBed: ReturnType<typeof getTestBed>;
+declare const Zone: any; // Zone is injected by zone.js
 
-beforeAll(() => {
-  try {
-    testBed = getTestBed();
-    testBed.resetTestEnvironment();
-    testBed.initTestEnvironment(
-      BrowserDynamicTestingModule,
-      platformBrowserDynamicTesting(),
-      {
-        teardown: { destroyAfterEach: true }
-      }
-    );
-  } catch (e) {
-    // Platform already initialized
-    testBed = getTestBed();
-  }
+// Initialize test environment
+try {
+  TestBed.initTestEnvironment(
+    BrowserDynamicTestingModule,
+    platformBrowserDynamicTesting(),
+    { teardown: { destroyAfterEach: true } }
+  );
+} catch (e) {
+  // Platform already initialized
+  TestBed.resetTestEnvironment();
+  TestBed.initTestEnvironment(
+    BrowserDynamicTestingModule,
+    platformBrowserDynamicTesting(),
+    { teardown: { destroyAfterEach: true } }
+  );
+}
+
+beforeEach(() => {
+  TestBed.configureTestingModule({});
 });
 
-// Reset test environment before each test
-beforeEach(() => {
-  testBed = getTestBed();
-  testBed.configureTestingModule({});
+afterEach(() => {
+  TestBed.resetTestingModule();
 });
 
 // Set up fake async zone
@@ -291,16 +292,12 @@ beforeAll(() => {
   jest.useFakeTimers();
 });
 
-// Clean up between tests
 beforeEach(() => {
   document.body.innerHTML = '';
   jest.clearAllMocks();
   jest.clearAllTimers();
-  try {
-    testBed.resetTestingModule();
-  } catch (e) {
-    console.warn('Error resetting test module:', e);
-  }
+  TestBed.resetTestingModule();
+  TestBed.configureTestingModule({});
 });
 
 afterEach(() => {
@@ -308,11 +305,7 @@ afterEach(() => {
   jest.clearAllMocks();
   jest.clearAllTimers();
   jest.useRealTimers();
-  try {
-    testBed.resetTestingModule();
-  } catch (e) {
-    console.warn('Error resetting test module:', e);
-  }
+  TestBed.resetTestingModule();
 });
 
 afterAll(() => {

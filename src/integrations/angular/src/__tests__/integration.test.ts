@@ -1,12 +1,29 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Component as ClosureComponent } from '@closure-next/core';
+import { Component, ComponentInterface } from '@closure-next/core';
 import { ClosureComponentDirective } from '../index';
-import { Component } from '@angular/core';
+import { Component as NgComponent } from '@angular/core';
 import { By } from '@angular/platform-browser';
 
-class TestComponent extends ClosureComponent {
+interface TestComponentProps {
+  title?: string;
+}
+
+class TestComponent extends Component {
   private title: string = '';
+  public props!: TestComponentProps;
+  protected element: HTMLElement | null = null;
   
+  public getElement(): HTMLElement | null {
+    return this.element;
+  }
+  
+  constructor() {
+    super();
+    if (this.props?.title) {
+      this.title = this.props.title;
+    }
+  }
+
   setTitle(title: string): void {
     this.title = title;
     const element = this.getElement();
@@ -20,26 +37,26 @@ class TestComponent extends ClosureComponent {
   }
 
   protected createDom(): void {
+    const element = document.createElement('div');
+    element.setAttribute('data-testid', 'test-component');
+    element.setAttribute('data-title', this.title);
+    this.element = element;
     super.createDom();
-    const element = this.getElement();
-    if (element) {
-      element.setAttribute('data-testid', 'test-component');
-      element.setAttribute('data-title', this.title);
-    }
   }
 }
 
-@Component({
+@NgComponent({
+  standalone: true,
+  imports: [ClosureComponentDirective],
   template: `
-    <div closureComponent
-         [component]="component"
-         [props]="props"
+    <div [closureComponent]="component"
+         [closureComponentProps]="props"
          data-testid="angular-wrapper">
     </div>
   `
 })
 class TestHostComponent {
-  component = TestComponent;
+  component = new TestComponent();
   props = { title: 'Test Title' };
 }
 
@@ -47,28 +64,31 @@ describe('Angular Integration', () => {
   let component: TestHostComponent;
   let fixture: ComponentFixture<TestHostComponent>;
 
+  beforeAll(() => {
+    jest.setTimeout(30000); // Increase timeout for Angular tests
+  });
+
   beforeEach(async () => {
-    jest.setTimeout(10000); // Increase timeout for Angular tests
-    
     await TestBed.configureTestingModule({
-      declarations: [
-        TestHostComponent,
-        ClosureComponentDirective
-      ],
-      teardown: { destroyAfterEach: true }
+      imports: [TestHostComponent]
     }).compileComponents();
 
     fixture = TestBed.createComponent(TestHostComponent);
     component = fixture.componentInstance;
+    component.component = new TestComponent();
+    component.props = { title: 'Test Title' };
     
-    // Initial render and wait for component initialization
     await fixture.ngZone!.run(async () => {
       fixture.detectChanges();
       await fixture.whenStable();
-      await new Promise(resolve => setTimeout(resolve, 100)); // Longer timeout
-      fixture.detectChanges();
-      await fixture.whenStable();
     });
+  });
+
+  afterEach(() => {
+    if (fixture) {
+      fixture.destroy();
+    }
+    TestBed.resetTestingModule();
   });
 
   it('should render Closure component', () => {
@@ -86,18 +106,13 @@ describe('Angular Integration', () => {
     const element = fixture.nativeElement.querySelector('[data-testid="test-component"]');
     expect(element).toBeTruthy();
 
-    // Update props
-    // Update props in NgZone
     await fixture.ngZone!.run(async () => {
       component.props = { title: 'Updated Title' };
       fixture.detectChanges();
       await fixture.whenStable();
+      await new Promise(resolve => setTimeout(resolve, 0));
+      expect(element.getAttribute('data-title')).toBe('Updated Title');
     });
-
-    // Wait for all async operations
-    await new Promise(resolve => setTimeout(resolve, 0));
-
-    expect(element.getAttribute('data-title')).toBe('Updated Title');
   });
 
   it('should clean up on destroy', async () => {
