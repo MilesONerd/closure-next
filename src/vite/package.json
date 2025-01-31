@@ -2,6 +2,7 @@
   "name": "@closure-next/vite",
   "version": "1.0.2",
   "description": "Vite plugin for Closure Next",
+  "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",

@@ -1,6 +1,6 @@
-import { Component, ComponentState, DomHelper, ComponentInterface } from '../src';
-
-// Test component definition
+import { Component, ComponentState, ComponentInterface } from '../src/component';
+import { DomHelper } from '../src';
+import { describe, test, expect, jest, beforeEach, afterEach } from '@jest/globals';
 
 /**
  * Test component that extends the base Component class.

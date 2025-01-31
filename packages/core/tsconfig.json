@@ -8,8 +8,8 @@
     "composite": true,
     "types": ["jest", "node"],
     "baseUrl": ".",
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "esModuleInterop": true
   },
   "include": ["src/**/*"],

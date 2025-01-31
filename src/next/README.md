@@ -192,7 +192,9 @@ withClosureNext(Page, {
 
 ```typescript
 // next.config.js
-module.exports = {
+import path from 'path';
+
+export default {
   webpack: (config) => {
     // Add Closure Next support
     config.resolve.alias['@closure-next'] = path.resolve(__dirname, 'node_modules/@closure-next');
