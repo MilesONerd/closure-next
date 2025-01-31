@@ -19,7 +19,7 @@ describe('WebAssembly Integration', () => {
     
     const wasmArray = new Int32Array(jsArray);
     const startWasm = performance.now();
-    const wasmSum = (wasmModule.exports as any).sumArray(wasmArray, wasmArray.length);
+    const wasmSum = (wasmModule as any).sumArray(wasmArray, wasmArray.length);
     const endWasm = performance.now();
     
     expect(wasmSum).toBe(jsSum);
@@ -48,7 +48,7 @@ describe('WebAssembly Integration', () => {
     
     // WASM traversal
     const startWasm = performance.now();
-    const wasmCount = (wasmModule.exports as any).traverseDOM(root);
+    const wasmCount = (wasmModule as any).traverseDOM(root);
     const endWasm = performance.now();
     
     expect(wasmCount).toBe(jsCount);
@@ -69,7 +69,7 @@ describe('WebAssembly Integration', () => {
     
     // WASM event dispatch
     const startWasm = performance.now();
-    (wasmModule.exports as any).dispatchEvents(element, 10000);
+    (wasmModule as any).dispatchEvents(element, 10000);
     const endWasm = performance.now();
     
     expect(endWasm - startWasm).toBeLessThan(endJs - startJs);
@@ -95,7 +95,7 @@ describe('WebAssembly Integration', () => {
     
     // WASM lifecycle operations
     const startWasm = performance.now();
-    (wasmModule.exports as any).updateComponents(components);
+    (wasmModule as any).updateComponents(components);
     const endWasm = performance.now();
     
     expect(endWasm - startWasm).toBeLessThan(endJs - startJs);

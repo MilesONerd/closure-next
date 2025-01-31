@@ -10,11 +10,11 @@ npm install @closure-next/node
 
 ## Usage
 
-### CommonJS
+### ESM
 
 ```javascript
-const { renderToString } = require('@closure-next/node');
-const { MyComponent } = require('./my-component');
+import { renderToString } from '@closure-next/node';
+import { MyComponent } from './my-component';
 
 const html = renderToString(MyComponent, {
   title: 'Server-rendered component'

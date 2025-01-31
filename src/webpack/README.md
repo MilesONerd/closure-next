@@ -12,9 +12,9 @@ npm install @closure-next/webpack
 
 ```javascript
 // webpack.config.js
-const { ClosureNextWebpackPlugin } = require('@closure-next/webpack');
+import { ClosureNextWebpackPlugin } from '@closure-next/webpack';
 
-module.exports = {
+export default {
   // ... other webpack config
   plugins: [
     new ClosureNextWebpackPlugin({
@@ -75,9 +75,10 @@ new ClosureNextWebpackPlugin({
 
 ```javascript
 // webpack.config.js
-const { ClosureNextWebpackPlugin } = require('@closure-next/webpack');
+import { ClosureNextWebpackPlugin } from '@closure-next/webpack';
+import path from 'path';
 
-module.exports = {
+export default {
   entry: './src/index.ts',
   output: {
     filename: '[name].bundle.js',
@@ -104,7 +105,9 @@ The plugin automatically configures development-friendly settings:
 
 ```javascript
 // webpack.config.dev.js
-module.exports = {
+import { ClosureNextWebpackPlugin } from '@closure-next/webpack';
+
+export default {
   mode: 'development',
   devtool: 'source-map',
   plugins: [
@@ -119,7 +122,9 @@ Optimized settings for production:
 
 ```javascript
 // webpack.config.prod.js
-module.exports = {
+import { ClosureNextWebpackPlugin } from '@closure-next/webpack';
+
+export default {
   mode: 'production',
   plugins: [
     new ClosureNextWebpackPlugin({

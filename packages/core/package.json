@@ -2,6 +2,7 @@
   "name": "@closure-next/core",
   "version": "1.0.9",
   "description": "Modern TypeScript-based reimplementation of Google Closure Library with framework integrations",
+  "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -9,7 +10,7 @@
     "prepare": "npm run build",
     "build": "tsc --build tsconfig.build.json",
     "test:compile": "tsc --build tsconfig.test.json",
-    "test": "npm run test:compile && jest",
+    "test": "npm run test:compile && node --experimental-vm-modules $(which jest)",
     "lint": "eslint src/**/*.ts",
     "format": "prettier --write \"src/**/*.ts\""
   },
