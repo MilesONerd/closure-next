@@ -4,8 +4,16 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "declaration": true,
-    "declarationDir": "./dist/types"
+    "declarationMap": true,
+    "sourceMap": true,
+    "composite": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "target": "es2020",
+    "lib": ["es2020", "dom"],
+    "esModuleInterop": true
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "__tests__/**/*"]
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "__tests__/**/*"],
+  "references": []
 }
