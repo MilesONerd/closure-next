@@ -4,11 +4,10 @@
  */
 
 // Re-export everything at the root level
-export * from './component';
 export * from './events';
 export * from './dom';
 export * from './id';
 export * from './utils';
 
-// Export types
-export type { ComponentInterface } from './component';
+// Export Component and types
+export { Component, ComponentInterface, ComponentState, ComponentEventType } from './component';
