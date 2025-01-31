@@ -16,29 +16,42 @@ export function useClosureComponent(component: ComponentInterface): React.RefCal
     componentRef.current = component;
     if (elementRef.current) {
       try {
+        elementRef.current.setAttribute('data-testid', 'hook-wrapper');
         componentRef.current.render(elementRef.current);
       } catch (error) {
         console.error('Error rendering Closure component:', error);
       }
     }
+    return () => {
+      if (componentRef.current) {
+        try {
+          componentRef.current.dispose();
+        } catch (error) {
+          console.error('Error disposing Closure component:', error);
+        }
+      }
+    };
   }, [component]);
 
-  return React.useCallback((element: HTMLDivElement | null) => {
+  const renderCallback = React.useCallback((element: HTMLDivElement | null) => {
     elementRef.current = element;
     if (element) {
       try {
+        element.setAttribute('data-testid', 'hook-wrapper');
         componentRef.current.render(element);
       } catch (error) {
         console.error('Error rendering Closure component:', error);
       }
-    } else if (componentRef.current) {
-      try {
-        componentRef.current.dispose();
-      } catch (error) {
-        console.error('Error disposing Closure component:', error);
-      }
     }
   }, []);
+
+  React.useEffect(() => {
+    if (elementRef.current) {
+      elementRef.current.setAttribute('data-testid', 'hook-wrapper');
+    }
+  }, []);
+
+  return renderCallback;
 }
 
 export { Component, type ComponentInterface };

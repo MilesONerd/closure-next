@@ -6,10 +6,9 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
-    "test": "jest",
+    "build": "tsc --build tsconfig.build.json",
+    "test": "node --experimental-vm-modules $(which jest)",
     "clean": "rm -rf dist"
-
   },
   "keywords": [
     "Closure",
@@ -25,7 +24,6 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/MilesONerd/closure-next.git"
-    
   },
   "dependencies": {
     "@closure-next/core": "^1.0.9"
@@ -35,7 +33,7 @@
     "react-dom": ">=16.8.0"
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^6.1.0",
+    "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^14.1.0",
     "@types/jest": "^29.5.0",
     "@types/react": "^18.2.0",

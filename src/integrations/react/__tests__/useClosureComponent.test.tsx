@@ -1,11 +1,23 @@
 import React from "react";
-import { render, cleanup, act } from "@testing-library/react";
+import { render, cleanup, act, screen } from "@testing-library/react";
+import { jest, describe, test, expect, beforeEach, afterEach } from '@jest/globals';
+import { Component, type ComponentInterface, DomHelper } from "@closure-next/core";
 import { useClosureComponent } from "../src/index";
-import { TestComponent } from "./TestComponent";
+import { TestComponent } from "../src/TestComponent";
 
-const TestHook = ({ component }: { component: TestComponent }) => {
+class ErrorComponent extends Component {
+  constructor() {
+    super(new DomHelper(document));
+  }
+
+  render() {
+    throw new Error("Test render error");
+  }
+}
+
+const TestHook = ({ component }: { component: Component }) => {
   const ref = useClosureComponent(component);
-  return <div ref={ref} data-testid="hook-wrapper" />;
+  return <div ref={ref} />;
 };
 
 describe("useClosureComponent", () => {
@@ -15,12 +27,15 @@ describe("useClosureComponent", () => {
     const component = new TestComponent();
     const { container, unmount } = render(<TestHook component={component} />);
     
-    const element = container.querySelector("[data-testid=test-component]");
-    expect(element).toBeTruthy();
-    expect(element?.textContent).toBe("Test Component Content");
+    const wrapper = screen.getByTestId("hook-wrapper");
+    expect(wrapper).toBeInTheDocument();
+    
+    const element = wrapper.querySelector('[data-testid="test-component"]');
+    expect(element).not.toBeNull();
+    expect(element).toHaveTextContent("Test Component Content");
     
     unmount();
-    expect(component.getElement()).toBeFalsy();
+    expect(component.getElement()).toBeNull();
   });
 
   it("should handle component updates", () => {
@@ -31,27 +46,28 @@ describe("useClosureComponent", () => {
       component.setTitle("Updated Title");
     });
     
-    const element = container.querySelector("[data-testid=test-component]");
-    expect(element).toBeTruthy();
-    expect(element?.getAttribute("data-title")).toBe("Updated Title");
+    const wrapper = screen.getByTestId("hook-wrapper");
+    expect(wrapper).toBeInTheDocument();
+    
+    const element = wrapper.querySelector('[data-testid="test-component"]');
+    expect(element).not.toBeNull();
+    expect(element).toHaveAttribute("data-title", "Updated Title");
   });
 
   it("should cleanup on unmount", () => {
     const component = new TestComponent();
     const { unmount } = render(<TestHook component={component} />);
     
-    expect(component.getElement()).toBeTruthy();
+    const wrapper = screen.getByTestId("hook-wrapper");
+    expect(wrapper).toBeInTheDocument();
+    
+    const element = wrapper.querySelector('[data-testid="test-component"]');
+    expect(element).not.toBeNull();
     unmount();
-    expect(component.getElement()).toBeFalsy();
+    expect(component.getElement()).toBeNull();
   });
 
   it("should handle render errors gracefully", () => {
-    const ErrorComponent = class extends TestComponent {
-      render() {
-        throw new Error("Test render error");
-      }
-    };
-
     const component = new ErrorComponent();
     const consoleError = jest.spyOn(console, "error").mockImplementation(() => {});
     
@@ -66,13 +82,17 @@ describe("useClosureComponent", () => {
   });
 
   it("should handle dispose errors gracefully", () => {
-    const ErrorComponent = class extends TestComponent {
+    class DisposeErrorComponent extends Component {
+      constructor() {
+        super(new DomHelper(document));
+      }
+
       dispose() {
         throw new Error("Test dispose error");
       }
-    };
+    }
 
-    const component = new ErrorComponent();
+    const component = new DisposeErrorComponent();
     const consoleError = jest.spyOn(console, "error").mockImplementation(() => {});
     
     const { unmount } = render(<TestHook component={component} />);

@@ -9,49 +9,72 @@ interface Props {
   fallback?: React.ReactNode;
 }
 
-interface State {
+interface ErrorBoundaryState {
   hasError: boolean;
   error: Error | null;
 }
 
-export class ClosureComponent extends React.Component<Props, State> {
-  static defaultProps = {
-    props: {},
-    errorBoundary: true,
-    fallback: null
-  };
+class ErrorBoundary extends React.Component<{
+  children: React.ReactNode;
+  fallback?: React.ReactNode;
+}, ErrorBoundaryState> {
+  constructor(props: { children: React.ReactNode; fallback?: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
 
-  state: State = {
-    hasError: false,
-    error: null
-  };
-
-  static getDerivedStateFromError(error: Error): State {
+  static getDerivedStateFromError(error: Error) {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('ClosureComponent Error:', error, errorInfo);
-  }
-
-  private ref = React.createRef<HTMLDivElement>();
-  private useClosureRef = useClosureComponent(this.props.component);
-
-  componentDidMount(): void {
-    this.updateProps();
-  }
-
-  componentDidUpdate(prevProps: Props): void {
-    if (prevProps.props !== this.props.props) {
-      this.updateProps();
-    }
-    if (this.ref.current) {
-      this.useClosureRef(this.ref.current);
+    if (!this.state.hasError) {
+      this.setState({ hasError: true, error });
     }
   }
 
-  private updateProps(): void {
-    const { component, props = {} } = this.props;
+  render() {
+    const { hasError, error } = this.state;
+    const { children, fallback } = this.props;
+
+    if (hasError) {
+      const errorContent = fallback || (
+        <div className="closure-error" data-testid="closure-error">
+          {error?.message || 'Unknown error'}
+        </div>
+      );
+      return <div data-testid="error-boundary-root">{errorContent}</div>;
+    }
+
+    return children;
+  }
+}
+
+const ClosureContent: React.FC<Props> = ({ component, props = {} }) => {
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (ref.current) {
+      try {
+        ref.current.setAttribute("data-testid", "hook-wrapper");
+        component.render(ref.current);
+      } catch (error) {
+        console.error('Error rendering Closure component:', error);
+        throw error;
+      }
+    }
+
+    return () => {
+      try {
+        component.dispose();
+      } catch (error) {
+        console.error('Error disposing Closure component:', error);
+      }
+    };
+  }, [component]);
+
+  React.useEffect(() => {
     if (component && props) {
       Object.entries(props).forEach(([key, value]) => {
         const method = `set${key.charAt(0).toUpperCase()}${key.slice(1)}`;
@@ -60,17 +83,24 @@ export class ClosureComponent extends React.Component<Props, State> {
         }
       });
     }
+  }, [component, props]);
+
+  return <div ref={ref} data-testid="hook-wrapper" className="closure-wrapper" />;
+};
+
+export const ClosureComponent: React.FC<Props> = ({
+  component,
+  props,
+  errorBoundary = true,
+  fallback = null
+}) => {
+  if (!errorBoundary) {
+    return <ClosureContent component={component} props={props} />;
   }
 
-  render(): React.ReactNode {
-    if (this.state.hasError && this.props.errorBoundary) {
-      return this.props.fallback || (
-        <div className="closure-error" data-testid="closure-error">
-          Error: {this.state.error?.message}
-        </div>
-      );
-    }
-
-    return <div ref={this.ref} data-testid="closure-wrapper" />;
-  }
+  return (
+    <ErrorBoundary fallback={fallback}>
+      <ClosureContent component={component} props={props} />
+    </ErrorBoundary>
+  );
 }
