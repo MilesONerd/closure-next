@@ -1,6 +1,6 @@
 {
   "name": "@closure-next/core",
-  "version": "1.0.0",
+  "version": "1.0.9",
   "description": "Modern TypeScript-based reimplementation of Google Closure Library with framework integrations",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -17,16 +17,19 @@
     "access": "public"
   },
   "keywords": [
-    "closure",
-    "typescript",
-    "framework",
-    "react",
-    "vue",
-    "angular",
-    "svelte"
+    "Closure",
+    "TypeScript",
+    "JavaScript",
+    "Closure Library",
+    "MilesONerd",
+    "Closure Next"
   ],
   "author": "Closure Next Team",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MilesONerd/closure-next.git"
+  },
   "devDependencies": {
     "@angular/compiler": "^19.1.2",
     "@angular/compiler-cli": "^19.1.2",
