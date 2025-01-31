@@ -4,20 +4,39 @@ import React from "react";
 export interface ClosureComponentProps {
   component: ComponentInterface;
   props?: Record<string, unknown>;
+  errorBoundary?: boolean;
+  fallback?: React.ReactNode;
 }
 
 export function useClosureComponent(component: ComponentInterface): React.RefCallback<HTMLDivElement> {
   const componentRef = React.useRef<ComponentInterface>(component);
+  const elementRef = React.useRef<HTMLDivElement | null>(null);
 
   React.useEffect(() => {
     componentRef.current = component;
+    if (elementRef.current) {
+      try {
+        componentRef.current.render(elementRef.current);
+      } catch (error) {
+        console.error('Error rendering Closure component:', error);
+      }
+    }
   }, [component]);
 
   return React.useCallback((element: HTMLDivElement | null) => {
+    elementRef.current = element;
     if (element) {
-      componentRef.current.render(element);
+      try {
+        componentRef.current.render(element);
+      } catch (error) {
+        console.error('Error rendering Closure component:', error);
+      }
     } else if (componentRef.current) {
-      componentRef.current.dispose();
+      try {
+        componentRef.current.dispose();
+      } catch (error) {
+        console.error('Error disposing Closure component:', error);
+      }
     }
   }, []);
 }
