@@ -1,6 +1,6 @@
 {
   "name": "@closure-next/webpack",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Webpack plugin for Closure Next",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -8,6 +8,22 @@
   "scripts": {
     "build": "tsc",
     "test": "jest"
+  },
+  "keywords": [
+    "Closure",
+    "TypeScript",
+    "JavaScript",
+    "Closure Library",
+    "MilesONerd",
+    "Closure Next",
+    "Webpack"
+  ],
+  "author": "Closure Next Team",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MilesONerd/closure-next.git"
+  },
   },
   "peerDependencies": {
     "webpack": "^5.0.0",
