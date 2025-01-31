@@ -27,7 +27,6 @@
     "type": "git",
     "url": "https://github.com/MilesONerd/closure-next.git"
   },
-  },
   "peerDependencies": {
     "@closure-next/core": "workspace:*"
   },
