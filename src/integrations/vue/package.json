@@ -12,6 +12,22 @@
     "test:watch": "jest --watch",
     "pretest": "npm run build"
   },
+  "keywords": [
+    "Closure",
+    "TypeScript",
+    "JavaScript",
+    "Closure Library",
+    "MilesONerd",
+    "Closure Next",
+    "Vue"
+  ],
+  "author": "Closure Next Team",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MilesONerd/closure-next.git"
+  },
+  },
   "peerDependencies": {
     "@closure-next/core": "^1.0.0",
     "vue": "3.3.0"
