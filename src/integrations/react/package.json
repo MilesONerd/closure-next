@@ -27,7 +27,7 @@
     
   },
   "dependencies": {
-    "@closure-next/core": "^1.0.5"
+    "@closure-next/core": "^1.0.8"
   },
   "peerDependencies": {
     "react": ">=16.8.0",
