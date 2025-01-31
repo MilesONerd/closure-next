@@ -2,6 +2,7 @@
   "name": "@closure-next/angular",
   "version": "1.0.3",
   "description": "Angular integration for Closure Next",
+  "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
