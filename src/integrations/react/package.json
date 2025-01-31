@@ -24,7 +24,6 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/MilesONerd/closure-next.git"
-  },
     
   },
   "dependencies": {
