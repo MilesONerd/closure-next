@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Component, ComponentInterface } from '@closure-next/core';
+import { Component, ComponentInterface, DomHelper } from '@closure-next/core';
 import { ClosureComponentDirective } from '../index';
 import { Component as NgComponent } from '@angular/core';
 import { By } from '@angular/platform-browser';
@@ -11,14 +11,14 @@ interface TestComponentProps {
 class TestComponent extends Component {
   private title: string = '';
   public props!: TestComponentProps;
-  protected element: HTMLElement | null = null;
+  public element: HTMLElement | null = null;
   
   public getElement(): HTMLElement | null {
     return this.element;
   }
   
   constructor() {
-    super();
+    super(new DomHelper(document));
     if (this.props?.title) {
       this.title = this.props.title;
     }
