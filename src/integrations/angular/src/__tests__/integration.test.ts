@@ -7,6 +7,13 @@ import { By } from '@angular/platform-browser';
 class TestComponent extends ClosureComponent {
   private title: string = '';
   
+  constructor() {
+    super();
+    if (this['props']?.title) {
+      this.title = this['props'].title;
+    }
+  }
+
   setTitle(title: string): void {
     this.title = title;
     const element = this.getElement();
@@ -30,10 +37,11 @@ class TestComponent extends ClosureComponent {
 }
 
 @Component({
+  standalone: true,
+  imports: [ClosureComponentDirective],
   template: `
-    <div closureComponent
-         [component]="component"
-         [props]="props"
+    <div [closureComponent]="component"
+         [closureComponentProps]="props"
          data-testid="angular-wrapper">
     </div>
   `
@@ -51,10 +59,7 @@ describe('Angular Integration', () => {
     jest.setTimeout(10000); // Increase timeout for Angular tests
     
     await TestBed.configureTestingModule({
-      declarations: [
-        TestHostComponent,
-        ClosureComponentDirective
-      ],
+      imports: [TestHostComponent],
       teardown: { destroyAfterEach: true }
     }).compileComponents();
 
