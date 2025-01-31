@@ -1,24 +1,34 @@
+import 'jest-preset-angular/setup-jest';
 import '@testing-library/jest-dom';
-import 'zone.js';
-import 'zone.js/testing';
-import { setupZoneTestEnv } from 'jest-preset-angular/setup-env/zone';
-import { TestBed } from '@angular/core/testing';
+import { getTestBed, TestBed } from '@angular/core/testing';
 import {
   BrowserDynamicTestingModule,
   platformBrowserDynamicTesting
 } from '@angular/platform-browser-dynamic/testing';
 
-setupZoneTestEnv();
-
-beforeAll(() => {
+// Initialize test environment
+try {
+  TestBed.initTestEnvironment(
+    BrowserDynamicTestingModule,
+    platformBrowserDynamicTesting(),
+    { teardown: { destroyAfterEach: true } }
+  );
+} catch (e) {
+  // Platform already initialized
   TestBed.resetTestEnvironment();
   TestBed.initTestEnvironment(
     BrowserDynamicTestingModule,
     platformBrowserDynamicTesting(),
-    {
-      teardown: { destroyAfterEach: true }
-    }
+    { teardown: { destroyAfterEach: true } }
   );
+}
+
+beforeEach(() => {
+  TestBed.configureTestingModule({});
+});
+
+afterEach(() => {
+  TestBed.resetTestingModule();
 });
 
 // Set up fake async zone
