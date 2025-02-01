@@ -53,7 +53,7 @@ After installing, you can start using the library's features in your code.
 We’d love for you to contribute to **Closure Next**! Whether you’re fixing bugs, adding new features, or improving documentation, your contributions are always welcome. Follow the steps below to get started:
 
 1. Fork the repository.
-2. Create a new branch for your feature:
+2. Create a new branch for your feature:  
 `git checkout -b my-feature`
 3. Make your changes.
 4. Test your changes locally.
