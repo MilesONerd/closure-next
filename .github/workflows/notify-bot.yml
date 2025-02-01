@@ -1,0 +1,18 @@
+name: Notify Bot on Change
+
+on:
+  push:
+    branches:
+      - master  
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send repository_dispatch event to the bot repository
+        run: |
+          curl -X POST https://api.github.com/repos/closure-next/bot/dispatches \
+          -H "Accept: application/vnd.github.v3+json" \
+          -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          -d '{"event_type": "update-closure-next"}'
