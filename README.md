@@ -10,6 +10,10 @@
 [![Telegram](https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/closure_next)
 [![X/Twitter](https://img.shields.io/badge/X-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/closure_next)
 
+## Product Hunt
+
+<a href="https://www.producthunt.com/posts/closure-next?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-closure&#0045;next" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=837540&theme=dark&t=1738415540638" alt="Closure&#0032;Next - Closure&#0032;library&#0032;rewritten&#0032;in&#0032;TypeScript | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
+
 # Key Features:
 
 - **TypeScript Support:** Fully written in TypeScript for better maintainability, type safety, and editor support.
