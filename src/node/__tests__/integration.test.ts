@@ -7,17 +7,24 @@ class TestComponent extends Component {
   private title: string = '';
   
   constructor(props?: Record<string, unknown>) {
-    super(new DomHelper(document));
+    const domHelper = new DomHelper(document);
+    super(domHelper);
     if (props?.title && typeof props.title === 'string') {
       this.title = props.title;
     }
+    this.createDom();
+    this.enterDocument();
   }
   
   setTitle(title: string): void {
     this.title = title;
+    if (!this.element) {
+      this.createDom();
+    }
     const element = this.getElement();
     if (element) {
       element.setAttribute('data-title', title);
+      element.textContent = `Test Component Content - ${title}`;
     }
   }
   
@@ -25,12 +32,14 @@ class TestComponent extends Component {
     return this.title;
   }
 
-  protected override createDom(): void {
-    super.createDom();
-    const element = this.getElement();
-    if (element) {
-      element.setAttribute('data-testid', 'test-component');
-      element.setAttribute('data-title', this.title);
+  public override createDom(): void {
+    if (!this.element) {
+      super.createDom();
+      const element = this.getElement();
+      if (element) {
+        element.setAttribute('data-testid', 'test-component');
+        element.setAttribute('data-title', this.title);
+      }
     }
   }
 
@@ -47,15 +56,25 @@ class TestComponent extends Component {
   }
 
   public override dispose(): void {
+    if (this.isInDocument()) {
+      this.exitDocument();
+    }
+    if (this.element && this.element.parentElement) {
+      this.element.parentElement.removeChild(this.element);
+    }
     super.dispose();
   }
 
   public override enterDocument(): void {
-    super.enterDocument();
+    if (!this.isInDocument()) {
+      super.enterDocument();
+    }
   }
 
   public override exitDocument(): void {
-    super.exitDocument();
+    if (this.isInDocument()) {
+      super.exitDocument();
+    }
   }
 }
 
