@@ -11,7 +11,8 @@
     "moduleResolution": "bundler",
     "target": "es2020",
     "lib": ["es2020", "dom"],
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "skipLibCheck": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.test.ts", "__tests__/**/*"],

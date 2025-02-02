@@ -10,4 +10,5 @@ export * from './id';
 export * from './utils';
 
 // Export Component and types
-export { Component, ComponentInterface, ComponentState, ComponentEventType } from './component';
+export { Component } from './component';
+export type { ComponentInterface, ComponentState, ComponentEventType, ComponentConstructor } from './component';

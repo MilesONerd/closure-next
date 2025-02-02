@@ -16,7 +16,10 @@
     "paths": {
       "@closure-next/core": ["../../packages/core/src"]
     },
-    "types": ["jest", "node"]
+    "types": ["jest", "node"],
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true
   },
   "include": ["src/**/*", "__tests__/**/*", "index.ts"],
   "exclude": ["node_modules", "dist"],

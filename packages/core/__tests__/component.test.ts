@@ -21,7 +21,7 @@ class TestComponent extends Component implements ComponentInterface {
     this.state = state;
   }
 
-  protected override createDom(): void {
+  public override createDom(): void {
     if (!this.element) {
       super.createDom();
       const element = this.getElement();

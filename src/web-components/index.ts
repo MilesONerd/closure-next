@@ -22,7 +22,7 @@ class ComponentWrapper<T extends Component> extends Component {
     this.instance = new ComponentClass();
   }
   
-  protected override createDom(): void {
+  public override createDom(): void {
     if (!this.element) {
       this.element = document.createElement('div');
     }

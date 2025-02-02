@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const outputPath = path.resolve(__dirname, 'dist');
 
 type Stats = webpack.Stats;
 type Configuration = webpack.Configuration;
@@ -18,6 +19,27 @@ interface WebpackTestOptions {
   codeSplitting?: boolean;
   paths?: { [key: string]: string };
 }
+
+const runWebpackCompiler = async (compiler: Compiler): Promise<Stats> => {
+  return new Promise<Stats>((resolve, reject) => {
+    compiler.run((err: WebpackError | null, stats: Stats | undefined) => {
+      if (err) reject(err);
+      else if (!stats) reject(new Error('No stats available'));
+      else resolve(stats);
+    });
+  });
+};
+
+const cleanupCompiler = async (compiler: Compiler): Promise<void> => {
+  if ('close' in compiler) {
+    await new Promise<void>((resolve, reject) => {
+      (compiler as any).close((err: Error | undefined) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
+  }
+};
 
 const createTestConfig = (options: WebpackTestOptions = {}): Configuration => ({
   mode: 'production',
@@ -31,6 +53,26 @@ const createTestConfig = (options: WebpackTestOptions = {}): Configuration => ({
   },
   experiments: {
     outputModule: true
+  },
+  mode: 'production',
+  optimization: {
+    usedExports: true,
+    minimize: true,
+    sideEffects: false,
+    concatenateModules: true,
+    splitChunks: {
+      chunks: 'all',
+      minSize: 0,
+      cacheGroups: {
+        closureNext: {
+          test: /[\\/]node_modules[\\/]@closure-next[\\/]/,
+          name: 'closure-next',
+          chunks: 'all',
+          enforce: true,
+          priority: 10
+        }
+      }
+    }
   },
   resolve: {
     extensions: ['.ts', '.js', '.mjs'],
@@ -60,8 +102,6 @@ const createTestConfig = (options: WebpackTestOptions = {}): Configuration => ({
 });
 
 describe('Webpack Integration', () => {
-  const outputPath = path.resolve(__dirname, 'dist');
-  
   beforeEach(() => {
     // Clean up output directory
     if (fs.existsSync(outputPath)) {
@@ -80,69 +120,36 @@ describe('Webpack Integration', () => {
     const config = createTestConfig({ treeShaking: true });
     const compiler = webpack(config);
 
-    return new Promise<void>((resolve, reject) => {
-      compiler.run((err: WebpackError | null, stats: Stats | undefined) => {
-        try {
-          if (err) {
-            reject(err);
-            return;
-          }
-          if (!stats) {
-            reject(new Error('No stats available'));
-            return;
-          }
-          
-          if (stats.hasErrors()) {
-            console.error('Webpack compilation errors:', stats.toString({
-              colors: true,
-              chunks: false,
-              modules: false
-            }));
-          }
-          
-          expect(stats.hasErrors()).toBe(false);
-          const output = fs.readFileSync(path.join(outputPath, 'bundle.js'), 'utf-8');
-          expect(output).not.toContain('unused_export');
-          
-          compiler.dispose((err: Error | undefined) => {
-            if (err) reject(err);
-            else resolve();
-          });
-        } catch (error) {
-          reject(error);
-        }
-      });
-    });
+    try {
+      const stats = await runWebpackCompiler(compiler);
+      
+      if (stats.hasErrors()) {
+        console.error('Webpack compilation errors:', stats.toString({
+          colors: true,
+          chunks: false,
+          modules: false
+        }));
+      }
+      
+      expect(stats.hasErrors()).toBe(false);
+      const output = fs.readFileSync(path.join(outputPath, 'bundle.js'), 'utf-8');
+      expect(output).not.toContain('unused_export');
+    } finally {
+      await cleanupCompiler(compiler);
+    }
   });
 
   test('should handle code splitting', async () => {
     const config = createTestConfig({ codeSplitting: true });
     const compiler = webpack(config);
 
-    return new Promise<void>((resolve, reject) => {
-      compiler.run((err: WebpackError | null, stats: Stats | undefined) => {
-        try {
-          if (err) {
-            reject(err);
-            return;
-          }
-          if (!stats) {
-            reject(new Error('No stats available'));
-            return;
-          }
-          
-          expect(stats.hasErrors()).toBe(false);
-          expect(fs.existsSync(path.join(outputPath, 'closure-next.bundle.js'))).toBe(true);
-          
-          compiler.dispose((err: Error | undefined) => {
-            if (err) reject(err);
-            else resolve();
-          });
-        } catch (error) {
-          reject(error);
-        }
-      });
-    });
+    try {
+      const stats = await runWebpackCompiler(compiler);
+      expect(stats.hasErrors()).toBe(false);
+      expect(fs.existsSync(path.join(outputPath, 'closure-next.bundle.js'))).toBe(true);
+    } finally {
+      await cleanupCompiler(compiler);
+    }
   });
 
   test('should resolve custom module paths', async () => {
@@ -153,28 +160,11 @@ describe('Webpack Integration', () => {
     });
     const compiler = webpack(config);
 
-    return new Promise<void>((resolve, reject) => {
-      compiler.run((err: WebpackError | null, stats: Stats | undefined) => {
-        try {
-          if (err) {
-            reject(err);
-            return;
-          }
-          if (!stats) {
-            reject(new Error('No stats available'));
-            return;
-          }
-          
-          expect(stats.hasErrors()).toBe(false);
-          
-          compiler.dispose((err: Error | undefined) => {
-            if (err) reject(err);
-            else resolve();
-          });
-        } catch (error) {
-          reject(error);
-        }
-      });
-    });
+    try {
+      const stats = await runWebpackCompiler(compiler);
+      expect(stats.hasErrors()).toBe(false);
+    } finally {
+      await cleanupCompiler(compiler);
+    }
   });
 });
