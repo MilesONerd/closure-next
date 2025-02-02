@@ -28,7 +28,7 @@ class TestComponent extends Component {
     return this.title;
   }
 
-  protected override createDom(): void {
+  public override createDom(): void {
     super.createDom();
     if (this.element) {
       this.element.setAttribute('data-testid', 'test-component');

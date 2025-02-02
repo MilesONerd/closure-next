@@ -16,7 +16,7 @@ class TestMobileComponent extends MobileComponent {
     return this.title;
   }
 
-  protected override createDom(): void {
+  public override createDom(): void {
     super.createDom();
     const element = this.getElement();
     if (element) {
@@ -41,7 +41,7 @@ class TestHybridComponent extends HybridComponent {
     return this.title;
   }
 
-  protected override createDom(): void {
+  public override createDom(): void {
     super.createDom();
     const element = this.getElement();
     if (element) {

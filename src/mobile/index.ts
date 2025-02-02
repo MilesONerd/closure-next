@@ -33,7 +33,7 @@ export abstract class MobileComponent extends Component {
     };
   }
 
-  protected override createDom(): void {
+  public override createDom(): void {
     super.createDom();
     
     if (this.getElement()) {
