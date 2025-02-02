@@ -1,6 +1,6 @@
-import { jest, expect } from '@jest/globals';
-import { Component } from '@closure-next/core';
-import { defineClosureElement, createClosureTemplate } from '../index';
+import { jest, expect, beforeEach, afterEach } from '@jest/globals';
+import { Component } from '@closure-next/core/dist/index.js';
+import { defineClosureElement, createClosureTemplate } from '../index.js';
 import '@testing-library/jest-dom';
 
 // Increase test timeout
@@ -23,37 +23,66 @@ class TestComponent extends Component {
   }
 
   protected override createDom(): void {
-    super.createDom();
-    const element = this.getElement();
-    if (element) {
-      element.setAttribute('data-testid', 'test-component');
-      element.setAttribute('data-title', this.title);
+    if (!this.element) {
+      this.element = document.createElement('div');
     }
+    this.element.setAttribute('data-testid', 'test-component');
+    this.element.setAttribute('data-title', this.title);
   }
 }
 
 describe('Web Components Integration', () => {
-  let container: HTMLElement;
+  let container: HTMLElement | null;
 
   beforeEach(() => {
     container = document.createElement('div');
     document.body.appendChild(container);
-    jest.useFakeTimers();
   });
 
   afterEach(() => {
-    if (container.parentNode) {
-      container.parentNode.removeChild(container);
-    }
-    container = null!;
+    container?.remove();
+    container = null;
     jest.clearAllMocks();
-    jest.useRealTimers();
   });
 
   async function waitForElement(tagName: string): Promise<void> {
     await customElements.whenDefined(tagName);
-    jest.runAllTimers();
-    await Promise.resolve(); // Let microtasks run
+    // Wait for multiple frames to ensure DOM updates are complete
+    for (let i = 0; i < 5; i++) {
+      await new Promise(resolve => requestAnimationFrame(resolve));
+    }
+    await new Promise(resolve => setTimeout(resolve, 50));
+  }
+
+  async function waitForComponentInit(element: HTMLElement, options = { timeout: 5000, shadow: false }): Promise<void> {
+    // Ensure element is in the DOM
+    if (!element.isConnected) {
+      container?.appendChild(element);
+    }
+
+    // Wait for custom element to be defined
+    await customElements.whenDefined(element.tagName.toLowerCase());
+
+    // Wait for component to be ready
+    const start = Date.now();
+    while (Date.now() - start < options.timeout) {
+      const root = options.shadow ? element.shadowRoot : element;
+      const component = root?.querySelector('[data-testid="test-component"]');
+      
+      if (component) {
+        return;
+      }
+      
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+
+    throw new Error(`Component initialization timed out after ${options.timeout}ms. Element state: ${JSON.stringify({
+      tagName: element.tagName,
+      isConnected: element.isConnected,
+      hasChildren: element.children.length,
+      hasShadowRoot: !!element.shadowRoot,
+      innerHTML: element.innerHTML
+    }, null, 2)}`);
   }
 
   test('should register custom element', async () => {
@@ -61,9 +90,9 @@ describe('Web Components Integration', () => {
     defineClosureElement(tagName, TestComponent);
     
     const element = document.createElement(tagName);
-    container.appendChild(element);
+    container?.appendChild(element);
     
-    await waitForElement(tagName);
+    await waitForComponentInit(element);
     
     expect(element).toBeTruthy();
     expect(element.shadowRoot).toBeFalsy(); // Default to light DOM
@@ -78,9 +107,9 @@ describe('Web Components Integration', () => {
     defineClosureElement(tagName, TestComponent, { shadow: true });
     
     const element = document.createElement(tagName);
-    container.appendChild(element);
+    container?.appendChild(element);
     
-    await waitForElement(tagName);
+    await waitForComponentInit(element, { timeout: 5000, shadow: true });
     
     expect(element.shadowRoot).toBeTruthy();
     const component = element.shadowRoot!.querySelector('[data-testid="test-component"]');
@@ -95,20 +124,13 @@ describe('Web Components Integration', () => {
     });
     
     const element = document.createElement(tagName);
-    container.appendChild(element);
+    container?.appendChild(element);
     
-    await waitForElement(tagName);
+    await waitForComponentInit(element);
     
-    // Wait for component to be initialized
-    await new Promise(resolve => setTimeout(resolve, 0));
-    jest.runAllTimers();
-    
-    // Set attribute
+    // Set attribute and wait for changes
     element.setAttribute('title', 'Test Title');
-    
-    // Wait for attribute change to be processed
-    await new Promise(resolve => setTimeout(resolve, 0));
-    jest.runAllTimers();
+    await new Promise(resolve => setTimeout(resolve, 50));
     
     const component = element.querySelector('[data-testid="test-component"]');
     expect(component).toBeTruthy();
@@ -120,9 +142,9 @@ describe('Web Components Integration', () => {
     defineClosureElement(tagName, TestComponent);
     
     const element = document.createElement(tagName);
-    container.appendChild(element);
+    container?.appendChild(element);
     
-    await waitForElement(tagName);
+    await waitForComponentInit(element);
     
     const component = element.querySelector('[data-testid="test-component"]');
     expect(component).toBeTruthy();
@@ -133,22 +155,27 @@ describe('Web Components Integration', () => {
     
     const disposeSpy = jest.spyOn(closureInstance, 'dispose');
     
-    // Remove from DOM
+    // Remove from DOM and wait for cleanup
     element.remove();
-    jest.runAllTimers();
-    await Promise.resolve(); // Let microtasks run
+    await new Promise(resolve => setTimeout(resolve, 50));
     
     expect(disposeSpy).toHaveBeenCalled();
   });
 
   test('should create template from component', async () => {
-    const template = createClosureTemplate(TestComponent, {
-      title: 'Template Title'
-    });
+    const template = await createClosureTemplate(TestComponent, { title: 'Template Title' });
     
     expect(template instanceof HTMLTemplateElement).toBe(true);
-    const content = (template as HTMLTemplateElement).content.querySelector('[data-testid="test-component"]');
+    expect(template.content).toBeTruthy();
+    
+    const content = template.content.querySelector('[data-testid="test-component"]');
     expect(content).toBeTruthy();
     expect(content?.getAttribute('data-title')).toBe('Template Title');
+    
+    // Verify template can be cloned
+    const clone = template.content.cloneNode(true) as DocumentFragment;
+    const clonedContent = clone.querySelector('[data-testid="test-component"]');
+    expect(clonedContent).toBeTruthy();
+    expect(clonedContent?.getAttribute('data-title')).toBe('Template Title');
   });
 });
