@@ -8,7 +8,7 @@
     "composite": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "module": "commonjs",
+    "module": "esnext",
     "target": "es2020",
     "lib": ["es2020", "dom"],
     "types": ["jest", "@testing-library/jest-dom", "node"],
@@ -18,7 +18,7 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "baseUrl": ".",
-    "moduleResolution": "node"
+    "useDefineForClassFields": false
   },
   "include": [
     "*.ts",

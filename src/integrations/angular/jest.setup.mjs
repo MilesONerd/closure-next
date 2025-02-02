@@ -1,34 +1,23 @@
-import { jest } from '@jest/globals';
+import '@testing-library/jest-dom';
+import 'zone.js';
+import 'zone.js/testing';
+import { getTestBed } from '@angular/core/testing';
+import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
 
-const { JSDOM } = await import('jsdom');
-await import('@testing-library/jest-dom');
+// Initialize Angular testing environment
+getTestBed().initTestEnvironment(
+  BrowserDynamicTestingModule,
+  platformBrowserDynamicTesting(),
+  {
+    teardown: { destroyAfterEach: true }
+  }
+);
 
-const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>', {
-  url: 'http://localhost',
-  pretendToBeVisual: true,
-  runScripts: 'dangerously'
+Object.defineProperty(window, 'ResizeObserver', {
+  writable: true,
+  value: jest.fn().mockImplementation(() => ({
+    observe: jest.fn(),
+    unobserve: jest.fn(),
+    disconnect: jest.fn(),
+  }))
 });
-
-globalThis.window = dom.window;
-globalThis.document = dom.window.document;
-globalThis.navigator = dom.window.navigator;
-globalThis.HTMLElement = dom.window.HTMLElement;
-globalThis.HTMLDivElement = dom.window.HTMLDivElement;
-globalThis.Event = dom.window.Event;
-globalThis.CustomEvent = dom.window.CustomEvent;
-globalThis.Node = dom.window.Node;
-globalThis.NodeList = dom.window.NodeList;
-globalThis.MutationObserver = dom.window.MutationObserver;
-
-globalThis.requestAnimationFrame = function(callback) {
-  return setTimeout(callback, 0);
-};
-globalThis.cancelAnimationFrame = function(id) {
-  clearTimeout(id);
-};
-
-globalThis.ResizeObserver = jest.fn().mockImplementation(() => ({
-  observe: jest.fn(),
-  unobserve: jest.fn(),
-  disconnect: jest.fn(),
-}));
