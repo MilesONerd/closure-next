@@ -3,7 +3,9 @@
  * @license Apache-2.0
  */
 
-import { Compiler, WebpackPluginInstance } from 'webpack';
+import webpack from 'webpack';
+type Compiler = webpack.Compiler;
+type WebpackPluginInstance = webpack.WebpackPluginInstance;
 
 interface ClosureNextWebpackOptions {
   /** Enable code splitting for Closure components */
