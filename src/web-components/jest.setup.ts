@@ -1,26 +1,15 @@
-// Jest setup for Web Components integration tests
+import { jest, expect } from '@jest/globals';
 import '@testing-library/jest-dom';
-import { expect } from '@jest/globals';
 
-// Extend global object type
 declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace NodeJS {
-    interface Global {
-      expect: typeof expect;
-    }
-  }
-
-  // Extend Jest matchers
   namespace jest {
-    interface Matchers<R> {
-      toHaveAttribute(attr: string, value: string): R;
+    interface Matchers<R = void> {
+      toBeInTheDocument(): R;
+      toHaveAttribute(attr: string, value?: string): R;
+      toHaveTextContent(text: string | RegExp): R;
     }
   }
 }
-
-// Configure Jest globals
-(global as any).expect = expect;
 
 // Basic DOM setup
 // Mock Range API
@@ -323,53 +312,27 @@ function createElementOverride(
       }
     });
     
-    // Set up MutationObserver for lifecycle events
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.type === 'childList') {
-          mutation.addedNodes.forEach((node) => {
-            if (node === element && typeof element.connectedCallback === 'function') {
-              queueMicrotask(() => {
-                try {
-                  element.connectedCallback!();
-                } catch (e) {
-                  console.error('Error in connectedCallback:', e);
-                }
-              });
-            }
-          });
-          
-          mutation.removedNodes.forEach((node) => {
-            if (node === element && typeof element.disconnectedCallback === 'function') {
-              queueMicrotask(() => {
-                try {
-                  element.disconnectedCallback!();
-                } catch (e) {
-                  console.error('Error in disconnectedCallback:', e);
-                }
-              });
-            }
-          });
-        } else if (mutation.type === 'attributes' && typeof element.attributeChangedCallback === 'function') {
-          const { attributeName, oldValue } = mutation;
-          const newValue = element.getAttribute(attributeName!);
-          queueMicrotask(() => {
-            try {
-              element.attributeChangedCallback!(attributeName!, oldValue, newValue);
-            } catch (e) {
-              console.error('Error in attributeChangedCallback:', e);
-            }
-          });
-        }
-      });
+    // Ensure proper lifecycle handling
+    queueMicrotask(() => {
+      if (element.isConnected && element.connectedCallback) {
+        element.connectedCallback();
+      }
     });
     
-    observer.observe(element, { 
-      attributes: true,
-      childList: true,
-      subtree: true,
-      attributeOldValue: true
-    });
+    // Override setAttribute to handle attribute changes
+    const originalSetAttribute = element.setAttribute;
+    element.setAttribute = function(this: HTMLElement & {
+      constructor: { observedAttributes?: string[] };
+      attributeChangedCallback?: (name: string, oldValue: string | null, newValue: string) => void;
+    }, name: string, value: string): void {
+      const oldValue = this.getAttribute(name);
+      originalSetAttribute.call(this, name, value);
+      queueMicrotask(() => {
+        if (this.attributeChangedCallback && this.constructor.observedAttributes?.includes(name)) {
+          this.attributeChangedCallback(name, oldValue, value);
+        }
+      });
+    };
     
     return element;
   }
@@ -443,15 +406,20 @@ class MockCustomElementRegistry implements CustomElementRegistryInterface {
     if (customElementRegistry.has(name)) {
       return Promise.resolve(customElementRegistry.get(name)!);
     }
-    return new Promise((resolve) => {
-      const check = () => {
+    
+    return new Promise((resolve, reject) => {
+      let attempts = 0;
+      const maxAttempts = 100;
+      
+      const intervalId = setInterval(() => {
         if (customElementRegistry.has(name)) {
+          clearInterval(intervalId);
           resolve(customElementRegistry.get(name)!);
-        } else {
-          queueMicrotask(check);
+        } else if (++attempts >= maxAttempts) {
+          clearInterval(intervalId);
+          reject(new Error(`Timeout waiting for custom element ${name} to be defined`));
         }
-      };
-      check();
+      }, 10);
     });
   }
   
@@ -549,17 +517,13 @@ expect.extend({
   }
 });
 
-// Set up fake timers
-jest.useFakeTimers();
-
 // Clean up between tests
 beforeEach(() => {
   document.body.innerHTML = '';
   jest.clearAllMocks();
-  jest.useFakeTimers();
   customElementRegistry.clear();
   elementRegistry.clear();
-  jest.clearAllTimers();
+  jest.useRealTimers();
 });
 
 afterEach(() => {
