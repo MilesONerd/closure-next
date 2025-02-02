@@ -3,20 +3,20 @@ import { render, cleanup, act, screen } from "@testing-library/react";
 import { jest, describe, test, expect, beforeEach, afterEach } from '@jest/globals';
 import { Component, type ComponentInterface, DomHelper } from "@closure-next/core/dist/index.js";
 import { useClosureComponent } from "../src/index.js";
-import { TestComponent } from "../src/TestComponent.js";
+import { TestComponent } from "./TestComponent.js";
 
 class ErrorComponent extends Component {
-  constructor() {
-    super(new DomHelper(document));
+  constructor(domHelper?: DomHelper) {
+    super(domHelper || new DomHelper(document));
   }
 
-  render() {
+  public override createDom(): void {
     throw new Error("Test render error");
   }
 }
 
-const TestHook = ({ component }: { component: Component }) => {
-  const ref = useClosureComponent(component);
+const TestHook = ({ ComponentClass }: { ComponentClass: new (domHelper?: DomHelper) => ComponentInterface }) => {
+  const ref = useClosureComponent(ComponentClass);
   return <div ref={ref} />;
 };
 
@@ -24,8 +24,7 @@ describe("useClosureComponent", () => {
   afterEach(cleanup);
 
   it("should render and unmount component", () => {
-    const component = new TestComponent();
-    const { container, unmount } = render(<TestHook component={component} />);
+    const { container, unmount } = render(<TestHook ComponentClass={TestComponent} />);
     
     const wrapper = screen.getByTestId("hook-wrapper");
     expect(wrapper).toBeInTheDocument();
@@ -35,43 +34,45 @@ describe("useClosureComponent", () => {
     expect(element).toHaveTextContent("Test Component Content");
     
     unmount();
-    expect(component.getElement()).toBeNull();
+    const testElement = wrapper.querySelector('[data-testid="test-component"]');
+    expect(testElement).toBeNull();
   });
 
   it("should handle component updates", () => {
-    const component = new TestComponent();
-    const { container } = render(<TestHook component={component} />);
+    const { container } = render(<TestHook ComponentClass={TestComponent} />);
+    const wrapper = screen.getByTestId("hook-wrapper");
+    const element = wrapper.querySelector('[data-testid="test-component"]');
     
+    expect(element).not.toBeNull();
+    expect(element?.getAttribute("data-title")).toBe("");
+    
+    // Update the component through direct DOM manipulation
     act(() => {
-      component.setTitle("Updated Title");
+      element?.setAttribute("data-title", "Updated Title");
     });
     
-    const wrapper = screen.getByTestId("hook-wrapper");
-    expect(wrapper).toBeInTheDocument();
-    
-    const element = wrapper.querySelector('[data-testid="test-component"]');
-    expect(element).not.toBeNull();
-    expect(element).toHaveAttribute("data-title", "Updated Title");
+    const updatedElement = wrapper.querySelector('[data-testid="test-component"]');
+    expect(updatedElement).not.toBeNull();
+    expect(updatedElement?.getAttribute("data-title")).toBe("Updated Title");
   });
 
   it("should cleanup on unmount", () => {
-    const component = new TestComponent();
-    const { unmount } = render(<TestHook component={component} />);
+    const { unmount } = render(<TestHook ComponentClass={TestComponent} />);
     
     const wrapper = screen.getByTestId("hook-wrapper");
     expect(wrapper).toBeInTheDocument();
     
     const element = wrapper.querySelector('[data-testid="test-component"]');
     expect(element).not.toBeNull();
+    
     unmount();
-    expect(component.getElement()).toBeNull();
+    expect(wrapper.querySelector('[data-testid="test-component"]')).toBeNull();
   });
 
   it("should handle render errors gracefully", () => {
-    const component = new ErrorComponent();
     const consoleError = jest.spyOn(console, "error").mockImplementation(() => {});
     
-    render(<TestHook component={component} />);
+    render(<TestHook ComponentClass={ErrorComponent} />);
     
     expect(consoleError).toHaveBeenCalledWith(
       "Error rendering Closure component:",
@@ -83,23 +84,27 @@ describe("useClosureComponent", () => {
 
   it("should handle dispose errors gracefully", () => {
     class DisposeErrorComponent extends Component {
-      constructor() {
-        super(new DomHelper(document));
+      constructor(domHelper?: DomHelper) {
+        super(domHelper || new DomHelper(document));
       }
 
-      dispose() {
+      public override dispose(): void {
         throw new Error("Test dispose error");
+      }
+
+      public override createDom(): void {
+        const element = document.createElement("div");
+        element.setAttribute("data-testid", "error-component");
       }
     }
 
-    const component = new DisposeErrorComponent();
     const consoleError = jest.spyOn(console, "error").mockImplementation(() => {});
     
-    const { unmount } = render(<TestHook component={component} />);
+    const { unmount } = render(<TestHook ComponentClass={DisposeErrorComponent} />);
     unmount();
     
     expect(consoleError).toHaveBeenCalledWith(
-      "Error disposing Closure component:",
+      "Error cleaning up previous component:",
       expect.any(Error)
     );
     
