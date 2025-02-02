@@ -10,11 +10,9 @@ export default {
     '^(\\.{1,2}/.*)\\.tsx?$': '$1'
   },
   transform: {
-    '^.+\\.(ts|tsx|mjs|js)$': ['babel-jest', {
-      presets: ['@babel/preset-env', '@babel/preset-typescript'],
-      plugins: [
-        ['@babel/plugin-transform-modules-commonjs', { allowTopLevelThis: true }]
-      ]
+    '^.+\\.(ts|tsx|mjs|js)$': ['ts-jest', {
+      useESM: true,
+      tsconfig: '<rootDir>/tsconfig.json'
     }]
   },
   transformIgnorePatterns: [
