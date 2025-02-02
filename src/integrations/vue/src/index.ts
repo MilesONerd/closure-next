@@ -1,51 +1,134 @@
-/**
- * @fileoverview Vue integration for Closure Next.
- * @license Apache-2.0
- */
-
-import { ref, onMounted, onBeforeUnmount, type Ref } from 'vue';
-import type { Component } from '@closure-next/core';
+import { ref, shallowRef, onMounted, onBeforeUnmount, watch, nextTick, type Ref, type ShallowRef } from 'vue';
+import { Component, DomHelper, type ComponentConstructor } from '@closure-next/core/dist/index.js';
 
 export interface ClosureComponentRef<T extends Component> {
   ref: Ref<HTMLElement | null>;
-  component: Ref<T | null>;
+  component: ShallowRef<T | null>;
 }
 
-interface ClosureComponentOptions<T extends Component> {
-  component: new () => T;
+export interface ClosureComponentOptions {
   props?: Record<string, unknown>;
 }
 
-/**
- * Vue composable for using Closure Next components
- */
 export function useClosureComponent<T extends Component>(
-  ComponentClass: new () => T,
-  props?: Record<string, unknown>
+  ComponentClass: ComponentConstructor<T>,
+  domHelper: DomHelper,
+  options: ClosureComponentOptions = {}
 ): ClosureComponentRef<T> {
   const elementRef = ref<HTMLElement | null>(null);
-  const componentRef = ref<T | null>(null) as Ref<T | null>;
+  const componentRef = shallowRef<T | null>(null);
 
-  onMounted(() => {
-    if (!elementRef.value) return;
+  const initializeComponent = async () => {
+    if (!elementRef.value) {
+      console.error('Element ref not available');
+      throw new Error('Element ref is not available');
+    }
 
-    // Create and render the Closure component
-    const component = new ComponentClass();
-    componentRef.value = component;
-    component.render(elementRef.value);
+    try {
+      const component = new ComponentClass(domHelper);
+      componentRef.value = component;
 
-    // Apply props
-    if (props) {
-      Object.entries(props).forEach(([key, value]) => {
-        (component as any)[key] = value;
-      });
+      component.createDom();
+      const element = component.getElement();
+      if (!element) {
+        console.error('Failed to create DOM element');
+        throw new Error('Component failed to create DOM element');
+      }
+
+      if (options.props) {
+        for (const [key, value] of Object.entries(options.props)) {
+          const setterMethod = `set${key.charAt(0).toUpperCase()}${key.slice(1)}`;
+          const setter = (component as any)[setterMethod];
+          if (typeof setter === 'function') {
+            setter.call(component, value);
+          }
+        }
+      }
+
+      elementRef.value.appendChild(element);
+      component.enterDocument();
+      await nextTick();
+      return component;
+    } catch (error) {
+      console.error('Error during component initialization:', error);
+      componentRef.value = null;
+      throw error;
+    }
+  };
+
+  onMounted(async () => {
+    try {
+      const component = new ComponentClass(domHelper);
+      componentRef.value = component;
+
+      await nextTick();
+      component.createDom();
+      const element = component.getElement();
+      
+      if (!element) {
+        throw new Error('Component failed to create DOM element');
+      }
+
+      if (options.props) {
+        for (const [key, value] of Object.entries(options.props)) {
+          const setterMethod = `set${key.charAt(0).toUpperCase()}${key.slice(1)}`;
+          const setter = (component as any)[setterMethod];
+          if (typeof setter === 'function') {
+            setter.call(component, value);
+          }
+        }
+      }
+
+      if (!elementRef.value) {
+        throw new Error('Element ref is not available');
+      }
+
+      elementRef.value.appendChild(element);
+      component.enterDocument();
+
+      if (options.props) {
+        for (const [key] of Object.entries(options.props)) {
+          const setterMethod = `set${key.charAt(0).toUpperCase()}${key.slice(1)}`;
+          watch(() => options.props?.[key], (newValue) => {
+            if (componentRef.value?.isInDocument()) {
+              const setter = (componentRef.value as any)[setterMethod];
+              if (typeof setter === 'function') {
+                setter.call(componentRef.value, newValue);
+              }
+            }
+          }, { flush: 'sync' });
+        }
+      }
+
+      await nextTick();
+    } catch (error) {
+      console.error('Error during component initialization:', error);
+      componentRef.value = null;
+      throw error;
     }
   });
 
   onBeforeUnmount(() => {
-    // Clean up on unmount
-    if (componentRef.value) {
-      componentRef.value.dispose();
+    if (componentRef.value?.isInDocument()) {
+      componentRef.value.exitDocument();
+      const element = componentRef.value.getElement();
+      if (element?.parentElement) {
+        element.parentElement.removeChild(element);
+      }
+      componentRef.value = null;
+    }
+  });
+
+  onBeforeUnmount(() => {
+    const component = componentRef.value;
+    if (component) {
+      if (component.isInDocument()) {
+        component.exitDocument();
+      }
+      const element = component.getElement();
+      if (element?.parentElement) {
+        element.parentElement.removeChild(element);
+      }
       componentRef.value = null;
     }
   });
@@ -53,5 +136,5 @@ export function useClosureComponent<T extends Component>(
   return {
     ref: elementRef,
     component: componentRef
-  };
+  } as ClosureComponentRef<T>;
 }
