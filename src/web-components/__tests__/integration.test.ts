@@ -1,5 +1,5 @@
 import { jest, expect, beforeEach, afterEach } from '@jest/globals';
-import { Component } from '@closure-next/core/dist/index.js';
+import { Component, DomHelper, ComponentInterface } from '@closure-next/core/dist/index.js';
 import { defineClosureElement, createClosureTemplate } from '../index.js';
 import '@testing-library/jest-dom';
 
@@ -10,11 +10,14 @@ jest.setTimeout(30000);
 class TestComponent extends Component {
   private title: string = '';
   
+  constructor() {
+    super();
+  }
+  
   setTitle(title: string): void {
     this.title = title;
-    const element = this.getElement();
-    if (element) {
-      element.setAttribute('data-title', title);
+    if (this.element) {
+      this.element.setAttribute('data-title', title);
     }
   }
   
@@ -23,11 +26,67 @@ class TestComponent extends Component {
   }
 
   protected override createDom(): void {
-    if (!this.element) {
-      this.element = document.createElement('div');
+    super.createDom();
+    if (this.element) {
+      this.element.setAttribute('data-testid', 'test-component');
+      this.element.setAttribute('data-title', this.title);
     }
-    this.element.setAttribute('data-testid', 'test-component');
-    this.element.setAttribute('data-title', this.title);
+  }
+
+  public override getElement(): HTMLElement | null {
+    return super.getElement();
+  }
+
+  public override isInDocument(): boolean {
+    return super.isInDocument();
+  }
+
+  public override getParent(): Component | null {
+    return super.getParent();
+  }
+
+  public override getId(): string {
+    return super.getId();
+  }
+
+  public override setId(id: string): void {
+    super.setId(id);
+  }
+
+  public override render(opt_parentElement?: HTMLElement): void {
+    super.render(opt_parentElement);
+  }
+
+  public override dispose(): void {
+    super.dispose();
+  }
+
+  public override enterDocument(): void {
+    super.enterDocument();
+  }
+
+  public override exitDocument(): void {
+    super.exitDocument();
+  }
+
+  public override addChild(child: Component): void {
+    super.addChild(child);
+  }
+
+  public override removeChild(child: Component): void {
+    super.removeChild(child);
+  }
+
+  public override addEventListener(type: string, listener: (this: unknown, evt: Event) => void): void {
+    super.addEventListener(type, listener);
+  }
+
+  public override removeEventListener(type: string, listener: (this: unknown, evt: Event) => void): void {
+    super.removeEventListener(type, listener);
+  }
+
+  public override dispatchEvent(event: Event): boolean {
+    return super.dispatchEvent(event);
   }
 }
 
