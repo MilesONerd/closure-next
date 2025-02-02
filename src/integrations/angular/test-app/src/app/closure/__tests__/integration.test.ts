@@ -1,14 +1,19 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Component as ClosureComponent } from '@closure-next/core';
+import { Component as ClosureComponent, DomHelper } from '@closure-next/core';
 import { ClosureComponentDirective } from '../index';
-import { Component } from '@angular/core';
+import { Component, Injectable, Inject, ElementRef, NgZone } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { DOM_HELPER } from '../index';
 import { By } from '@angular/platform-browser';
 
+@Injectable()
 class TestComponent extends ClosureComponent {
   private title: string = '';
+  protected override element: HTMLElement | null = null;
   
-  constructor() {
+  constructor(@Inject(DOCUMENT) document: Document) {
     super(new DomHelper(document));
+    this.element = document.createElement('div');
   }
   
   setTitle(title: string): void {
@@ -31,6 +36,30 @@ class TestComponent extends ClosureComponent {
       element.setAttribute('data-title', this.title);
     }
   }
+
+  public override getElement(): HTMLElement | null {
+    return this.element;
+  }
+
+  public override isInDocument(): boolean {
+    return super.isInDocument();
+  }
+
+  public override getParent(): ClosureComponent | null {
+    return super.getParent();
+  }
+
+  public override dispose(): void {
+    super.dispose();
+  }
+
+  public override enterDocument(): void {
+    super.enterDocument();
+  }
+
+  public override exitDocument(): void {
+    super.exitDocument();
+  }
 }
 
 @Component({
@@ -40,7 +69,9 @@ class TestComponent extends ClosureComponent {
          [props]="props"
          data-testid="angular-wrapper">
     </div>
-  `
+  `,
+  imports: [ClosureComponentDirective],
+  standalone: true
 })
 class TestHostComponent {
   component = TestComponent;
@@ -55,9 +86,12 @@ describe('Angular Integration', () => {
     jest.setTimeout(10000); // Increase timeout for Angular tests
     
     await TestBed.configureTestingModule({
-      declarations: [
-        TestHostComponent,
-        ClosureComponentDirective
+      imports: [TestHostComponent],
+      providers: [
+        TestComponent,
+        { provide: DOCUMENT, useValue: document },
+        { provide: ElementRef, useValue: new ElementRef(document.createElement('div')) },
+        { provide: NgZone, useValue: { run: (fn: Function) => fn() } }
       ],
       teardown: { destroyAfterEach: true }
     }).compileComponents();

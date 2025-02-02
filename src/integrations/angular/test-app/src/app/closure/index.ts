@@ -14,23 +14,29 @@ import {
   NgModule,
   NgZone
 } from '@angular/core';
-import type { Component as ClosureComponent } from '@closure-next/core';
+import { DOCUMENT } from '@angular/common';
+import { Component as ClosureComponent, DomHelper } from '@closure-next/core';
+import { InjectionToken, Type, Inject, Injectable, inject } from '@angular/core';
 
-// Type declarations
-import type { Type } from '@angular/core';
+export const DOM_HELPER = new InjectionToken<DomHelper>('DOM_HELPER');
 
 interface ClosureComponentConstructor {
-  new(): ClosureComponent;
+  new(...args: any[]): ClosureComponent;
 }
 
 /**
  * Angular directive for using Closure Next components
  */
+@Injectable()
 @Directive({
-  selector: '[closureComponent]'
+  selector: '[closureComponent]',
+  standalone: true,
+  providers: [
+    { provide: DOM_HELPER, useFactory: (doc: Document) => new DomHelper(doc), deps: [DOCUMENT] }
+  ]
 })
 export class ClosureComponentDirective implements OnInit, OnDestroy, OnChanges {
-  @Input() component!: new () => ClosureComponent;
+  @Input() component!: Type<ClosureComponent>;
   @Input() props?: Record<string, unknown>;
 
   public instance: ClosureComponent | null = null;
@@ -39,10 +45,11 @@ export class ClosureComponentDirective implements OnInit, OnDestroy, OnChanges {
   private static componentMap = new WeakMap<HTMLElement, ClosureComponent>();
 
   constructor(
-    private elementRef: ElementRef,
-    private ngZone: NgZone
+    private readonly elementRef: ElementRef,
+    private readonly ngZone: NgZone,
+    @Inject(DOM_HELPER) private readonly domHelper: DomHelper
   ) {
-    this.element = this.elementRef.nativeElement;
+    this.element = elementRef.nativeElement;
   }
 
   private setComponentRef(component: ClosureComponent | null) {
@@ -62,8 +69,8 @@ export class ClosureComponentDirective implements OnInit, OnDestroy, OnChanges {
       throw new Error('Component class must be provided');
     }
 
-    // Create the Closure component
-    this.instance = new this.component();
+    // Create the Closure component with injected DomHelper
+    this.instance = new this.component(this.domHelper);
     
     // Store reference to Closure component
     this.setComponentRef(this.instance);
@@ -98,8 +105,8 @@ export class ClosureComponentDirective implements OnInit, OnDestroy, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (!this.instance) return;
 
-    if (changes.props && !changes.props.firstChange) {
-      const props = changes.props.currentValue || {};
+    if (changes['props'] && !changes['props'].firstChange) {
+      const props = changes['props'].currentValue || {};
       
       // Run updates inside NgZone to ensure change detection
       this.ngZone.run(() => {
@@ -139,6 +146,13 @@ export class ClosureComponentDirective implements OnInit, OnDestroy, OnChanges {
  */
 @NgModule({
   declarations: [ClosureComponentDirective],
-  exports: [ClosureComponentDirective]
+  exports: [ClosureComponentDirective],
+  providers: [
+    {
+      provide: DOM_HELPER,
+      useFactory: () => new DomHelper(document),
+      deps: [DOCUMENT]
+    }
+  ]
 })
-export class ClosureNextModule {}
+export class ClosureNextModule { }
