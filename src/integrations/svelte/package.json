@@ -1,21 +1,30 @@
 {
   "name": "@closure-next/svelte",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Svelte integration for Closure Next",
   "main": "dist/index.js",
-  "module": "dist/index.mjs",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
   "scripts": {
     "build": "tsc --build tsconfig.build.json",
-    "test": "node --experimental-vm-modules $(which jest)"
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --config=jest.config.mjs",
+    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --config=jest.config.mjs --watch"
   },
   "type": "module",
   "peerDependencies": {
-    "@closure-next/core": "file:../../../packages/core"
+    "@closure-next/core": "^1.0.10"
   },
   "devDependencies": {
-    "@babel/core": "^7.26.0",
-    "@babel/preset-env": "^7.26.0",
+    "@babel/core": "^7.26.7",
+    "@babel/preset-env": "^7.26.7",
+    "@babel/preset-typescript": "^7.26.0",
+    "@jest/globals": "^29.7.0",
     "@testing-library/dom": "^9.3.3",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/svelte": "^4.2.3",

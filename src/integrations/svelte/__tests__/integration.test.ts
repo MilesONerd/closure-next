@@ -52,12 +52,26 @@ class TestComponent extends Component implements ComponentInterface {
     return this.title;
   }
 
-  protected override createDom(): void {
-    super.createDom();
-    const element = this.getElement();
-    if (element) {
-      element.setAttribute('data-testid', 'test-component');
-      element.setAttribute('data-title', this.title);
+  public override createDom(): void {
+    if (!this.element) {
+      super.createDom();
+      const element = this.getElement();
+      if (element) {
+        element.setAttribute('data-testid', 'test-component');
+        element.setAttribute('data-title', this.title);
+      }
+    }
+  }
+
+  public override enterDocument(): void {
+    if (!this.isInDocument()) {
+      super.enterDocument();
+    }
+  }
+
+  public override exitDocument(): void {
+    if (this.isInDocument()) {
+      super.exitDocument();
     }
   }
 }

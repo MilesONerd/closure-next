@@ -1,8 +1,9 @@
 import { Component, DomHelper } from '@closure-next/core';
 
-// This export should be tree-shaken
-export const unused_export = 'unused';
+// This constant should be tree-shaken
+const UNUSED_CONSTANT = 'unused';
 
+// Only use the class, not the unused constant
 class TestComponent extends Component {
   private title: string = '';
   

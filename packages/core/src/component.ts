@@ -58,6 +58,8 @@ export enum ComponentEventType {
  * - Lifecycle management
  * @extends {EventTarget}
  */
+export type ComponentConstructor<T extends Component> = new (domHelper: DomHelper) => T;
+
 export interface ComponentInterface {
   getId(): string;
   setId(id: string): void;
@@ -73,8 +75,22 @@ export interface ComponentInterface {
   addEventListener(type: string, listener: (this: unknown, evt: Event) => void): void;
   removeEventListener(type: string, listener: (this: unknown, evt: Event) => void): void;
   dispatchEvent(event: Event): boolean;
+  /**
+   * Creates the DOM element for this component.
+   * @public
+   */
   createDom(): void;
+  
+  /**
+   * Called when component enters the document.
+   * @public
+   */
   enterDocument(): void;
+  
+  /**
+   * Called when component exits the document.
+   * @public
+   */
   exitDocument(): void;
 }
 
@@ -135,7 +151,7 @@ export class Component extends EventTarget implements ComponentInterface {
 
   /**
    * Creates the DOM element for this component.
-   * @protected
+   * @public
    */
   public createDom(): void {
     if (!this.element) {
@@ -427,8 +443,8 @@ export class Component extends EventTarget implements ComponentInterface {
       this.domEventHandlers.clear();
 
       // Remove from DOM if not decorated
-      if (!this.wasDecorated) {
-        this.domHelper.removeNode(elementRef);
+      if (!this.wasDecorated && elementRef.parentElement) {
+        elementRef.parentElement.removeChild(elementRef);
       }
     }
 
@@ -469,6 +485,10 @@ export class Component extends EventTarget implements ComponentInterface {
     this.id = '';
   }
 
+  /**
+   * Called when component enters the document.
+   * @public
+   */
   public enterDocument(): void {
     // Create DOM if needed
     if (!this.element) {
@@ -651,6 +671,10 @@ export class Component extends EventTarget implements ComponentInterface {
     return !defaultPrevented;
   }
 
+  /**
+   * Called when component exits the document.
+   * @public
+   */
   public exitDocument(): void {
     this.children.forEach(child => {
       if (child.isInDocument()) {
