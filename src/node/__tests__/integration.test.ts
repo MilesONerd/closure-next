@@ -1,15 +1,23 @@
 import { jest, describe, test, expect, beforeEach, afterEach } from '@jest/globals';
-import { Component } from '@closure-next/core/dist/index.js';
+import { Component, DomHelper } from '@closure-next/core';
 import { renderToString } from '../index.js';
 
 // Test component
 class TestComponent extends Component {
   private title: string = '';
   
+  constructor(props?: Record<string, unknown>) {
+    super(new DomHelper(document));
+    if (props?.title && typeof props.title === 'string') {
+      this.title = props.title;
+    }
+  }
+  
   setTitle(title: string): void {
     this.title = title;
-    if (this.element) {
-      this.element.setAttribute('data-title', title);
+    const element = this.getElement();
+    if (element) {
+      element.setAttribute('data-title', title);
     }
   }
   
@@ -19,10 +27,35 @@ class TestComponent extends Component {
 
   protected override createDom(): void {
     super.createDom();
-    if (this.element) {
-      this.element.setAttribute('data-testid', 'test-component');
-      this.element.setAttribute('data-title', this.title);
+    const element = this.getElement();
+    if (element) {
+      element.setAttribute('data-testid', 'test-component');
+      element.setAttribute('data-title', this.title);
     }
+  }
+
+  public override getElement(): HTMLElement | null {
+    return super.getElement();
+  }
+
+  public override isInDocument(): boolean {
+    return super.isInDocument();
+  }
+
+  public override getParent(): Component | null {
+    return super.getParent();
+  }
+
+  public override dispose(): void {
+    super.dispose();
+  }
+
+  public override enterDocument(): void {
+    super.enterDocument();
+  }
+
+  public override exitDocument(): void {
+    super.exitDocument();
   }
 }
 

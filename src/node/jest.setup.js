@@ -1,4 +1,5 @@
-import '@testing-library/jest-dom/jest-globals.js';
+import { jest } from '@jest/globals';
+import '@testing-library/jest-dom';
 
 document.createRange = () => ({
   setStart: () => {},
