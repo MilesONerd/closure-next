@@ -1,11 +1,11 @@
 import { Component, ComponentState, ComponentInterface } from '@closure-next/core';
 import { ClosureComponentDirective } from '../../../src';
 
-class TestComponent extends Component implements ComponentInterface {
+class TestComponent extends Component {
   private title: string = '';
   
   constructor() {
-    super();
+    super(new DomHelper(document));
   }
   
   setTitle(title: string): void {
