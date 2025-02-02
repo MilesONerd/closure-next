@@ -3,13 +3,20 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "outDir": "./dist",
+    "rootDir": ".",
     "baseUrl": ".",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "target": "es2020",
+    "lib": ["es2020", "dom"],
     "types": ["jest", "node", "react", "@testing-library/jest-dom"],
     "composite": true,
-    "declaration": true,
-    "sourceMap": true,
+    "esModuleInterop": true,
     "paths": {
-      "@closure-next/core": ["../../../packages/core/src"]
+      "@closure-next/core": ["../../../packages/core/dist/index.js"]
     }
   },
   "include": ["src/**/*", "__tests__/**/*"],

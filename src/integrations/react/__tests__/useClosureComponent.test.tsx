@@ -1,9 +1,9 @@
 import React from "react";
 import { render, cleanup, act, screen } from "@testing-library/react";
 import { jest, describe, test, expect, beforeEach, afterEach } from '@jest/globals';
-import { Component, type ComponentInterface, DomHelper } from "@closure-next/core";
-import { useClosureComponent } from "../src/index";
-import { TestComponent } from "../src/TestComponent";
+import { Component, type ComponentInterface, DomHelper } from "@closure-next/core/dist/index.js";
+import { useClosureComponent } from "../src/index.js";
+import { TestComponent } from "../src/TestComponent.js";
 
 class ErrorComponent extends Component {
   constructor() {

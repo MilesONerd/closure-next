@@ -1,4 +1,4 @@
-import { Component, type ComponentInterface } from "@closure-next/core";
+import { Component, type ComponentInterface } from "@closure-next/core/dist/index.js";
 import React from "react";
 
 export interface ClosureComponentProps {
@@ -55,4 +55,4 @@ export function useClosureComponent(component: ComponentInterface): React.RefCal
 }
 
 export { Component, type ComponentInterface };
-export { ClosureComponent } from './ClosureComponent';
+export { ClosureComponent } from './ClosureComponent.js';

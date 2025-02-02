@@ -1,6 +1,6 @@
 import React from 'react';
-import type { ComponentInterface } from '@closure-next/core';
-import { useClosureComponent } from './index';
+import type { ComponentInterface } from '@closure-next/core/dist/index.js';
+import { useClosureComponent } from './index.js';
 
 interface Props {
   component: ComponentInterface;
