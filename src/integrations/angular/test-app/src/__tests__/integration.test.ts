@@ -20,7 +20,7 @@ class TestComponent extends Component {
     return this.title;
   }
 
-  protected override createDom(): void {
+  public override createDom(): void {
     super.createDom();
     const element = this.getElement();
     if (element) {
