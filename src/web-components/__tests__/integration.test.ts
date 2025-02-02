@@ -1,6 +1,9 @@
 import { jest, expect, beforeEach, afterEach } from '@jest/globals';
-import { Component, DomHelper, ComponentInterface } from '@closure-next/core/dist/index.js';
+import { Component, DomHelper } from '@closure-next/core';
 import { defineClosureElement, createClosureTemplate } from '../index.js';
+
+// Import DomHelper from core package
+const domHelper = new DomHelper(document);
 import '@testing-library/jest-dom';
 
 // Increase test timeout
@@ -10,14 +13,19 @@ jest.setTimeout(30000);
 class TestComponent extends Component {
   private title: string = '';
   
-  constructor() {
-    super();
+  constructor(props?: Record<string, unknown>) {
+    super(domHelper);
+    if (props?.title && typeof props.title === 'string') {
+      this.title = props.title;
+    }
   }
   
   setTitle(title: string): void {
     this.title = title;
-    if (this.element) {
-      this.element.setAttribute('data-title', title);
+    const element = this.getElement();
+    if (element) {
+      element.setAttribute('data-title', title);
+      element.textContent = `Test Component Content - ${title}`;
     }
   }
   
@@ -25,11 +33,15 @@ class TestComponent extends Component {
     return this.title;
   }
 
-  protected override createDom(): void {
-    super.createDom();
-    if (this.element) {
-      this.element.setAttribute('data-testid', 'test-component');
-      this.element.setAttribute('data-title', this.title);
+  public override createDom(): void {
+    if (!this.element) {
+      super.createDom();
+      const element = this.getElement();
+      if (element) {
+        element.setAttribute('data-testid', 'test-component');
+        element.setAttribute('data-title', this.title);
+        element.textContent = `Test Component Content - ${this.title}`;
+      }
     }
   }
 

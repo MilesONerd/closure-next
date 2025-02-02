@@ -1,14 +1,21 @@
 {
   "name": "@closure-next/web-components",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Web Components integration for Closure Next",
   "type": "module",
   "main": "dist/index.js",
-  "module": "dist/index.mjs",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
   "scripts": {
-    "build": "tsc",
-    "test": "jest"
+    "build": "tsc --build tsconfig.build.json",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
+    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch"
   },
   "keywords": [
     "Closure",

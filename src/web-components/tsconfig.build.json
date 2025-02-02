@@ -15,8 +15,7 @@
     "skipLibCheck": true,
     "paths": {
       "@closure-next/core": ["../../packages/core/src"]
-    },
-    "types": ["jest", "node"]
+    }
   },
   "include": ["src/**/*", "__tests__/**/*", "index.ts"],
   "exclude": ["node_modules", "dist"],
