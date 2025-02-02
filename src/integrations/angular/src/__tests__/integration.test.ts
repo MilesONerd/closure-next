@@ -11,11 +11,6 @@ interface TestComponentProps {
 class TestComponent extends Component {
   private title: string = '';
   public props!: TestComponentProps;
-  public element: HTMLElement | null = null;
-  
-  public getElement(): HTMLElement | null {
-    return this.element;
-  }
   
   constructor() {
     super(new DomHelper(document));
@@ -36,12 +31,13 @@ class TestComponent extends Component {
     return this.title;
   }
 
-  protected createDom(): void {
-    const element = document.createElement('div');
-    element.setAttribute('data-testid', 'test-component');
-    element.setAttribute('data-title', this.title);
-    this.element = element;
+  protected override createDom(): void {
     super.createDom();
+    const element = this.getElement();
+    if (element) {
+      element.setAttribute('data-testid', 'test-component');
+      element.setAttribute('data-title', this.title);
+    }
   }
 }
 

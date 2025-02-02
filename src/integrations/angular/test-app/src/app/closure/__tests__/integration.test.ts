@@ -7,6 +7,10 @@ import { By } from '@angular/platform-browser';
 class TestComponent extends ClosureComponent {
   private title: string = '';
   
+  constructor() {
+    super(new DomHelper(document));
+  }
+  
   setTitle(title: string): void {
     this.title = title;
     const element = this.getElement();
@@ -19,7 +23,7 @@ class TestComponent extends ClosureComponent {
     return this.title;
   }
 
-  protected createDom(): void {
+  protected override createDom(): void {
     super.createDom();
     const element = this.getElement();
     if (element) {

@@ -21,7 +21,7 @@ const config = {
   testTimeout: 10000,
   extensionsToTreatAsEsm: ['.ts', '.tsx'],
   transformIgnorePatterns: [
-    'node_modules/(?!@closure-next/core)'
+    'node_modules/(?!(@closure-next/core|@testing-library/jest-dom))'
   ]
 };
 

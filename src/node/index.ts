@@ -9,17 +9,10 @@ import type { Component } from '@closure-next/core';
  * Server-side rendering for Closure Next components
  */
 export function renderToString(
-  ComponentClass: new () => Component,
+  ComponentClass: new (props?: Record<string, unknown>) => Component,
   props?: Record<string, unknown>
 ): string {
-  const component = new ComponentClass();
-  
-  // Apply props before rendering
-  if (props) {
-    Object.entries(props).forEach(([key, value]) => {
-      (component as any)[key] = value;
-    });
-  }
+  const component = new ComponentClass(props);
 
   // Create a temporary element for rendering
   const element = document.createElement('div');
