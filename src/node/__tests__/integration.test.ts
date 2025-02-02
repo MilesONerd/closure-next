@@ -79,22 +79,25 @@ class TestComponent extends Component {
 }
 
 describe('Node.js Integration', () => {
+  let container: HTMLElement;
+
   beforeEach(() => {
-    document.body.innerHTML = '';
+    container = document.createElement('div');
+    document.body.appendChild(container);
   });
 
   afterEach(() => {
-    document.body.innerHTML = '';
+    container.remove();
   });
 
   describe('Server-Side Rendering', () => {
     test('should render component to string', () => {
-      const html = renderToString(TestComponent);
+      const html = renderToString(TestComponent as unknown as new (props?: Record<string, unknown>) => Component);
       expect(html).toContain('data-testid="test-component"');
     });
 
     test('should handle props in SSR', () => {
-      const html = renderToString(TestComponent, {
+      const html = renderToString(TestComponent as unknown as new (props?: Record<string, unknown>) => Component, {
         title: 'Test Title'
       });
       expect(html).toContain('data-title="Test Title"');
@@ -103,7 +106,7 @@ describe('Node.js Integration', () => {
     test('should clean up after rendering', () => {
       const disposeSpy = jest.spyOn(TestComponent.prototype, 'dispose');
       
-      renderToString(TestComponent, {
+      renderToString(TestComponent as unknown as new (props?: Record<string, unknown>) => Component, {
         title: 'Cleanup Test'
       });
       
@@ -141,16 +144,17 @@ describe('Node.js Integration', () => {
       const handler = jest.fn();
       
       component.addEventListener('click', handler);
-      component.render();
       
       const element = component.getElement();
       expect(element).toBeTruthy();
       
-      // Simulate click event
-      const event = new Event('click');
-      element?.dispatchEvent(event);
+      if (element) {
+        const event = new Event('click');
+        element.dispatchEvent(event);
+        expect(handler).toHaveBeenCalled();
+      }
       
-      expect(handler).toHaveBeenCalled();
+      component.dispose();
     });
   });
 });
