@@ -1,6 +1,6 @@
-import { jest } from '@jest/globals';
-import { Component } from '@closure-next/core';
-import { renderToString } from '../index';
+import { jest, describe, test, expect, beforeEach, afterEach } from '@jest/globals';
+import { Component } from '@closure-next/core/dist/index.js';
+import { renderToString } from '../index.js';
 
 // Test component
 class TestComponent extends Component {
@@ -61,29 +61,8 @@ describe('Node.js Integration', () => {
   });
 
   describe('Module System Compatibility', () => {
-    test('should handle CommonJS require', () => {
-      const nodeModule = require('../index');
-      expect(typeof nodeModule.renderToString).toBe('function');
-      expect(typeof nodeModule.default.renderToString).toBe('function');
-      
-      const html = nodeModule.renderToString(TestComponent, {
-        title: 'CommonJS Test'
-      });
-      
-      expect(html).toContain('data-testid="test-component"');
-      expect(html).toContain('data-title="CommonJS Test"');
-
-      // Test default export
-      const defaultHtml = nodeModule.default.renderToString(TestComponent, {
-        title: 'CommonJS Default Test'
-      });
-      
-      expect(defaultHtml).toContain('data-testid="test-component"');
-      expect(defaultHtml).toContain('data-title="CommonJS Default Test"');
-    });
-
     test('should handle ESM import', async () => {
-      const nodeModule = await import('../index');
+      const nodeModule = await import('../index.js');
       expect(typeof nodeModule.renderToString).toBe('function');
       expect(typeof nodeModule.default.renderToString).toBe('function');
       

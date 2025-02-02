@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": ".",
+    "rootDir": "../..",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
@@ -10,8 +10,16 @@
     "moduleResolution": "bundler",
     "target": "es2020",
     "lib": ["es2020", "dom"],
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "composite": true
   },
-  "include": ["src/**/*", "__tests__/**/*"],
+  "references": [
+    { "path": "../../packages/core" }
+  ],
+  "include": [
+    "*.ts",
+    "__tests__/**/*",
+    "../../packages/core/src/**/*"
+  ],
   "exclude": ["node_modules", "dist"]
 }
