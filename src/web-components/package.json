@@ -1,6 +1,6 @@
 {
   "name": "@closure-next/web-components",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "Web Components integration for Closure Next",
   "type": "module",
   "main": "dist/index.js",
