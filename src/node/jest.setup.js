@@ -1,7 +1,5 @@
-// Jest setup for Node.js integration tests
-require('@testing-library/jest-dom');
+import '@testing-library/jest-dom/jest-globals.js';
 
-// Basic DOM setup
 document.createRange = () => ({
   setStart: () => {},
   setEnd: () => {},
@@ -11,7 +9,6 @@ document.createRange = () => ({
   },
 });
 
-// Clean up between tests
 beforeEach(() => {
   document.body.innerHTML = '';
   jest.clearAllMocks();
