@@ -2,18 +2,25 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "jsx": "react",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "module": "esnext",
-    "moduleResolution": "node",
-    "types": ["node", "react", "jest"],
-    "baseUrl": ".",
-    "composite": true,
+    "outDir": "./dist",
+    "rootDir": ".",
     "declaration": true,
-    "outDir": "dist",
-    "rootDir": "src"
+    "declarationMap": true,
+    "sourceMap": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "target": "es2020",
+    "lib": ["es2020", "dom"],
+    "esModuleInterop": true,
+    "types": ["node", "react", "jest"],
+    "composite": true,
+    "paths": {
+      "@closure-next/core": ["../../packages/core/src"]
+    }
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "__tests__/**/*"
   ],
   "exclude": ["node_modules", "dist"],
   "references": [
