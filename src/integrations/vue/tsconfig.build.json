@@ -1,0 +1,31 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "target": "es2020",
+    "lib": ["es2020", "dom"],
+    "types": ["jest", "node", "vue"],
+    "jsx": "preserve",
+    "baseUrl": ".",
+    "paths": {
+      "@closure-next/core": ["../../../packages/core/src"],
+      "@closure-next/core/*": ["../../../packages/core/src/*"]
+    },
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "isolatedModules": true,
+    "composite": true,
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "__tests__/**/*"],
+  "references": [
+    { "path": "../../../packages/core" }
+  ]
+}

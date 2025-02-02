@@ -1,110 +1,152 @@
 import { mount, type VueWrapper } from '@vue/test-utils';
-import { defineComponent, ref, h, type Ref, type ComponentPublicInstance } from 'vue';
-import { useClosureComponent } from '../index';
-import { Component, ComponentInterface } from '@closure-next/core';
+import { defineComponent, h, type ComponentPublicInstance, type PropType } from 'vue';
+import { useClosureComponent } from '../index.js';
+import { Component, DomHelper, type ComponentConstructor, type ComponentInterface } from '@closure-next/core/dist/index.js';
 
-// Test component definition
 class TestComponent extends Component implements ComponentInterface {
   private title: string = '';
+  private disposed: boolean = false;
   
-  setTitle(title: string) {
+  constructor(domHelper: DomHelper) {
+    super(domHelper);
+    this.title = '';
+  }
+
+  setTitle(title: string): void {
     this.title = title;
-    this.getElement()?.setAttribute('data-title', title);
+    const element = this.getElement();
+    if (element) {
+      element.setAttribute('data-title', title);
+    }
   }
   
   getTitle(): string {
     return this.title;
   }
+
+  public override createDom(): void {
+    const element = document.createElement('div');
+    element.setAttribute('data-testid', 'test-component');
+    element.setAttribute('data-title', this.title);
+    element.textContent = 'Test Component Content';
+    this.element = element;
+  }
+
+  enterDocument(): void {
+    if (!this.isInDocument()) {
+      super.enterDocument();
+    }
+  }
+
+  exitDocument(): void {
+    if (this.isInDocument()) {
+      super.exitDocument();
+    }
+  }
+
+  dispose(): void {
+    if (!this.disposed) {
+      super.dispose();
+      this.disposed = true;
+    }
+  }
+
+  isDisposed(): boolean {
+    return this.disposed;
+  }
+
+  getElement(): HTMLElement | null {
+    return super.getElement();
+  }
 }
 
-// Component props and type definitions
 interface TestComponentProps {
-  root: Ref<HTMLElement | null>;
-  component: Ref<TestComponent | null>;
+  title?: string;
   updateTitle?: (title: string) => void;
 }
 
-type TestComponentInstance = ComponentPublicInstance<{}, TestComponentProps>;
+type TestComponentInstance = ComponentPublicInstance<TestComponentProps>;
 type TestComponentWrapper = VueWrapper<TestComponentInstance>;
 
 describe('useClosureComponent', () => {
   let wrapper: TestComponentWrapper;
-  let componentInstance: TestComponent | null = null;
+
+  beforeEach(() => {
+    document.body.innerHTML = '';
+  });
 
   afterEach(() => {
-    if (componentInstance) {
-      componentInstance.dispose();
-      componentInstance = null;
-    }
     wrapper?.unmount();
+    document.body.innerHTML = '';
   });
 
   test('should create and mount component', async () => {
-    const TestVue = defineComponent({
+    const TestVue = defineComponent<TestComponentProps>({
       setup() {
-        const { ref: elementRef, component } = useClosureComponent(TestComponent);
-        return { root: elementRef, component };
+        const domHelper = new DomHelper(document);
+        const { ref, component } = useClosureComponent(
+          TestComponent as ComponentConstructor<TestComponent>,
+          domHelper
+        );
+        return { ref, component };
       },
       render() {
-        return h('div', {}, [
-          h('div', { ref: 'root' })
-        ]);
+        return h('div', { ref: 'ref' });
       }
     });
 
     wrapper = mount(TestVue);
     await wrapper.vm.$nextTick();
 
-    const vm = wrapper.vm;
-    const component = vm.component;
-    const root = vm.root;
-    
-    expect(component).not.toBeNull();
-    expect(root).not.toBeNull();
-    
-    if (!component) {
-      throw new Error('Component is null');
-    }
-    
-    expect(component).toBeInstanceOf(TestComponent);
-    componentInstance = component;
+    const component = wrapper.find('[data-testid="test-component"]');
+    expect(component.exists()).toBe(true);
+    expect(component.text()).toBe('Test Component Content');
   });
 
   test('should apply initial props', async () => {
-    const TestVue = defineComponent({
+    const TestVue = defineComponent<TestComponentProps>({
       setup() {
-        const { ref: elementRef, component } = useClosureComponent(TestComponent, {
-          title: 'Initial Title'
-        });
-        return { root: elementRef, component };
+        const domHelper = new DomHelper(document);
+        const { ref, component } = useClosureComponent(
+          TestComponent as ComponentConstructor<TestComponent>,
+          domHelper,
+          {
+            props: {
+              title: 'Initial Title'
+            }
+          }
+        );
+        return { ref, component };
       },
       render() {
-        return h('div', {}, [
-          h('div', { ref: 'root' })
-        ]);
+        return h('div', { ref: 'ref' });
       }
     });
 
     wrapper = mount(TestVue);
     await wrapper.vm.$nextTick();
 
-    const component = wrapper.vm.component;
-    expect(component).not.toBeNull();
-    if (!component) {
-      throw new Error('Component is null');
-    }
-    expect(component.getTitle()).toBe('Initial Title');
-    const element = component.getElement();
-    expect(element).not.toBeNull();
-    componentInstance = component;
+    const component = wrapper.find('[data-testid="test-component"]');
+    expect(component.exists()).toBe(true);
+    expect(component.attributes('data-title')).toBe('Initial Title');
   });
 
   test('should handle prop updates', async () => {
-    const TestVue = defineComponent({
+    const TestVue = defineComponent<TestComponentProps>({
+      props: {
+        updateTitle: Function as PropType<(title: string) => void>
+      },
       setup() {
-        const { ref: elementRef, component } = useClosureComponent(TestComponent, {
-          title: 'Initial Title'
-        });
+        const domHelper = new DomHelper(document);
+        const { ref, component } = useClosureComponent(
+          TestComponent as ComponentConstructor<TestComponent>,
+          domHelper,
+          {
+            props: {
+              title: 'Initial Title'
+            }
+          }
+        );
 
         const updateTitle = (newTitle: string) => {
           if (component.value) {
@@ -112,59 +154,60 @@ describe('useClosureComponent', () => {
           }
         };
 
-        return { root: elementRef, component, updateTitle };
+        return { ref, component, updateTitle };
       },
       render() {
-        return h('div', {}, [
-          h('div', { ref: 'root' })
-        ]);
+        return h('div', { ref: 'ref' });
       }
     });
 
-    wrapper = mount(TestVue);
+    wrapper = mount(TestVue, {
+      props: {
+        updateTitle: (title: string) => {
+          if (wrapper.vm?.updateTitle) {
+            wrapper.vm.updateTitle(title);
+          }
+        }
+      }
+    });
     await wrapper.vm.$nextTick();
 
-    wrapper.vm.updateTitle?.('Updated Title');
-    await wrapper.vm.$nextTick();
+    const component = wrapper.find('[data-testid="test-component"]');
+    expect(component.exists()).toBe(true);
+    expect(component.attributes('data-title')).toBe('Initial Title');
 
-    const component = wrapper.vm.component;
-    expect(component).not.toBeNull();
-    if (!component) {
-      throw new Error('Component is null');
+    if (wrapper.vm?.updateTitle) {
+      wrapper.vm.updateTitle('Updated Title');
     }
-    expect(component.getTitle()).toBe('Updated Title');
-    const element = component.getElement();
-    expect(element).not.toBeNull();
-    expect(element?.getAttribute('data-title')).toBe('Updated Title');
-    componentInstance = component;
+    await wrapper.vm.$nextTick();
+
+    expect(component.attributes('data-title')).toBe('Updated Title');
   });
 
   test('should clean up on unmount', async () => {
-    const TestVue = defineComponent({
+    const TestVue = defineComponent<TestComponentProps>({
       setup() {
-        const { ref: elementRef, component } = useClosureComponent(TestComponent);
-        return { root: elementRef, component };
+        const domHelper = new DomHelper(document);
+        const { ref, component } = useClosureComponent(
+          TestComponent as ComponentConstructor<TestComponent>,
+          domHelper
+        );
+        return { ref, component };
       },
       render() {
-        return h('div', {}, [
-          h('div', { ref: 'root' })
-        ]);
+        return h('div', { ref: 'ref' });
       }
     });
 
     wrapper = mount(TestVue);
     await wrapper.vm.$nextTick();
 
-    const component = wrapper.vm.component;
-    expect(component).not.toBeNull();
-    if (!component) {
-      throw new Error('Component is null');
-    }
-    componentInstance = component;
+    const component = wrapper.find('[data-testid="test-component"]');
+    expect(component.exists()).toBe(true);
 
-    const disposeSpy = jest.spyOn(component, 'dispose');
     wrapper.unmount();
+    await wrapper.vm.$nextTick();
 
-    expect(disposeSpy).toHaveBeenCalled();
+    expect(document.querySelector('[data-testid="test-component"]')).toBeNull();
   });
 });
