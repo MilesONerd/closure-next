@@ -17,7 +17,7 @@
       "@closure-next/core": ["../../packages/core/src"],
       "webpack": ["./node_modules/@types/webpack"]
     },
-    "types": ["jest", "node", "webpack"]
+    "types": ["jest", "node", "@types/webpack"]
   },
   "include": ["src/**/*", "__tests__/**/*", "index.ts"],
   "exclude": ["node_modules", "dist"],

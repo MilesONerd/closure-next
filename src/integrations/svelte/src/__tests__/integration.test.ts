@@ -23,7 +23,7 @@ class TestComponent extends Component implements ComponentInterface {
     return this.title;
   }
 
-  protected override createDom(): void {
+  public override createDom(): void {
     super.createDom();
     const element = this.getElement();
     if (element) {

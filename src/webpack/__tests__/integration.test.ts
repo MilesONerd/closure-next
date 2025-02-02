@@ -54,7 +54,6 @@ const createTestConfig = (options: WebpackTestOptions = {}): Configuration => ({
   experiments: {
     outputModule: true
   },
-  mode: 'production',
   optimization: {
     usedExports: true,
     minimize: true,
