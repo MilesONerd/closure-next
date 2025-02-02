@@ -36,24 +36,55 @@ export class EventTarget {
     dispatchEvent(event) {
         const type = event.type;
         const typeListeners = this.listeners.get(type);
-        if (!typeListeners) {
-            return true;
+        let defaultPrevented = event.defaultPrevented;
+        if (typeListeners) {
+            // Convert Set to Array to avoid modification during iteration
+            const listeners = Array.from(typeListeners);
+            for (const listener of listeners) {
+                try {
+                    // Create a new event for each listener to prevent modification
+                    const listenerEvent = event instanceof CustomEvent ?
+                        new CustomEvent(event.type, {
+                            bubbles: event.bubbles,
+                            cancelable: event.cancelable,
+                            detail: event.detail
+                        }) :
+                        new Event(event.type, {
+                            bubbles: event.bubbles,
+                            cancelable: event.cancelable
+                        });
+                    // Copy standard event properties that are writable
+                    listenerEvent.cancelBubble = event.cancelBubble;
+                    listenerEvent.returnValue = event.returnValue;
+                    if (event.defaultPrevented) {
+                        listenerEvent.preventDefault();
+                    }
+                    if (event.cancelBubble) {
+                        listenerEvent.stopPropagation();
+                    }
+                    listener.call(this, listenerEvent);
+                    if (listenerEvent.defaultPrevented) {
+                        defaultPrevented = true;
+                    }
+                }
+                catch (e) {
+                    console.error('Error in event handler:', e);
+                }
+            }
         }
-        typeListeners.forEach(listener => {
-            try {
-                listener.call(this, event);
-            }
-            catch (e) {
-                console.error('Error in event handler:', e);
-            }
-        });
-        return !event.defaultPrevented;
+        return !defaultPrevented;
     }
     /**
      * Removes all event listeners
      */
     dispose() {
+        // Clear all event listeners
+        this.listeners.forEach((listeners) => {
+            listeners.clear();
+        });
         this.listeners.clear();
+        // Reset state
+        this.listeners = new Map();
     }
 }
 //# sourceMappingURL=events.js.map
