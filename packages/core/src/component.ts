@@ -73,6 +73,9 @@ export interface ComponentInterface {
   addEventListener(type: string, listener: (this: unknown, evt: Event) => void): void;
   removeEventListener(type: string, listener: (this: unknown, evt: Event) => void): void;
   dispatchEvent(event: Event): boolean;
+  createDom(): void;
+  enterDocument(): void;
+  exitDocument(): void;
 }
 
 export class Component extends EventTarget implements ComponentInterface {
@@ -134,7 +137,7 @@ export class Component extends EventTarget implements ComponentInterface {
    * Creates the DOM element for this component.
    * @protected
    */
-  protected createDom(): void {
+  public createDom(): void {
     if (!this.element) {
       this.element = this.domHelper.createElement('div');
       

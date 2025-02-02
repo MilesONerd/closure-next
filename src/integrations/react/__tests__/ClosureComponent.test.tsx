@@ -1,23 +1,23 @@
 import React from 'react';
 import { render, cleanup, screen, act, within } from '@testing-library/react';
 import { jest, describe, test, expect, beforeEach, afterEach } from '@jest/globals';
-import { Component, DomHelper } from '@closure-next/core';
-import { ClosureComponent } from '../src/ClosureComponent';
-import { TestComponent } from '../src/TestComponent';
+import { Component, DomHelper } from '@closure-next/core/dist/index.js';
+import { ClosureComponent } from '../src/ClosureComponent.js';
+import { TestComponent } from './TestComponent.js';
 
 class ErrorComponent extends Component {
   constructor() {
     super(new DomHelper(document));
   }
 
-  public render(): void {
+  public override enterDocument(): void {
     throw new Error('Test error');
   }
 
-  public dispose(): void {
+  public override dispose(): void {
     const element = this.getElement();
-    if (element && element.parentNode) {
-      element.parentNode.removeChild(element);
+    if (element) {
+      element.remove();
     }
   }
 }
@@ -37,9 +37,8 @@ describe('ClosureComponent', () => {
   });
 
   it('should render and unmount component', () => {
-    const component = new TestComponent();
     const { container, unmount } = render(
-      <ClosureComponent component={component} />
+      <ClosureComponent component={TestComponent} />
     );
 
     const wrapper = screen.getByTestId("hook-wrapper");
@@ -50,14 +49,13 @@ describe('ClosureComponent', () => {
     expect(element).toHaveTextContent('Test Component Content');
 
     unmount();
-    expect(component.getElement()).toBeNull();
+    expect(wrapper.querySelector('[data-testid="test-component"]')).toBeNull();
   });
 
   it('should handle component props', () => {
-    const component = new TestComponent();
     const { container } = render(
       <ClosureComponent 
-        component={component}
+        component={TestComponent}
         props={{ title: 'Test Title' }}
       />
     );
@@ -71,11 +69,10 @@ describe('ClosureComponent', () => {
   });
 
   it('should handle errors with error boundary', () => {
-    const component = new ErrorComponent();
     const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
     
     act(() => {
-      render(<ClosureComponent component={component} />);
+      render(<ClosureComponent component={ErrorComponent} />);
     });
     
     const errorBoundaryRoot = screen.getByTestId('error-boundary-root');
@@ -89,12 +86,11 @@ describe('ClosureComponent', () => {
   });
 
   it('should use custom fallback for errors', () => {
-    const component = new ErrorComponent();
     const fallback = <div data-testid="custom-error">Custom Error</div>;
     const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
     
     act(() => {
-      render(<ClosureComponent component={component} fallback={fallback} />);
+      render(<ClosureComponent component={ErrorComponent} fallback={fallback} />);
     });
 
     const errorBoundaryRoot = screen.getByTestId('error-boundary-root');
@@ -108,11 +104,10 @@ describe('ClosureComponent', () => {
   });
 
   it('should not use error boundary when disabled', () => {
-    const component = new ErrorComponent();
     const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
     
     expect(() => {
-      render(<ClosureComponent component={component} errorBoundary={false} />);
+      render(<ClosureComponent component={ErrorComponent} errorBoundary={false} />);
     }).toThrow('Test error');
     
     consoleError.mockRestore();

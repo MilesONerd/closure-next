@@ -1,9 +1,9 @@
 import React from 'react';
-import type { ComponentInterface } from '@closure-next/core';
-import { useClosureComponent } from './index';
+import { Component, DomHelper, type ComponentInterface } from '@closure-next/core/dist/index.js';
+import { useClosureComponent } from './index.js';
 
 interface Props {
-  component: ComponentInterface;
+  component: new (domHelper?: DomHelper) => ComponentInterface;
   props?: Record<string, unknown>;
   errorBoundary?: boolean;
   fallback?: React.ReactNode;
@@ -51,39 +51,44 @@ class ErrorBoundary extends React.Component<{
   }
 }
 
-const ClosureContent: React.FC<Props> = ({ component, props = {} }) => {
+const ClosureContent: React.FC<Props> = ({ component: Component, props = {} }) => {
   const ref = React.useRef<HTMLDivElement>(null);
+  const componentRef = React.useRef<ComponentInterface | null>(null);
 
   React.useEffect(() => {
-    if (ref.current) {
-      try {
-        ref.current.setAttribute("data-testid", "hook-wrapper");
-        component.render(ref.current);
-      } catch (error) {
-        console.error('Error rendering Closure component:', error);
-        throw error;
+    if (ref.current && !componentRef.current) {
+      const instance = new Component(new DomHelper(document));
+      componentRef.current = instance;
+
+      // Update props before entering document
+      if (props) {
+        Object.entries(props).forEach(([key, value]) => {
+          const method = `set${key.charAt(0).toUpperCase()}${key.slice(1)}`;
+          if (typeof instance[method as keyof ComponentInterface] === 'function') {
+            (instance[method as keyof ComponentInterface] as Function)(value);
+          }
+        });
+      }
+
+      instance.enterDocument();
+      const element = instance.getElement();
+      if (element) {
+        ref.current.appendChild(element);
       }
     }
 
     return () => {
-      try {
-        component.dispose();
-      } catch (error) {
-        console.error('Error disposing Closure component:', error);
+      if (componentRef.current) {
+        try {
+          componentRef.current.exitDocument();
+          componentRef.current.dispose();
+          componentRef.current = null;
+        } catch (error) {
+          console.error('Error disposing Closure component:', error);
+        }
       }
     };
-  }, [component]);
-
-  React.useEffect(() => {
-    if (component && props) {
-      Object.entries(props).forEach(([key, value]) => {
-        const method = `set${key.charAt(0).toUpperCase()}${key.slice(1)}`;
-        if (typeof component[method as keyof ComponentInterface] === 'function') {
-          (component[method as keyof ComponentInterface] as Function)(value);
-        }
-      });
-    }
-  }, [component, props]);
+  }, [Component, props]);
 
   return <div ref={ref} data-testid="hook-wrapper" className="closure-wrapper" />;
 };

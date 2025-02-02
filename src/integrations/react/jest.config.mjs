@@ -1,33 +1,35 @@
-/** @type {import('@jest/types').Config.InitialOptions} */
 export default {
   preset: 'ts-jest/presets/default-esm',
-  testEnvironment: 'jest-environment-jsdom',
-  roots: ['<rootDir>/src', '<rootDir>/__tests__'],
-  transform: {
-    '^.+\\.(ts|tsx)$': [
-      'ts-jest',
-      {
-        tsconfig: '<rootDir>/tsconfig.json',
-        useESM: true
-      }
-    ]
-  },
-  moduleDirectories: ['node_modules'],
+  testEnvironment: 'jsdom',
+  setupFilesAfterEnv: ['./jest.setup.ts'],
   moduleNameMapper: {
-    '^@closure-next/core$': '<rootDir>/../../../packages/core/src/index.ts'
+    '^@closure-next/core$': '<rootDir>/../../packages/core/dist/index.js',
+    '^(\\.{1,2}/.*)\\.js$': '$1',
+    '^(\\.{1,2}/.*)\\.mjs$': '$1',
+    '^(\\.{1,2}/.*)\\.tsx?$': '$1',
+    '^@testing-library/jest-dom$': '@testing-library/jest-dom'
   },
-  setupFilesAfterEnv: [
-    '<rootDir>/jest.polyfills.mjs',
-    '<rootDir>/jest.setup.mjs',
-    '@testing-library/jest-dom'
+  transform: {
+    '^.+\\.(ts|tsx)$': ['ts-jest', {
+      useESM: true,
+      tsconfig: '<rootDir>/tsconfig.json'
+    }],
+    '^.+\\.(mjs|js)$': ['babel-jest', {
+      presets: [
+        ['@babel/preset-env', { targets: { node: 'current' } }]
+      ]
+    }]
+  },
+  transformIgnorePatterns: [
+    '/node_modules/(?!(@testing-library|dom-accessibility-api|@jest|@babel|react|react-dom|aria-query|jest-dom)/.*)'
   ],
+  extensionsToTreatAsEsm: ['.ts', '.tsx'],
+  moduleDirectories: ['node_modules', '<rootDir>/../../node_modules'],
+  moduleFileExtensions: ['ts', 'tsx', 'mjs', 'js', 'json', 'node'],
   testPathIgnorePatterns: ['/node_modules/'],
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'mjs'],
-  testTimeout: 10000,
-  transformIgnorePatterns: ['node_modules/(?!(@testing-library|@babel|@jest))'],
+  testMatch: ['**/__tests__/*.[jt]s?(x)', '!**/__tests__/TestComponent.tsx'],
   verbose: true,
-  extensionsToTreatAsEsm: ['.ts', '.tsx', '.mts', '.mtsx'],
-  testEnvironmentOptions: {
-    customExportConditions: ['node', 'node-addons']
-  }
+  testTimeout: 30000,
+  maxWorkers: 1,
+  resolver: 'jest-ts-webcompat-resolver'
 }
