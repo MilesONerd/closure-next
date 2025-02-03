@@ -1,14 +1,21 @@
 {
   "name": "@closure-next/rollup",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Rollup plugin for Closure Next",
   "type": "module",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
   "scripts": {
-    "build": "tsc",
-    "test": "jest"
+    "build": "tsc -p tsconfig.build.json",
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest"
   },
   "keywords": [
     "Closure",
@@ -25,17 +32,19 @@
     "url": "https://github.com/MilesONerd/closure-next.git"
   },
   "peerDependencies": {
-    "rollup": "^4.0.0",
-    "@closure-next/core": "^1.0.0"
+    "@closure-next/core": "^1.0.0",
+    "rollup": "^4.0.0"
   },
   "dependencies": {
-    "@closure-next/core": "^1.0.9"
+    "@closure-next/core": "^1.0.0"
   },
   "devDependencies": {
+    "@jest/globals": "^29.7.0",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^20.17.16",
+    "jest": "^29.7.0",
     "rollup": "^4.0.0",
-    "@types/node": "^20.0.0",
-    "typescript": "^5.0.0",
-    "jest": "^29.0.0",
-    "@types/jest": "^29.0.0"
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.0.0"
   }
 }
