@@ -1,24 +1,25 @@
-import { closureNextRollup } from '../index';
-import { rollup } from 'rollup';
+import { jest, describe, test, expect, beforeEach, afterEach } from '@jest/globals';
+import { closureNextRollup } from '../src/index.js';
+import { rollup, type Plugin } from 'rollup';
 import path from 'path';
-import fs from 'fs';
+import { existsSync, rmSync, mkdirSync } from 'fs';
 
 describe('Rollup Integration', () => {
   const outputPath = path.resolve(__dirname, 'dist');
   const fixturesPath = path.resolve(__dirname, 'fixtures');
   
   beforeEach(() => {
-    if (fs.existsSync(outputPath)) {
-      fs.rmSync(outputPath, { recursive: true });
+    if (existsSync(outputPath)) {
+      rmSync(outputPath, { recursive: true });
     }
-    if (!fs.existsSync(fixturesPath)) {
-      fs.mkdirSync(fixturesPath, { recursive: true });
+    if (!existsSync(fixturesPath)) {
+      mkdirSync(fixturesPath, { recursive: true });
     }
   });
 
   afterEach(() => {
-    if (fs.existsSync(outputPath)) {
-      fs.rmSync(outputPath, { recursive: true });
+    if (existsSync(outputPath)) {
+      rmSync(outputPath, { recursive: true });
     }
   });
 
@@ -27,14 +28,14 @@ describe('Rollup Integration', () => {
       paths: {
         '@test': fixturesPath
       }
-    });
+    }) as Plugin;
 
-    const resolved = await plugin.resolveId?.('@test/component', null);
+    const resolved = await plugin.resolveId?.handler?.call(null, '@test/component', null, { attributes: {}, isEntry: false });
     expect(resolved).toBe(path.join(fixturesPath, 'component'));
   });
 
   test('should handle code splitting', async () => {
-    const plugin = closureNextRollup({ codeSplitting: true });
+    const plugin = closureNextRollup({ codeSplitting: true }) as Plugin;
     const bundle = await rollup({
       input: path.resolve(fixturesPath, 'app.ts'),
       plugins: [plugin]
@@ -50,8 +51,8 @@ describe('Rollup Integration', () => {
   });
 
   test('should transform TypeScript files', () => {
-    const plugin = closureNextRollup({ codeSplitting: true });
-    const result = plugin.transform?.(`
+    const plugin = closureNextRollup({ codeSplitting: true }) as Plugin;
+    const result = plugin.transform?.handler?.call(null, `
       import { Component } from '@closure-next/core';
       export class TestComponent extends Component {}
     `, 'test.ts');
