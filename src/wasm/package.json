@@ -1,15 +1,16 @@
 {
   "name": "@closure-next/wasm",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "WebAssembly optimizations for Closure Next",
   "type": "module",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     }
   },
   "scripts": {
