@@ -17,7 +17,6 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --config=jest.config.mjs",
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --config=jest.config.mjs --watch"
   },
-  "type": "module",
   "peerDependencies": {
     "@closure-next/core": "^1.0.10"
   },
@@ -35,6 +34,7 @@
     "babel-jest": "^29.7.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
+    "lru-cache": "^11.0.2",
     "svelte": "^4.2.19",
     "svelte-jester": "^3.0.0",
     "svelte-preprocess": "^6.0.3",

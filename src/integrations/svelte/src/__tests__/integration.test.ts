@@ -1,8 +1,8 @@
-import { jest } from '@jest/globals';
-import { Component, ComponentInterface } from '@closure-next/core';
-import type { DomHelper } from '@closure-next/core';
+import { jest, describe, test, expect, beforeEach, afterEach } from '@jest/globals';
+import { Component, type ComponentInterface, type DomHelper } from '@closure-next/core';
 import TestWrapper from './TestWrapper.svelte';
-import { render, cleanup } from '@testing-library/svelte';
+import { render, cleanup, waitFor } from '@testing-library/svelte';
+import '@testing-library/jest-dom';
 
 class TestComponent extends Component implements ComponentInterface {
   private title: string = '';

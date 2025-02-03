@@ -8,5 +8,6 @@ export * from './dom';
 export * from './id';
 export * from './utils';
 // Export Component and types
-export { Component, ComponentState, ComponentEventType } from './component';
+export { Component } from './component';
+export { ComponentState, ComponentEventType } from './component';
 //# sourceMappingURL=index.js.map

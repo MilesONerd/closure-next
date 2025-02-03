@@ -1,13 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Component as ClosureComponent, DomHelper } from '@closure-next/core';
 import { ClosureComponentDirective } from '../index';
-import { Component, Injectable, Inject, ElementRef, NgZone } from '@angular/core';
+import { Injectable, Inject, ElementRef, NgZone } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { DOM_HELPER } from '../index';
 import { By } from '@angular/platform-browser';
 
 @Injectable()
-class TestComponent extends ClosureComponent {
+class TestComponent extends Component {
   private title: string = '';
   protected override element: HTMLElement | null = null;
   

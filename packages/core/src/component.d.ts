@@ -9,42 +9,44 @@ import { IdGenerator } from './id';
 /**
  * Component states that affect rendering and behavior
  */
-export declare enum ComponentState {
-    ALL = 255,
-    DISABLED = 1,
-    HOVER = 2,
-    ACTIVE = 4,
-    SELECTED = 8,
-    CHECKED = 16,
-    FOCUSED = 32,
-    OPENED = 64
-}
+export declare const ComponentState: {
+    readonly ALL: 255;
+    readonly DISABLED: 1;
+    readonly HOVER: 2;
+    readonly ACTIVE: 4;
+    readonly SELECTED: 8;
+    readonly CHECKED: 16;
+    readonly FOCUSED: 32;
+    readonly OPENED: 64;
+};
+export type ComponentStateType = typeof ComponentState[keyof typeof ComponentState];
 /**
  * Events dispatched by components
  */
-export declare enum ComponentEventType {
-    BEFORE_SHOW = "beforeshow",
-    SHOW = "show",
-    HIDE = "hide",
-    DISABLE = "disable",
-    ENABLE = "enable",
-    HIGHLIGHT = "highlight",
-    UNHIGHLIGHT = "unhighlight",
-    ACTIVATE = "activate",
-    DEACTIVATE = "deactivate",
-    SELECT = "select",
-    UNSELECT = "unselect",
-    CHECK = "check",
-    UNCHECK = "uncheck",
-    FOCUS = "focus",
-    BLUR = "blur",
-    OPEN = "open",
-    CLOSE = "close",
-    ENTER = "enter",
-    LEAVE = "leave",
-    ACTION = "action",
-    CHANGE = "change"
-}
+export declare const ComponentEventType: {
+    readonly BEFORE_SHOW: "beforeshow";
+    readonly SHOW: "show";
+    readonly HIDE: "hide";
+    readonly DISABLE: "disable";
+    readonly ENABLE: "enable";
+    readonly HIGHLIGHT: "highlight";
+    readonly UNHIGHLIGHT: "unhighlight";
+    readonly ACTIVATE: "activate";
+    readonly DEACTIVATE: "deactivate";
+    readonly SELECT: "select";
+    readonly UNSELECT: "unselect";
+    readonly CHECK: "check";
+    readonly UNCHECK: "uncheck";
+    readonly FOCUS: "focus";
+    readonly BLUR: "blur";
+    readonly OPEN: "open";
+    readonly CLOSE: "close";
+    readonly ENTER: "enter";
+    readonly LEAVE: "leave";
+    readonly ACTION: "action";
+    readonly CHANGE: "change";
+};
+export type ComponentEventType = typeof ComponentEventType[keyof typeof ComponentEventType];
 /**
  * Base component class with lifecycle management and DOM manipulation.
  * Provides core functionality for all UI components including:
@@ -54,6 +56,7 @@ export declare enum ComponentEventType {
  * - Lifecycle management
  * @extends {EventTarget}
  */
+export type ComponentConstructor<T extends Component> = new (domHelper: DomHelper) => T;
 export interface ComponentInterface {
     getId(): string;
     setId(id: string): void;
@@ -69,6 +72,21 @@ export interface ComponentInterface {
     addEventListener(type: string, listener: (this: unknown, evt: Event) => void): void;
     removeEventListener(type: string, listener: (this: unknown, evt: Event) => void): void;
     dispatchEvent(event: Event): boolean;
+    /**
+     * Creates the DOM element for this component.
+     * @public
+     */
+    createDom(): void;
+    /**
+     * Called when component enters the document.
+     * @public
+     */
+    enterDocument(): void;
+    /**
+     * Called when component exits the document.
+     * @public
+     */
+    exitDocument(): void;
 }
 export declare class Component extends EventTarget implements ComponentInterface {
     protected element: HTMLElement | null;
@@ -100,9 +118,9 @@ export declare class Component extends EventTarget implements ComponentInterface
     setId(id: string): void;
     /**
      * Creates the DOM element for this component.
-     * @protected
+     * @public
      */
-    protected createDom(): void;
+    createDom(): void;
     protected attachChildren(): void;
     protected setupDomEventHandler(type: string): void;
     /**
@@ -115,6 +133,10 @@ export declare class Component extends EventTarget implements ComponentInterface
     private ensureInDocument;
     protected setParent(parent: Component | null): void;
     dispose(): void;
+    /**
+     * Called when component enters the document.
+     * @public
+     */
     enterDocument(): void;
     /**
      * Adds an event listener to the component.
@@ -137,6 +159,10 @@ export declare class Component extends EventTarget implements ComponentInterface
      * @public
      */
     dispatchEvent(event: Event): boolean;
+    /**
+     * Called when component exits the document.
+     * @public
+     */
     exitDocument(): void;
     /**
      * Adds the specified component as a child of this component.

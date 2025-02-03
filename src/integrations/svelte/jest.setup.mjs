@@ -4,14 +4,10 @@ import { configure } from '@testing-library/dom';
 import * as matchers from '@testing-library/jest-dom/matchers';
 import { expect } from '@jest/globals';
 
-const { JSDOM } = await import('jsdom');
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
 
-if (!global.TextEncoder) {
-  global.TextEncoder = TextEncoder;
-}
-if (!global.TextDecoder) {
-  global.TextDecoder = TextDecoder;
-}
+const { JSDOM } = await import('jsdom');
 
 const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>', {
   url: 'http://localhost',
