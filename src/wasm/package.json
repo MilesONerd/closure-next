@@ -1,16 +1,23 @@
 {
   "name": "@closure-next/wasm",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "WebAssembly optimizations for Closure Next",
   "type": "module",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
   "scripts": {
     "prebuild": "mkdir -p dist",
-    "build": "tsc && npm run build:wasm",
+    "build": "tsc --build tsconfig.build.json && npm run build:wasm",
     "build:wasm": "wat2wasm src/closure-next.wat -o dist/closure-next-wasm.wasm",
-    "test": "jest"
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --config=jest.config.mjs"
   },
   "keywords": [
     "Closure",
@@ -35,9 +42,13 @@
     "@closure-next/core": "^1.0.9"
   },
   "devDependencies": {
+    "@jest/globals": "^29.7.0",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^20.17.14",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "ts-jest": "^29.2.5",
     "typescript": "^5.0.0",
-    "jest": "^29.0.0",
-    "@types/jest": "^29.0.0",
     "wat2wasm": "^3.0.0"
   }
 }

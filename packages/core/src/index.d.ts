@@ -6,5 +6,7 @@ export * from './events';
 export * from './dom';
 export * from './id';
 export * from './utils';
-export { Component, ComponentInterface, ComponentState, ComponentEventType } from './component';
+export { Component } from './component';
+export { ComponentState, ComponentEventType } from './component';
+export type { ComponentInterface, ComponentConstructor } from './component';
 //# sourceMappingURL=index.d.ts.map

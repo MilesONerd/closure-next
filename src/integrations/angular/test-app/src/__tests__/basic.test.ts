@@ -1,6 +1,6 @@
-import { Component, ComponentInterface } from '@closure-next/core';
+import { Component, DomHelper } from '@closure-next/core';
 
-class TestComponent extends Component implements ComponentInterface {
+class TestComponent extends Component {
   private title: string = '';
   
   setTitle(title: string): void {
@@ -15,7 +15,7 @@ class TestComponent extends Component implements ComponentInterface {
     return this.title;
   }
 
-  protected override createDom(): void {
+  public override createDom(): void {
     super.createDom();
     const element = this.getElement();
     if (element) {
@@ -32,7 +32,7 @@ describe('Basic Component Test', () => {
   beforeEach(() => {
     container = document.createElement('div');
     document.body.appendChild(container);
-    component = new TestComponent();
+    component = new TestComponent(new DomHelper(document));
   });
 
   afterEach(() => {

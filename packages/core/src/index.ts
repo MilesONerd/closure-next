@@ -11,4 +11,5 @@ export * from './utils';
 
 // Export Component and types
 export { Component } from './component';
-export type { ComponentInterface, ComponentState, ComponentEventType, ComponentConstructor } from './component';
+export { ComponentState, ComponentEventType } from './component';
+export type { ComponentInterface, ComponentConstructor } from './component';

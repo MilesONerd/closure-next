@@ -9,44 +9,42 @@ import { IdGenerator } from './id';
 /**
  * Component states that affect rendering and behavior
  */
-export var ComponentState;
-(function (ComponentState) {
-    ComponentState[ComponentState["ALL"] = 255] = "ALL";
-    ComponentState[ComponentState["DISABLED"] = 1] = "DISABLED";
-    ComponentState[ComponentState["HOVER"] = 2] = "HOVER";
-    ComponentState[ComponentState["ACTIVE"] = 4] = "ACTIVE";
-    ComponentState[ComponentState["SELECTED"] = 8] = "SELECTED";
-    ComponentState[ComponentState["CHECKED"] = 16] = "CHECKED";
-    ComponentState[ComponentState["FOCUSED"] = 32] = "FOCUSED";
-    ComponentState[ComponentState["OPENED"] = 64] = "OPENED";
-})(ComponentState || (ComponentState = {}));
+export const ComponentState = {
+    ALL: 0xFF,
+    DISABLED: 0x01,
+    HOVER: 0x02,
+    ACTIVE: 0x04,
+    SELECTED: 0x08,
+    CHECKED: 0x10,
+    FOCUSED: 0x20,
+    OPENED: 0x40
+};
 /**
  * Events dispatched by components
  */
-export var ComponentEventType;
-(function (ComponentEventType) {
-    ComponentEventType["BEFORE_SHOW"] = "beforeshow";
-    ComponentEventType["SHOW"] = "show";
-    ComponentEventType["HIDE"] = "hide";
-    ComponentEventType["DISABLE"] = "disable";
-    ComponentEventType["ENABLE"] = "enable";
-    ComponentEventType["HIGHLIGHT"] = "highlight";
-    ComponentEventType["UNHIGHLIGHT"] = "unhighlight";
-    ComponentEventType["ACTIVATE"] = "activate";
-    ComponentEventType["DEACTIVATE"] = "deactivate";
-    ComponentEventType["SELECT"] = "select";
-    ComponentEventType["UNSELECT"] = "unselect";
-    ComponentEventType["CHECK"] = "check";
-    ComponentEventType["UNCHECK"] = "uncheck";
-    ComponentEventType["FOCUS"] = "focus";
-    ComponentEventType["BLUR"] = "blur";
-    ComponentEventType["OPEN"] = "open";
-    ComponentEventType["CLOSE"] = "close";
-    ComponentEventType["ENTER"] = "enter";
-    ComponentEventType["LEAVE"] = "leave";
-    ComponentEventType["ACTION"] = "action";
-    ComponentEventType["CHANGE"] = "change";
-})(ComponentEventType || (ComponentEventType = {}));
+export const ComponentEventType = {
+    BEFORE_SHOW: 'beforeshow',
+    SHOW: 'show',
+    HIDE: 'hide',
+    DISABLE: 'disable',
+    ENABLE: 'enable',
+    HIGHLIGHT: 'highlight',
+    UNHIGHLIGHT: 'unhighlight',
+    ACTIVATE: 'activate',
+    DEACTIVATE: 'deactivate',
+    SELECT: 'select',
+    UNSELECT: 'unselect',
+    CHECK: 'check',
+    UNCHECK: 'uncheck',
+    FOCUS: 'focus',
+    BLUR: 'blur',
+    OPEN: 'open',
+    CLOSE: 'close',
+    ENTER: 'enter',
+    LEAVE: 'leave',
+    ACTION: 'action',
+    CHANGE: 'change'
+};
 export class Component extends EventTarget {
     // Public API methods are implemented below
     // These are concrete implementations, not abstract declarations
@@ -94,7 +92,7 @@ export class Component extends EventTarget {
     }
     /**
      * Creates the DOM element for this component.
-     * @protected
+     * @public
      */
     createDom() {
         if (!this.element) {
@@ -347,8 +345,8 @@ export class Component extends EventTarget {
             });
             this.domEventHandlers.clear();
             // Remove from DOM if not decorated
-            if (!this.wasDecorated) {
-                this.domHelper.removeNode(elementRef);
+            if (!this.wasDecorated && elementRef.parentElement) {
+                elementRef.parentElement.removeChild(elementRef);
             }
         }
         // Clear component event listeners
@@ -384,6 +382,10 @@ export class Component extends EventTarget {
         this.pointerEventsEnabled = false;
         this.id = '';
     }
+    /**
+     * Called when component enters the document.
+     * @public
+     */
     enterDocument() {
         // Create DOM if needed
         if (!this.element) {
@@ -546,6 +548,10 @@ export class Component extends EventTarget {
         }
         return !defaultPrevented;
     }
+    /**
+     * Called when component exits the document.
+     * @public
+     */
     exitDocument() {
         this.children.forEach(child => {
             if (child.isInDocument()) {

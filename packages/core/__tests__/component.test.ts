@@ -1,4 +1,4 @@
-import { Component, ComponentState, ComponentInterface } from '../src/component';
+import { Component, ComponentState, ComponentInterface, ComponentStateType } from '../src/component';
 import { DomHelper } from '../src';
 import { describe, test, expect, jest, beforeEach, afterEach } from '@jest/globals';
 
@@ -7,17 +7,17 @@ import { describe, test, expect, jest, beforeEach, afterEach } from '@jest/globa
  * All public methods are inherited from Component.
  */
 class TestComponent extends Component implements ComponentInterface {
-  private state = ComponentState.ALL;
+  private state: ComponentStateType = ComponentState.ALL;
   
   constructor(domHelper?: DomHelper) {
     super(domHelper);
   }
   
-  getState(): number {
+  getState(): ComponentStateType {
     return this.state;
   }
   
-  setState(state: number): void {
+  setState(state: ComponentStateType): void {
     this.state = state;
   }
 

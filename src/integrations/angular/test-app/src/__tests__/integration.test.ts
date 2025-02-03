@@ -1,4 +1,5 @@
-import { Component, ComponentState, ComponentInterface } from '@closure-next/core';
+import { Component, ComponentState, ComponentInterface, DomHelper } from '@closure-next/core';
+import { DomHelper } from '@closure-next/core';
 import { ClosureComponentDirective } from '../../../src';
 
 class TestComponent extends Component {
@@ -109,7 +110,7 @@ describe('Angular Integration', () => {
     const handler = jest.fn();
     component.addEventListener('click', handler);
     
-    element?.click();
+    (element as HTMLElement)?.click();
     expect(handler).toHaveBeenCalled();
   });
 

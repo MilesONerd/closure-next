@@ -11,43 +11,47 @@ import { IdGenerator } from './id';
 /**
  * Component states that affect rendering and behavior
  */
-export enum ComponentState {
-  ALL = 0xFF,
-  DISABLED = 0x01,
-  HOVER = 0x02,
-  ACTIVE = 0x04,
-  SELECTED = 0x08,
-  CHECKED = 0x10,
-  FOCUSED = 0x20,
-  OPENED = 0x40
-}
+export const ComponentState = {
+  ALL: 0xFF,
+  DISABLED: 0x01,
+  HOVER: 0x02,
+  ACTIVE: 0x04,
+  SELECTED: 0x08,
+  CHECKED: 0x10,
+  FOCUSED: 0x20,
+  OPENED: 0x40
+} as const;
+
+export type ComponentStateType = typeof ComponentState[keyof typeof ComponentState];
 
 /**
  * Events dispatched by components
  */
-export enum ComponentEventType {
-  BEFORE_SHOW = 'beforeshow',
-  SHOW = 'show',
-  HIDE = 'hide',
-  DISABLE = 'disable',
-  ENABLE = 'enable',
-  HIGHLIGHT = 'highlight',
-  UNHIGHLIGHT = 'unhighlight',
-  ACTIVATE = 'activate',
-  DEACTIVATE = 'deactivate',
-  SELECT = 'select',
-  UNSELECT = 'unselect',
-  CHECK = 'check',
-  UNCHECK = 'uncheck',
-  FOCUS = 'focus',
-  BLUR = 'blur',
-  OPEN = 'open',
-  CLOSE = 'close',
-  ENTER = 'enter',
-  LEAVE = 'leave',
-  ACTION = 'action',
-  CHANGE = 'change'
-}
+export const ComponentEventType = {
+  BEFORE_SHOW: 'beforeshow',
+  SHOW: 'show',
+  HIDE: 'hide',
+  DISABLE: 'disable',
+  ENABLE: 'enable',
+  HIGHLIGHT: 'highlight',
+  UNHIGHLIGHT: 'unhighlight',
+  ACTIVATE: 'activate',
+  DEACTIVATE: 'deactivate',
+  SELECT: 'select',
+  UNSELECT: 'unselect',
+  CHECK: 'check',
+  UNCHECK: 'uncheck',
+  FOCUS: 'focus',
+  BLUR: 'blur',
+  OPEN: 'open',
+  CLOSE: 'close',
+  ENTER: 'enter',
+  LEAVE: 'leave',
+  ACTION: 'action',
+  CHANGE: 'change'
+} as const;
+
+export type ComponentEventType = typeof ComponentEventType[keyof typeof ComponentEventType];
 
 /**
  * Base component class with lifecycle management and DOM manipulation.
