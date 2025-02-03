@@ -13,13 +13,12 @@ interface ClosureNextRollupOptions {
 }
 
 export function closureNextRollup(options: ClosureNextRollupOptions = {}): Plugin {
-  const { codeSplitting = true, paths = {} } = options;
+  const { paths = {} } = options;
 
   return {
     name: 'closure-next',
 
     resolveId(source, importer) {
-      // Handle custom module resolution
       for (const [alias, path] of Object.entries(paths)) {
         if (source.startsWith(alias)) {
           return source.replace(alias, path);
@@ -30,35 +29,14 @@ export function closureNextRollup(options: ClosureNextRollupOptions = {}): Plugi
 
     transform(code, id) {
       if (id.endsWith('.ts') || id.endsWith('.tsx')) {
-        // Add code splitting support
-        if (codeSplitting) {
-          return {
-            code: `${code}
-              // Enable code splitting for dynamic imports
-              if (import.meta.ROLLUP_FILE_URL_${id}) {
-                const url = import.meta.ROLLUP_FILE_URL_${id};
-                import(url);
-              }`,
-            map: null
-          };
-        }
-      }
-      return null;
-    },
-
-    outputOptions(options) {
-      // Configure output options for code splitting
-      if (codeSplitting) {
         return {
-          ...options,
-          manualChunks(id) {
-            if (id.includes('node_modules/@closure-next')) {
-              return 'closure-next';
-            }
-          }
+          code: code
+            .replace(/\.ts(['"])/g, '.js$1')
+            .replace(/from\s+['"]([^'"]+)\.ts['"]/g, 'from "$1.js"'),
+          map: null
         };
       }
-      return options;
+      return null;
     }
   };
 }

@@ -12,6 +12,9 @@
     "lib": ["es2020", "dom"],
     "esModuleInterop": true
   },
-  "include": ["src/**/*", "__tests__/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src/**/*", "src/__tests__/**/*"],
+  "exclude": ["node_modules", "dist"],
+  "references": [
+    { "path": "../../packages/core/tsconfig.build.json" }
+  ]
 }
