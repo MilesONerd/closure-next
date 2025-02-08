@@ -1,0 +1,32 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "../..",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "target": "es2020",
+    "lib": ["es2020", "dom"],
+    "esModuleInterop": true,
+    "baseUrl": "../..",
+    "paths": {
+      "@closure-next/core": ["packages/core/src"],
+      "ws": ["node_modules/@types/ws"]
+    },
+    "types": ["jest", "node", "ws"]
+  },
+  "include": [
+    "src/**/*",
+    "__tests__/**/*",
+    "__tests__/fixtures/**/*",
+    "__tests__/mockWebSocketServer.ts",
+    "index.ts"
+  ],
+  "exclude": ["node_modules", "dist"],
+  "references": [
+    { "path": "../../packages/core/tsconfig.build.json" }
+  ]
+}
