@@ -1,24 +1,26 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "types": ["cypress", "node", "jest", "chai", "@testing-library/cypress"],
-    "esModuleInterop": true,
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "outDir": "./dist",
+    "rootDir": ".",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
+    "target": "es2020",
+    "lib": ["es2020", "dom"],
+    "esModuleInterop": true,
+    "types": ["cypress", "node", "jest", "chai", "@testing-library/cypress"],
     "jsx": "preserve",
     "baseUrl": ".",
     "paths": {
-      "@closure-next/core/*": ["../../packages/core/src/*"],
       "@closure-next/core": ["../../packages/core/src"]
     },
     "allowJs": true,
     "skipLibCheck": true,
     "isolatedModules": true,
-    "composite": true,
-    "declaration": true,
-    "outDir": "./dist",
-    "rootDir": "."
+    "composite": true
   },
   "include": [
     "cypress/**/*",

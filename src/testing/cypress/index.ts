@@ -1,8 +1,3 @@
-/**
- * @fileoverview Cypress testing utilities for Closure Next.
- * @license Apache-2.0
- */
-
 /// <reference types="cypress" />
 
 import { Component } from '@closure-next/core';
