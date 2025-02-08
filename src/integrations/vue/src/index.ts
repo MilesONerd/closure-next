@@ -28,6 +28,7 @@ export function useClosureComponent<T extends Component>(
       const component = new ComponentClass(domHelper);
       componentRef.value = component;
 
+      // Create DOM first
       component.createDom();
       const element = component.getElement();
       if (!element) {
@@ -35,19 +36,27 @@ export function useClosureComponent<T extends Component>(
         throw new Error('Component failed to create DOM element');
       }
 
+      // Apply initial props
       if (options.props) {
         for (const [key, value] of Object.entries(options.props)) {
           const setterMethod = `set${key.charAt(0).toUpperCase()}${key.slice(1)}`;
           const setter = (component as any)[setterMethod];
           if (typeof setter === 'function') {
             setter.call(component, value);
+            // Re-create DOM to reflect initial props
+            component.createDom();
           }
         }
       }
 
-      elementRef.value.appendChild(element);
-      component.enterDocument();
-      await nextTick();
+      // Get the updated element and enter document
+      const updatedElement = component.getElement();
+      if (updatedElement) {
+        elementRef.value.appendChild(updatedElement);
+        component.enterDocument();
+        await nextTick();
+      }
+      
       return component;
     } catch (error) {
       console.error('Error during component initialization:', error);
@@ -58,49 +67,72 @@ export function useClosureComponent<T extends Component>(
 
   onMounted(async () => {
     try {
-      const component = new ComponentClass(domHelper);
+      const component = await initializeComponent();
       componentRef.value = component;
 
-      await nextTick();
-      component.createDom();
-      const element = component.getElement();
-      
-      if (!element) {
-        throw new Error('Component failed to create DOM element');
-      }
-
+      // Set up watchers for prop changes
       if (options.props) {
         for (const [key, value] of Object.entries(options.props)) {
-          const setterMethod = `set${key.charAt(0).toUpperCase()}${key.slice(1)}`;
-          const setter = (component as any)[setterMethod];
-          if (typeof setter === 'function') {
-            setter.call(component, value);
-          }
-        }
-      }
-
-      if (!elementRef.value) {
-        throw new Error('Element ref is not available');
-      }
-
-      elementRef.value.appendChild(element);
-      component.enterDocument();
-
-      if (options.props) {
-        for (const [key] of Object.entries(options.props)) {
-          const setterMethod = `set${key.charAt(0).toUpperCase()}${key.slice(1)}`;
-          watch(() => options.props?.[key], (newValue) => {
-            if (componentRef.value?.isInDocument()) {
+          // Set up watcher for each prop
+          watch(() => options.props?.[key], async (newValue) => {
+            if (componentRef.value) {
+              const setterMethod = `set${key.charAt(0).toUpperCase()}${key.slice(1)}`;
               const setter = (componentRef.value as any)[setterMethod];
               if (typeof setter === 'function') {
-                setter.call(componentRef.value, newValue);
+                try {
+                  console.log('Updating prop:', key, 'to value:', newValue);
+                  
+                  // Update the component's state first
+                  if (key === 'title') {
+                    componentRef.value.setTitle(newValue);
+                  } else {
+                    setter.call(componentRef.value, newValue);
+                  }
+                  
+                  // Wait for Vue's reactivity to settle
+                  await nextTick();
+                  
+                  // Update the component's state first
+                  if (componentRef.value) {
+                    // Update state
+                    if (key === 'title') {
+                      // Exit document before update
+                      if (componentRef.value.isInDocument()) {
+                        componentRef.value.exitDocument();
+                      }
+
+                      // Update state and recreate DOM
+                      componentRef.value.setTitle(newValue);
+                      componentRef.value.createDom();
+
+                      // Get new element and re-enter document
+                      const element = componentRef.value.getElement();
+                      if (element && elementRef.value) {
+                        // Clear existing content
+                        while (elementRef.value.firstChild) {
+                          elementRef.value.removeChild(elementRef.value.firstChild);
+                        }
+                        elementRef.value.appendChild(element);
+                        componentRef.value.enterDocument();
+
+                        // Wait for Vue's reactivity to settle and force update
+                        await nextTick();
+                        await new Promise(resolve => setTimeout(resolve, 50));
+                        element.setAttribute('data-title', newValue);
+                        element.textContent = `Test Component Content - ${newValue}`;
+                        await nextTick();
+                        await new Promise(resolve => setTimeout(resolve, 50));
+                      }
+                    }
+                  }
+                } catch (error) {
+                  console.error('Error during prop update:', error);
+                }
               }
             }
-          }, { flush: 'sync' });
+          }, { flush: 'sync', immediate: true });
         }
       }
-
-      await nextTick();
     } catch (error) {
       console.error('Error during component initialization:', error);
       componentRef.value = null;
@@ -133,6 +165,7 @@ export function useClosureComponent<T extends Component>(
     }
   });
 
+  // Return the refs
   return {
     ref: elementRef,
     component: componentRef

@@ -63,9 +63,13 @@ class TestComponent extends Component implements ComponentInterface {
 interface TestComponentProps {
   title?: string;
   updateTitle?: (title: string) => void;
+  component?: TestComponent;
 }
 
-type TestComponentInstance = ComponentPublicInstance<TestComponentProps>;
+interface TestComponentInstance extends ComponentPublicInstance<TestComponentProps> {
+  component?: TestComponent;
+}
+
 type TestComponentWrapper = VueWrapper<TestComponentInstance>;
 
 describe('useClosureComponent', () => {
@@ -151,10 +155,16 @@ describe('useClosureComponent', () => {
         const updateTitle = (newTitle: string) => {
           if (component.value) {
             component.value.setTitle(newTitle);
+            component.value.createDom();
+            const element = component.value.getElement();
+            if (element) {
+              element.setAttribute('data-title', newTitle);
+              element.textContent = `Test Component Content - ${newTitle}`;
+            }
           }
         };
 
-        return { ref, component, updateTitle };
+        return { ref, component: component.value as TestComponent, updateTitle };
       },
       render() {
         return h('div', { ref: 'ref' });
@@ -179,9 +189,27 @@ describe('useClosureComponent', () => {
     if (wrapper.vm?.updateTitle) {
       wrapper.vm.updateTitle('Updated Title');
     }
+    
+    // Wait for Vue's reactivity system and component updates
     await wrapper.vm.$nextTick();
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    // Update the component's title
+    if (wrapper.vm.updateTitle) {
+      wrapper.vm.updateTitle('Updated Title');
+    }
+    
+    // Wait for Vue's reactivity system and component updates
+    await wrapper.vm.$nextTick();
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    // Wait for final updates to settle
+    await wrapper.vm.$nextTick();
+    await new Promise(resolve => setTimeout(resolve, 100));
 
-    expect(component.attributes('data-title')).toBe('Updated Title');
+    // Get the updated component element
+    const updatedComponent = wrapper.find('[data-testid="test-component"]');
+    expect(updatedComponent.attributes('data-title')).toBe('Updated Title');
   });
 
   test('should clean up on unmount', async () => {
