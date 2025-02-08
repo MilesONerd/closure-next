@@ -1,14 +1,20 @@
 {
   "name": "@closure-next/nuxt",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "Nuxt.js integration for Closure Next",
   "type": "module",
   "main": "dist/index.js",
-  "module": "dist/index.mjs",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
   "scripts": {
-    "build": "tsc",
-    "test": "jest"
+    "build": "tsc --build tsconfig.build.json",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --config=jest.config.mjs"
   },
   "keywords": [
     "Closure",
@@ -35,19 +41,25 @@
     "@closure-next/core": "^1.0.9"
   },
   "devDependencies": {
-    "nuxt": "^3.8.0",
+    "@jest/globals": "^29.7.0",
     "@nuxt/kit": "^3.8.0",
+    "@nuxt/module-builder": "^0.5.0",
     "@nuxt/schema": "^3.8.0",
     "@nuxt/types": "^2.15.0",
+    "@testing-library/jest-dom": "^6.1.4",
+    "@testing-library/vue": "^8.0.1",
+    "@types/jest": "^29.5.5",
     "@types/node": "^20.0.0",
-    "@nuxt/module-builder": "^0.5.0",
-    "vue": "^3.0.0",
+    "@types/vue": "^2.0.0",
     "@vue/runtime-core": "^3.0.0",
     "@vue/runtime-dom": "^3.0.0",
-    "@types/vue": "^2.0.0",
-    "vue-tsc": "^1.0.0",
+    "@vue/test-utils": "^2.4.1",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "nuxt": "^3.8.0",
+    "ts-jest": "^29.1.1",
     "typescript": "^5.0.0",
-    "jest": "^29.0.0",
-    "@types/jest": "^29.0.0"
+    "vue": "^3.0.0",
+    "vue-tsc": "^1.0.0"
   }
 }
