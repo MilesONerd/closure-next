@@ -1,3 +1,4 @@
+import { describe, test, expect } from '@jest/globals';
 import { Component } from '@closure-next/core';
 
 class TestComponent extends Component {
