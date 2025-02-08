@@ -4,6 +4,7 @@
  */
 
 import { Component } from '@closure-next/core';
+import './src/types';
 
 interface MobileComponentOptions {
   /** Enable touch events */

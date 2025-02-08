@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": ".",
+    "rootDir": "../..",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
@@ -11,12 +11,13 @@
     "target": "es2020",
     "lib": ["es2020", "dom"],
     "esModuleInterop": true,
-    "baseUrl": ".",
+    "baseUrl": "../..",
     "paths": {
-      "@closure-next/core": ["../../packages/core/src"]
+      "@closure-next/core": ["packages/core/src"],
+      "@closure-next/core/*": ["packages/core/src/*"]
     }
   },
-  "include": ["src/**/*", "__tests__/**/*"],
+  "include": ["index.ts", "__tests__/**/*", "../../packages/core/src/**/*"],
   "exclude": ["node_modules", "dist"],
   "references": [
     { "path": "../../packages/core" }
