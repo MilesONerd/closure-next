@@ -1,6 +1,6 @@
 {
   "name": "@closure-next/vue",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Vue integration for Closure Next",
   "type": "module",
   "main": "dist/index.js",
