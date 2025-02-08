@@ -11,22 +11,12 @@
     "target": "es2020",
     "lib": ["es2020", "dom"],
     "esModuleInterop": true,
-    "types": ["cypress", "node", "jest", "chai", "@testing-library/cypress"],
-    "jsx": "preserve",
     "baseUrl": ".",
     "paths": {
       "@closure-next/core": ["../../packages/core/src"]
-    },
-    "allowJs": true,
-    "skipLibCheck": true,
-    "isolatedModules": true,
-    "composite": true
+    }
   },
-  "include": [
-    "cypress/**/*",
-    "jest/**/*",
-    "src/**/*"
-  ],
+  "include": ["src/**/*", "__tests__/**/*"],
   "exclude": ["node_modules", "dist"],
   "references": [
     { "path": "../../packages/core" }

@@ -1,8 +1,3 @@
-/**
- * @fileoverview Jest testing utilities for Closure Next.
- * @license Apache-2.0
- */
-
 import type { Component } from '@closure-next/core';
 import { expect } from '@jest/globals';
 
