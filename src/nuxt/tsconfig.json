@@ -10,22 +10,25 @@
     "allowJs": true,
     "baseUrl": ".",
     "paths": {
-      "@closure-next/core/*": ["../../packages/core/src/*"],
       "@closure-next/core": ["../../packages/core/src"],
+      "@closure-next/core/*": ["../../packages/core/src/*"],
       "~/*": ["./src/*"],
       "@/*": ["./src/*"],
-      "#app": ["./node_modules/nuxt/dist/app"],
-      "#head": ["./node_modules/nuxt/dist/head/runtime"],
-      "#imports": ["./node_modules/nuxt/dist/app/composables"],
-      "#components": ["./node_modules/nuxt/dist/app/components"]
+      "#app": ["./node_modules/nuxt/dist/app/index"],
+      "#head": ["./node_modules/nuxt/dist/head/runtime/index"],
+      "#imports": ["./node_modules/nuxt/dist/app/composables/index"],
+      "#components": ["./node_modules/nuxt/dist/app/components/index"]
     },
     "composite": true,
     "declaration": true,
     "outDir": "dist",
-    "rootDir": "src"
+    "rootDir": "../..",
+    "esModuleInterop": true
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "__tests__/**/*",
+    "../../packages/core/src/**/*"
   ],
   "exclude": ["node_modules", "dist"],
   "references": [
