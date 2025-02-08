@@ -1,29 +1,31 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "jsx": "preserve",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "outDir": "./dist",
+    "rootDir": "../..",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
     "module": "esnext",
     "moduleResolution": "bundler",
+    "target": "es2020",
+    "lib": ["es2020", "dom"],
+    "esModuleInterop": true,
+    "jsx": "preserve",
     "types": ["node", "@nuxt/types", "@types/jest"],
     "resolveJsonModule": true,
-    "allowJs": true,
-    "baseUrl": ".",
+    "baseUrl": "../..",
     "paths": {
-      "@closure-next/core": ["../../packages/core/src"],
-      "@closure-next/core/*": ["../../packages/core/src/*"],
-      "~/*": ["./src/*"],
-      "@/*": ["./src/*"],
-      "#app": ["./node_modules/nuxt/dist/app/index"],
-      "#head": ["./node_modules/nuxt/dist/head/runtime/index"],
-      "#imports": ["./node_modules/nuxt/dist/app/composables/index"],
-      "#components": ["./node_modules/nuxt/dist/app/components/index"]
+      "@closure-next/core": ["packages/core/src"],
+      "@closure-next/core/*": ["packages/core/src/*"],
+      "~/*": ["src/nuxt/src/*"],
+      "@/*": ["src/nuxt/src/*"],
+      "#app": ["src/nuxt/node_modules/nuxt/dist/app/index"],
+      "#head": ["src/nuxt/node_modules/nuxt/dist/head/runtime/index"],
+      "#imports": ["src/nuxt/node_modules/nuxt/dist/app/composables/index"],
+      "#components": ["src/nuxt/node_modules/nuxt/dist/app/components/index"]
     },
-    "composite": true,
-    "declaration": true,
-    "outDir": "dist",
-    "rootDir": "../..",
-    "esModuleInterop": true
+    "composite": true
   },
   "include": [
     "src/**/*",

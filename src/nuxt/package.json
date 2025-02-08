@@ -1,6 +1,6 @@
 {
   "name": "@closure-next/nuxt",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Nuxt.js integration for Closure Next",
   "type": "module",
   "main": "dist/index.js",
@@ -13,8 +13,8 @@
     }
   },
   "scripts": {
-    "build": "tsc --build tsconfig.build.json",
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest --config=jest.config.mjs"
+    "build": "tsc -p tsconfig.build.json",
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest --config=jest.config.mjs"
   },
   "keywords": [
     "Closure",
