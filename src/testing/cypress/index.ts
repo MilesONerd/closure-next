@@ -19,11 +19,9 @@ declare global {
   }
 }
 
-// Get the global Cypress object
 const cypressGlobal = (window as any).Cypress;
 
 if (cypressGlobal) {
-  // Mount a Closure component
   cypressGlobal.Commands.add(
     'mountClosureComponent',
     <T extends Component>(ComponentClass: new () => T, props?: Record<string, unknown>) => {
@@ -35,16 +33,17 @@ if (cypressGlobal) {
           });
         }
 
-        const container = win.document.createElement('div');
-        win.document.body.appendChild(container);
-        component.render(container);
+        component.enterDocument();
+        const element = component.getElement();
+        if (element) {
+          win.document.body.appendChild(element);
+        }
 
         return cy.wrap(component);
       });
     }
   );
 
-  // Get the component's element
   cypressGlobal.Commands.add(
     'getClosureElement',
     { prevSubject: true },
@@ -57,7 +56,6 @@ if (cypressGlobal) {
     }
   );
 
-  // Trigger an event on the component
   cypressGlobal.Commands.add(
     'triggerClosureEvent',
     { prevSubject: true },
@@ -74,7 +72,6 @@ if (cypressGlobal) {
     }
   );
 
-  // Assert component state
   cypressGlobal.Commands.add(
     'shouldHaveState',
     { prevSubject: true },

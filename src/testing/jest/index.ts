@@ -11,9 +11,6 @@ declare global {
   }
 }
 
-/**
- * Custom Jest matchers for Closure Next components
- */
 expect.extend({
   toBeRendered(received: Component) {
     const element = received.getElement();
@@ -45,9 +42,6 @@ expect.extend({
   }
 });
 
-/**
- * Creates a mock component for testing
- */
 export function createMockComponent<T extends Component>(
   ComponentClass: new () => T,
   props?: Record<string, unknown>
@@ -61,9 +55,6 @@ export function createMockComponent<T extends Component>(
   return component;
 }
 
-/**
- * Creates a test container and mounts a component
- */
 export function mountComponent<T extends Component>(
   ComponentClass: new () => T,
   props?: Record<string, unknown>
@@ -72,14 +63,15 @@ export function mountComponent<T extends Component>(
   document.body.appendChild(container);
 
   const component = createMockComponent(ComponentClass, props);
-  component.render(container);
+  component.enterDocument();
+  const element = component.getElement();
+  if (element) {
+    container.appendChild(element);
+  }
 
   return { component, container };
 }
 
-/**
- * Simulates events on components
- */
 export function simulateEvent(
   component: Component,
   eventType: string,
@@ -94,9 +86,6 @@ export function simulateEvent(
   element.dispatchEvent(event);
 }
 
-/**
- * Waits for component updates
- */
 export async function waitForUpdate(): Promise<void> {
   await new Promise(resolve => setTimeout(resolve, 0));
 }

@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": ".",
+    "rootDir": "../..",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
@@ -11,11 +11,12 @@
     "target": "es2020",
     "lib": ["es2020", "dom"],
     "esModuleInterop": true,
-    "types": ["cypress", "node", "jest", "chai", "@testing-library/cypress"],
+    "types": ["jest", "node", "@testing-library/jest-dom"],
     "jsx": "preserve",
-    "baseUrl": ".",
+    "baseUrl": "../..",
     "paths": {
-      "@closure-next/core": ["../../packages/core/src"]
+      "@closure-next/core": ["packages/core/src"],
+      "@closure-next/core/*": ["packages/core/src/*"]
     },
     "allowJs": true,
     "skipLibCheck": true,
@@ -25,7 +26,9 @@
   "include": [
     "cypress/**/*",
     "jest/**/*",
-    "src/**/*"
+    "src/**/*",
+    "__tests__/**/*",
+    "../../packages/core/src/**/*"
   ],
   "exclude": ["node_modules", "dist"],
   "references": [
