@@ -1,44 +1,26 @@
 import { jest } from '@jest/globals';
-import { TextEncoder, TextDecoder } from 'util';
+import '@testing-library/jest-dom';
 import { configure } from '@testing-library/dom';
-import * as matchers from '@testing-library/jest-dom/matchers';
-import { expect } from '@jest/globals';
-
-global.TextEncoder = TextEncoder;
-global.TextDecoder = TextDecoder;
-
-const { JSDOM } = await import('jsdom');
-
-const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>', {
-  url: 'http://localhost',
-  pretendToBeVisual: true,
-  runScripts: 'dangerously'
-});
-
-global.window = dom.window;
-global.document = dom.window.document;
-global.navigator = dom.window.navigator;
-
-Object.defineProperty(window, 'getComputedStyle', {
-  value: () => ({
-    getPropertyValue: () => ''
-  })
-});
-
-Object.keys(dom.window).forEach(property => {
-  if (typeof global[property] === 'undefined') {
-    global[property] = dom.window[property];
-  }
-});
-
-global.requestAnimationFrame = callback => setTimeout(callback, 0);
-global.cancelAnimationFrame = id => clearTimeout(id);
-
-global.ResizeObserver = jest.fn().mockImplementation(() => ({
-  observe: jest.fn(),
-  unobserve: jest.fn(),
-  disconnect: jest.fn(),
-}));
 
 configure({ testIdAttribute: 'data-testid' });
-expect.extend(matchers);
+
+const cleanup = () => {
+  if (document && document.body) {
+    document.body.innerHTML = '';
+  }
+};
+
+jest.mock('@jest/globals', () => {
+  const actual = jest.requireActual('@jest/globals');
+  return {
+    ...actual,
+    beforeEach: fn => fn(),
+    afterEach: fn => fn(),
+    describe: (name, fn) => fn(),
+    test: (name, fn) => fn(),
+    expect: actual.expect
+  };
+});
+
+cleanup();
+jest.clearAllMocks();

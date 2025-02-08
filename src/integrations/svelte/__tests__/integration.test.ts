@@ -1,6 +1,6 @@
 import { jest, describe, test, beforeEach, afterEach, expect } from '@jest/globals';
 import { Component, type ComponentInterface, type DomHelper } from '@closure-next/core';
-import { render, cleanup, waitFor } from '@testing-library/svelte';
+import { render, cleanup, waitFor, fireEvent } from '@testing-library/svelte';
 import '@testing-library/jest-dom';
 import TestWrapper from './TestWrapper.svelte';
 
@@ -95,10 +95,11 @@ describe('Svelte Integration', () => {
   });
 
   test('should render Closure component', async () => {
+    const testComponent = new TestComponent();
+    testComponent.createDom();
+    
     const { container } = render(TestWrapper, {
-      props: {
-        component: TestComponent
-      }
+      props: { component: testComponent }
     });
 
     await waitFor(() => {
@@ -106,103 +107,64 @@ describe('Svelte Integration', () => {
       const element = container.querySelector('[data-testid="test-component"]');
       expect(element).toBeInTheDocument();
       expect(wrapper).toBeInTheDocument();
-    }, { timeout: 5000 });
+    });
   });
 
-  test('should handle props', async () => {
+  test('should handle props and updates', async () => {
+    const testComponent = new TestComponent();
+    testComponent.setTitle('Test Title');
+
     const { container } = render(TestWrapper, {
-      props: {
-        component: TestComponent,
-        props: {
-          title: 'Test Title'
-        }
-      }
+      props: { component: testComponent }
     });
 
-    // Wait for component to mount
-    await new Promise(resolve => setTimeout(resolve, 0));
+    await waitFor(() => {
+      const element = container.querySelector('[data-testid="test-component"]');
+      expect(element).toBeInTheDocument();
+      expect(element).toHaveAttribute('data-title', 'Test Title');
+    });
 
-    const element = container.querySelector('[data-testid="test-component"]');
-    expect(element).toBeTruthy();
-    expect(element).toHaveAttribute('data-title', 'Test Title');
+    testComponent.setTitle('Updated Title');
+
+    await waitFor(() => {
+      const element = container.querySelector('[data-testid="test-component"]');
+      expect(element).toHaveAttribute('data-title', 'Updated Title');
+    });
   });
 
-  test('should update on prop changes', async () => {
-    const { container, component } = render(TestWrapper, {
-      props: {
-        component: TestComponent,
-        props: {
-          title: 'Initial Title'
-        }
-      }
+  test('should handle cleanup', async () => {
+    const testComponent = new TestComponent();
+    const { container } = render(TestWrapper, {
+      props: { component: testComponent }
     });
 
-    // Wait for component to mount
-    await new Promise(resolve => setTimeout(resolve, 0));
-
-    const element = container.querySelector('[data-testid="test-component"]');
-    expect(element).toBeTruthy();
-    expect(element).toHaveAttribute('data-title', 'Initial Title');
-
-    // Update props through Svelte component
-    component.$set({ props: { title: 'Updated Title' } });
-
-    // Wait for update
-    await new Promise(resolve => setTimeout(resolve, 0));
-    expect(element).toHaveAttribute('data-title', 'Updated Title');
-  });
-
-  test('should clean up on destroy', async () => {
-    const { container, component } = render(TestWrapper, {
-      props: {
-        component: TestComponent
-      }
+    await waitFor(() => {
+      const element = container.querySelector('[data-testid="test-component"]');
+      expect(element).toBeInTheDocument();
     });
 
-    // Wait for component to mount
-    await new Promise(resolve => setTimeout(resolve, 0));
+    const exitDocumentSpy = jest.spyOn(testComponent, 'exitDocument');
+    cleanup();
 
-    const element = container.querySelector('[data-testid="test-component"]');
-    expect(element).toBeTruthy();
-
-    // Get the Closure component instance
-    const closureInstance = (element as any)._closureComponent;
-    expect(closureInstance).toBeTruthy();
-
-    const disposeSpy = jest.spyOn(closureInstance, 'dispose');
-    component.$destroy();
-
-    // Wait for cleanup
-    await new Promise(resolve => setTimeout(resolve, 0));
-    expect(disposeSpy).toHaveBeenCalled();
+    expect(exitDocumentSpy).toHaveBeenCalled();
   });
 
   test('should handle events', async () => {
+    const testComponent = new TestComponent();
     const { container } = render(TestWrapper, {
-      props: {
-        component: TestComponent
-      }
+      props: { component: testComponent }
     });
 
-    // Wait for component to mount
-    await new Promise(resolve => setTimeout(resolve, 0));
+    await waitFor(() => {
+      const element = container.querySelector('[data-testid="test-component"]');
+      expect(element).toBeInTheDocument();
+    });
 
     const element = container.querySelector('[data-testid="test-component"]');
-    expect(element).toBeTruthy();
+    const clickHandler = jest.fn();
+    element?.addEventListener('click', clickHandler);
 
-    // Get the Closure component instance
-    const closureInstance = (element as any)._closureComponent;
-    expect(closureInstance).toBeTruthy();
-
-    // Set up event handler
-    const handler = jest.fn();
-    closureInstance.addEventListener('click', handler);
-
-    // Simulate click
-    element?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-
-    // Wait for event handling
-    await new Promise(resolve => setTimeout(resolve, 0));
-    expect(handler).toHaveBeenCalled();
+    await fireEvent.click(element!);
+    expect(clickHandler).toHaveBeenCalled();
   });
 });

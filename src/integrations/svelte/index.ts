@@ -3,7 +3,7 @@
  * @license Apache-2.0
  */
 
-import type { Component } from '@closure-next/core';
+import { Component, type ComponentConstructor } from '@closure-next/core/dist/index.js';
 import { SvelteComponent, type ComponentType } from 'svelte';
 
 interface ClosureComponentOptions<T extends Component> {
