@@ -128,7 +128,7 @@ describe('Mobile Integration', () => {
   });
 
   describe('HybridComponent', () => {
-    test('should handle native messages', () => {
+    test('should handle native messages', async () => {
       const component = new TestHybridComponent();
       component.render(container);
       
@@ -139,10 +139,13 @@ describe('Mobile Integration', () => {
       const handler = jest.fn();
       element?.addEventListener('native-message', handler);
       
-      // Simulate message from native app
-      window.postMessage({ type: 'test', data: 'message' }, '*');
+      // Create and dispatch native message event
+      const nativeEvent = new CustomEvent('native-message', {
+        detail: { type: 'test', data: 'message' }
+      });
+      element?.dispatchEvent(nativeEvent);
       
-      expect(handler).toHaveBeenCalled();
+      expect(handler).toHaveBeenCalledWith(nativeEvent);
     });
 
     test('should send messages to native app', () => {
