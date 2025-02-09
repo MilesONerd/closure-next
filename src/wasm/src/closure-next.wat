@@ -134,44 +134,51 @@
     
     (local.get $i))
 
-  ;; Quicksort implementation
-  (func $quicksort (type $quicksort_type) (param $arr i32) (param $low i32) (param $high i32)
-    (local $pi i32)
-    (if (i32.and 
-          (i32.ge_s (local.get $low) (i32.const 0))
-          (i32.lt_s (local.get $low) (local.get $high)))
-      (then
-        ;; Get partition index
-        (local.set $pi 
-          (call $partition 
-            (local.get $arr) 
-            (local.get $low) 
-            (local.get $high)))
-        
-        ;; Sort left partition
-        (if (i32.gt_s (local.get $pi) (i32.const 0))
-          (then
-            (call $quicksort 
-              (local.get $arr) 
-              (local.get $low) 
-              (i32.sub (local.get $pi) (i32.const 1)))))
-        
-        ;; Sort right partition
-        (if (i32.lt_s (local.get $pi) (local.get $high))
-          (then
-            (call $quicksort 
-              (local.get $arr) 
-              (i32.add (local.get $pi) (i32.const 1)) 
-              (local.get $high)))))))
-
-  ;; Main array sort function (using quicksort)
+  ;; Insertion sort implementation
   (func $arraySort (type $array_sort_type) (param $arr i32) (param $len i32)
-    (if (i32.gt_s (local.get $len) (i32.const 1))
-      (then
-        (call $quicksort 
-          (local.get $arr) 
-          (i32.const 0) 
-          (i32.sub (local.get $len) (i32.const 1))))))
+    (local $i i32)
+    (local $j i32)
+    (local $key f64)
+    (local $addr i32)
+    
+    ;; Start from second element
+    (local.set $i (i32.const 1))
+    
+    ;; Outer loop: iterate through array
+    (block $sort_done
+      (loop $sort_loop
+        (br_if $sort_done (i32.ge_s (local.get $i) (local.get $len)))
+        
+        ;; Get current element as key
+        (local.set $key (call $getElement (local.get $arr) (local.get $i)))
+        (local.set $j (i32.sub (local.get $i) (i32.const 1)))
+        
+        ;; Inner loop: move elements greater than key
+        (block $insert_done
+          (loop $insert_loop
+            (br_if $insert_done 
+              (i32.or
+                (i32.lt_s (local.get $j) (i32.const 0))
+                (f64.le (call $getElement (local.get $arr) (local.get $j)) 
+                       (local.get $key))))
+            
+            ;; Move element right
+            (call $setElement 
+              (local.get $arr)
+              (i32.add (local.get $j) (i32.const 1))
+              (call $getElement (local.get $arr) (local.get $j)))
+            
+            (local.set $j (i32.sub (local.get $j) (i32.const 1)))
+            (br $insert_loop)))
+        
+        ;; Insert key at correct position
+        (call $setElement 
+          (local.get $arr)
+          (i32.add (local.get $j) (i32.const 1))
+          (local.get $key))
+        
+        (local.set $i (i32.add (local.get $i) (i32.const 1)))
+        (br $sort_loop))))
   
   ;; Binary search
   (func $arrayBinarySearch (type $binary_search_type) (param $arr i32) (param $len i32) (param $target f64) (result i32)
