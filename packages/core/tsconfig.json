@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": ".",
+    "rootDir": "src",
     "baseUrl": ".",
     "target": "ES2015",
     "module": "CommonJS",
@@ -10,13 +10,14 @@
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "declaration": true,
+    "declarationMap": true,
     "sourceMap": true,
+    "composite": true,
     "skipLibCheck": true,
-    "types": ["jest", "node"],
     "paths": {
       "@closure-next/core": ["./src"]
     }
   },
-  "include": ["src/**/*", "__tests__/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "__tests__"]
 }
