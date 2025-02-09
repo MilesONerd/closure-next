@@ -193,10 +193,9 @@
           )
           
           (local.set $i (i32.add (local.get $i) (i32.const 1)))
-          (br $encode)
+          (br $encode))
         )
       )
-    )
     
     ;; Return number of bytes written
     (local.get $bytesWritten)
