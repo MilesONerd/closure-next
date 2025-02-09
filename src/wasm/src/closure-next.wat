@@ -63,7 +63,8 @@
     (f64.store (local.get $addr2) (local.get $val1)))
 
   ;; Partition function for quicksort
-  (func $partition (type $partition_type) (param $arr i32) (param $low i32) (param $high i32) (result i32)
+  (func $partition (type $partition_type)
+    (param $arr i32) (param $low i32) (param $high i32) (result i32)
     (local $i i32)
     (local $j i32)
     (local $pivot_addr i32)
@@ -96,12 +97,9 @@
         (local.set $j (i32.add (local.get $j) (i32.const 1)))
         (br $partition_loop)))
     
-    ;; Return partition index
-    (i32.add (local.get $i) (i32.const 1)))
-    
     ;; Place pivot in correct position
     (local.set $i (i32.add (local.get $i) (i32.const 1)))
-    (call $swapElements (local.get 0) (local.get $i) (local.get 2))
+    (call $swapElements (local.get $arr) (local.get $i) (local.get $high))
     (local.get $i))
 
   ;; Quicksort implementation
