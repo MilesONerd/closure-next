@@ -1,47 +1,19 @@
 import { Component, DOMHelper } from '@closure-next/core';
-import type { SSROptions, HydrationOptions } from './types';
+import type { ComponentInterface } from '@closure-next/core';
 
-/**
- * Renders a component to string for server-side rendering
- */
-export async function renderToString(
-  component: typeof Component,
-  containerId: string,
-  options: Omit<SSROptions, 'component' | 'containerId'> = {}
-): Promise<string> {
-  const instance = new component(new DOMHelper(document));
-  
-  if (options.props) {
-    Object.assign(instance, options.props);
+export class ServerComponent extends Component implements ComponentInterface {
+  constructor(domHelper: DOMHelper) {
+    super(domHelper);
   }
 
-  const container = document.getElementById(containerId);
-  if (!container) {
-    throw new Error(`Container with id "${containerId}" not found`);
+  async renderToString(): Promise<string> {
+    if (!this.element) {
+      await this.createDom();
+    }
+    return this.element?.outerHTML || '';
   }
 
-  await instance.render(container);
-  return container.innerHTML;
-}
-
-/**
- * Hydrates a server-rendered component on the client
- */
-export async function hydrateComponent(
-  component: typeof Component,
-  containerId: string,
-  options: Omit<HydrationOptions, 'component' | 'containerId'> = {}
-): Promise<void> {
-  const instance = new component(new DOMHelper(document));
-  
-  if (options.props) {
-    Object.assign(instance, options.props);
+  async hydrate(): Promise<void> {
+    await this.createDom();
   }
-
-  const container = document.getElementById(containerId);
-  if (!container) {
-    throw new Error(`Container with id "${containerId}" not found`);
-  }
-
-  await instance.render(container);
 }
