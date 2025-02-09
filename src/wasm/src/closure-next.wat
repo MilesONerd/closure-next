@@ -4,20 +4,20 @@
   (export "memory" (memory 0))
 
   ;; Function declarations
-  (type $get_element_type (func (param i32 i32) (result f64)))
-  (type $set_element_type (func (param i32 i32 f64)))
-  (type $swap_elements_type (func (param i32 i32 i32)))
-  (type $partition_type (func (param i32 i32 i32) (result i32)))
-  (type $quicksort_type (func (param i32 i32 i32)))
-  (type $array_sort_type (func (param i32 i32)))
-  (type $binary_search_type (func (param i32 i32 f64) (result i32)))
-  (type $string_compare_type (func (param i32 i32 i32 i32) (result i32)))
-  (type $string_encode_type (func (param i32 i32) (result i32)))
-  (type $traverse_dom_type (func (param i32) (result i32)))
-  (type $get_attribute_type (func (param i32 i32 i32) (result i32)))
-  (type $dispatch_event_type (func (param i32 i32 i32) (result i32)))
-  (type $calc_addr_type (func (param i32 i32) (result i32)))
-  (type $compare_type (func (param f64 f64) (result i32)))
+  (type $get_element_type (func (param $arr i32) (param $idx i32) (result f64)))
+  (type $set_element_type (func (param $arr i32) (param $idx i32) (param $val f64)))
+  (type $swap_elements_type (func (param $arr i32) (param $i i32) (param $j i32)))
+  (type $partition_type (func (param $arr i32) (param $low i32) (param $high i32) (result i32)))
+  (type $quicksort_type (func (param $arr i32) (param $low i32) (param $high i32)))
+  (type $array_sort_type (func (param $arr i32) (param $len i32)))
+  (type $binary_search_type (func (param $arr i32) (param $len i32) (param $target f64) (result i32)))
+  (type $string_compare_type (func (param $str1 i32) (param $len1 i32) (param $str2 i32) (param $len2 i32) (result i32)))
+  (type $string_encode_type (func (param $str i32) (param $len i32) (result i32)))
+  (type $traverse_dom_type (func (param $node i32) (result i32)))
+  (type $get_attribute_type (func (param $node i32) (param $attr i32) (param $len i32) (result i32)))
+  (type $dispatch_event_type (func (param $node i32) (param $event i32) (param $data i32) (result i32)))
+  (type $calc_addr_type (func (param $arr i32) (param $idx i32) (result i32)))
+  (type $compare_type (func (param $a f64) (param $b f64) (result i32)))
 
   ;; Helper function to compare two f64 values
   (func $compare (type $compare_type)
@@ -29,30 +29,30 @@
           (else (return (i32.const 0)))))))
 
   ;; Helper function to calculate array address
-  (func $calcAddr (type $calc_addr_type)
-    (i32.add (local.get 0)
-      (i32.mul (local.get 1) (i32.const 8))))
+  (func $calcAddr (type $calc_addr_type) (param $arr i32) (param $idx i32) (result i32)
+    (i32.add (local.get $arr)
+      (i32.mul (local.get $idx) (i32.const 8))))
 
   ;; Helper function to get array element at index
-  (func $getElement (type $get_element_type)
-    (f64.load (call $calcAddr (local.get 0) (local.get 1))))
+  (func $getElement (type $get_element_type) (param $arr i32) (param $idx i32) (result f64)
+    (f64.load (call $calcAddr (local.get $arr) (local.get $idx))))
 
   ;; Helper function to set array element at index
-  (func $setElement (type $set_element_type)
+  (func $setElement (type $set_element_type) (param $arr i32) (param $idx i32) (param $val f64)
     (f64.store 
-      (call $calcAddr (local.get 0) (local.get 1))
-      (local.get 2)))
+      (call $calcAddr (local.get $arr) (local.get $idx))
+      (local.get $val)))
 
   ;; Helper function to swap elements
-  (func $swapElements (type $swap_elements_type)
+  (func $swapElements (type $swap_elements_type) (param $arr i32) (param $i i32) (param $j i32)
     (local $addr1 i32)
     (local $addr2 i32)
     (local $val1 f64)
     (local $val2 f64)
     
     ;; Calculate addresses
-    (local.set $addr1 (call $calcAddr (local.get 0) (local.get 1)))
-    (local.set $addr2 (call $calcAddr (local.get 0) (local.get 2)))
+    (local.set $addr1 (call $calcAddr (local.get $arr) (local.get $i)))
+    (local.set $addr2 (call $calcAddr (local.get $arr) (local.get $j)))
     
     ;; Load values
     (local.set $val1 (f64.load (local.get $addr1)))
@@ -63,7 +63,7 @@
     (f64.store (local.get $addr2) (local.get $val1)))
 
   ;; Partition function for quicksort
-  (func $partition (type $partition_type)
+  (func $partition (type $partition_type) (param $arr i32) (param $low i32) (param $high i32) (result i32)
     (local $i i32)
     (local $j i32)
     (local $pivot_addr i32)
@@ -72,26 +72,26 @@
     (local $curr_val f64)
     
     ;; Calculate pivot address and load value
-    (local.set $pivot_addr (call $calcAddr (local.get 0) (local.get 2)))
+    (local.set $pivot_addr (call $calcAddr (local.get $arr) (local.get $high)))
     (local.set $pivot_val (f64.load (local.get $pivot_addr)))
     
     ;; Initialize indices
-    (local.set $i (i32.sub (local.get 1) (i32.const 1)))
-    (local.set $j (local.get 1))
+    (local.set $i (i32.sub (local.get $low) (i32.const 1)))
+    (local.set $j (local.get $low))
     
     (block $partition_done
       (loop $partition_loop
-        (br_if $partition_done (i32.ge_s (local.get $j) (local.get 2)))
+        (br_if $partition_done (i32.ge_s (local.get $j) (local.get $high)))
         
         ;; Calculate current address and load value
-        (local.set $curr_addr (call $calcAddr (local.get 0) (local.get $j)))
+        (local.set $curr_addr (call $calcAddr (local.get $arr) (local.get $j)))
         (local.set $curr_val (f64.load (local.get $curr_addr)))
         
         ;; Compare values
         (if (f64.le (local.get $curr_val) (local.get $pivot_val))
           (then
             (local.set $i (i32.add (local.get $i) (i32.const 1)))
-            (call $swapElements (local.get 0) (local.get $i) (local.get $j))))
+            (call $swapElements (local.get $arr) (local.get $i) (local.get $j))))
         
         (local.set $j (i32.add (local.get $j) (i32.const 1)))
         (br $partition_loop)))
@@ -138,20 +138,16 @@
           (i32.sub (local.get 1) (i32.const 1))))))
   
   ;; Binary search
-  (func $arrayBinarySearch (type $binary_search_type)
+  (func $arrayBinarySearch (type $binary_search_type) (param $arr i32) (param $len i32) (param $target f64) (result i32)
     (local $left i32)
     (local $right i32)
     (local $mid i32)
     (local $curr_addr i32)
     (local $curr_val f64)
-    (local $target_val f64)
-    
-    ;; Store target value
-    (local.set $target_val (local.get 2))
     
     ;; Initialize search bounds
     (local.set $left (i32.const 0))
-    (local.set $right (i32.sub (local.get 1) (i32.const 1)))
+    (local.set $right (i32.sub (local.get $len) (i32.const 1)))
     
     (block $search_done
       (loop $search
@@ -165,15 +161,15 @@
             (i32.const 2)))
         
         ;; Calculate address and load value
-        (local.set $curr_addr (call $calcAddr (local.get 0) (local.get $mid)))
+        (local.set $curr_addr (call $calcAddr (local.get $arr) (local.get $mid)))
         (local.set $curr_val (f64.load (local.get $curr_addr)))
         
         ;; Compare values
-        (if (f64.eq (local.get $curr_val) (local.get $target_val))
+        (if (f64.eq (local.get $curr_val) (local.get $target))
           (then 
             (return (local.get $mid)))
           (else
-            (if (f64.lt (local.get $curr_val) (local.get $target_val))
+            (if (f64.lt (local.get $curr_val) (local.get $target))
               (then
                 (local.set $left 
                   (i32.add (local.get $mid) (i32.const 1))))
