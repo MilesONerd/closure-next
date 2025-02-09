@@ -63,21 +63,6 @@ export interface ComponentEventMap {
 }
 
 /**
- * Component constructor type
- */
-export interface ComponentConstructor<T extends Component = Component> {
-  new (...args: any[]): T;
-}
-
-/**
- * SSR options interface
- */
-export interface SSROptions {
-  hydration?: 'client-only' | 'server-first' | 'progressive';
-  ssr?: boolean;
-}
-
-/**
  * Component interface
  */
 export interface ComponentInterface {
@@ -101,4 +86,19 @@ export interface ComponentInterface {
     listener: EventHandler<ComponentEventMap[K]>
   ): void;
   dispatchEvent(event: Event): boolean;
+}
+
+/**
+ * Component constructor type
+ */
+export interface ComponentConstructor<T extends Component = Component> {
+  new (...args: any[]): T;
+}
+
+/**
+ * SSR options interface
+ */
+export interface SSROptions {
+  hydration?: 'client-only' | 'server-first' | 'progressive';
+  ssr?: boolean;
 }

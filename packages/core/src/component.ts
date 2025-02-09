@@ -1,9 +1,9 @@
 import { DomHelper } from './dom';
 import { EventTarget } from './events';
+import { ComponentStateFlags } from './types';
 import type {
   ComponentProps,
   ComponentStateInterface,
-  ComponentStateFlags,
   ComponentEventMap,
   EventHandler
 } from './types';
