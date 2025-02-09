@@ -1,6 +1,6 @@
 import React from 'react';
-import type { ClosureComponentProps, ErrorBoundaryProps, ErrorBoundaryState, ClosureInstance } from './types';
-import { DomHelper } from '@closure-next/core/dist/index.js';
+import type { ClosureComponentState, ErrorBoundaryProps, ErrorBoundaryState, ClosureInstance } from './types';
+import { DOMHelper } from '@closure-next/core/dist/index.js';
 
 class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
@@ -37,13 +37,13 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
 function ClosureContent<T extends Component>({ 
   component: ComponentClass, 
   props = {} 
-}: ClosureComponentProps<T>): JSX.Element {
+}: ClosureComponentState<T>): JSX.Element {
   const ref = React.useRef<HTMLDivElement>(null);
   const componentRef = React.useRef<ClosureInstance<T> | null>(null);
 
   React.useEffect(() => {
     if (ref.current && !componentRef.current) {
-      const instance = new ComponentClass(new DomHelper(document)) as ClosureInstance<T>;
+      const instance = new ComponentClass(new DOMHelper(document)) as ClosureInstance<T>;
       componentRef.current = instance;
 
       // Update props before entering document
@@ -84,7 +84,7 @@ export function ClosureComponent<T extends Component>({
   props,
   errorBoundary = true,
   fallback = null
-}: ClosureComponentProps<T>): JSX.Element {
+}: ClosureComponentState<T>): JSX.Element {
   if (!errorBoundary) {
     return <ClosureContent component={component} props={props} />;
   }

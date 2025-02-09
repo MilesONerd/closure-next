@@ -1,11 +1,11 @@
-import { Component, ComponentProps, ComponentInterface } from '@closure-next/core/dist/index.js';
+import { Component, ComponentState, ComponentInterface } from '@closure-next/core/dist/index.js';
 import type { Writable } from 'svelte/store';
 
 /**
  * Svelte-specific component options
  */
 export interface ClosureComponentOptions<T extends Component = Component> {
-  props?: ComponentProps;
+  props?: ComponentState;
   ssrOptions?: {
     hydration?: 'client-only' | 'server-first' | 'progressive';
     ssr?: boolean;
@@ -20,9 +20,9 @@ export interface ClosureComponentOptions<T extends Component = Component> {
  */
 export interface ClosureStore<T extends Component = Component> {
   component: Writable<T | null>;
-  props: Writable<ComponentProps>;
+  props: Writable<ComponentState>;
   element: Writable<HTMLElement | null>;
-  setProps(props: Partial<ComponentProps>): Promise<void>;
+  setProps(props: Partial<ComponentState>): Promise<void>;
 }
 
 /**

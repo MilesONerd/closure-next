@@ -1,14 +1,14 @@
-import { Component, DomHelper, type ComponentProps } from "@closure-next/core/dist/index.js";
+import { Component, DOMHelper, type ComponentState } from "@closure-next/core/dist/index.js";
 import React from "react";
-import type { ClosureComponentProps, UseClosureComponentReturn, ClosureInstance } from './types';
+import type { ClosureComponentState, UseClosureComponentReturn, ClosureInstance } from './types';
 
 export function useClosureComponent<T extends Component>(
-  ComponentClass: new (domHelper?: DomHelper) => T
+  ComponentClass: new (domHelper?: DOMHelper) => T
 ): UseClosureComponentReturn<T> {
   const componentRef = React.useRef<ClosureInstance<T> | null>(null);
   const elementRef = React.useRef<HTMLDivElement | null>(null);
 
-  const setProps = React.useCallback((props: Partial<ComponentProps>) => {
+  const setProps = React.useCallback((props: Partial<ComponentState>) => {
     if (componentRef.current) {
       Object.entries(props).forEach(([key, value]) => {
         const method = `set${key.charAt(0).toUpperCase()}${key.slice(1)}`;
@@ -28,7 +28,7 @@ export function useClosureComponent<T extends Component>(
   React.useEffect(() => {
     if (elementRef.current && !componentRef.current) {
       try {
-        const component = new ComponentClass(new DomHelper(document));
+        const component = new ComponentClass(new DOMHelper(document));
         componentRef.current = component as ClosureInstance<T>;
         
         component.enterDocument();
@@ -61,4 +61,4 @@ export function useClosureComponent<T extends Component>(
 }
 
 export { ClosureComponent } from './ClosureComponent';
-export type { ClosureComponentProps, UseClosureComponentReturn, ClosureInstance } from './types';
+export type { ClosureComponentState, UseClosureComponentReturn, ClosureInstance } from './types';

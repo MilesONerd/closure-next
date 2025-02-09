@@ -1,15 +1,15 @@
 import { ref, shallowRef, onMounted, onBeforeUnmount, nextTick, type Ref, type ShallowRef } from 'vue';
-import { Component, DomHelper, type ComponentProps } from '@closure-next/core/dist/index.js';
+import { Component, DOMHelper, type ComponentState } from '@closure-next/core/dist/index.js';
 import type { ClosureComponentRef, ClosureComponentOptions, ClosureInstance } from './types';
 
 export function useClosureComponent<T extends Component>(
-  ComponentClass: new (domHelper?: DomHelper) => T,
+  ComponentClass: new (domHelper?: DOMHelper) => T,
   options: ClosureComponentOptions<T> = {}
 ): ClosureComponentRef<T> {
   const elementRef = ref<HTMLElement | null>(null);
   const componentRef = shallowRef<ClosureInstance<T> | null>(null);
 
-  const setProps = async (props: Partial<ComponentProps>): Promise<void> => {
+  const setProps = async (props: Partial<ComponentState>): Promise<void> => {
     if (componentRef.value) {
       Object.entries(props).forEach(([key, value]) => {
         const method = `set${key.charAt(0).toUpperCase()}${key.slice(1)}`;
@@ -33,7 +33,7 @@ export function useClosureComponent<T extends Component>(
     }
 
     try {
-      const component = new ComponentClass(new DomHelper(document)) as ClosureInstance<T>;
+      const component = new ComponentClass(new DOMHelper(document)) as ClosureInstance<T>;
       componentRef.value = component;
 
       // Apply initial props

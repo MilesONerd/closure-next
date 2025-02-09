@@ -1,13 +1,13 @@
 import React from 'react';
 import { render, cleanup, screen, act, within } from '@testing-library/react';
 import { jest, describe, test, expect, beforeEach, afterEach } from '@jest/globals';
-import { Component, DomHelper } from '@closure-next/core/dist/index.js';
+import { Component, DOMHelper } from '@closure-next/core/dist/index.js';
 import { ClosureComponent } from '../src/ClosureComponent.js';
 import { TestComponent } from './TestComponent.js';
 
 class ErrorComponent extends Component {
   constructor() {
-    super(new DomHelper(document));
+    super(new DOMHelper(document));
   }
 
   public override enterDocument(): void {

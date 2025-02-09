@@ -1,5 +1,5 @@
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component as ClosureComponent, DomHelper } from '@closure-next/core';
+import { Component as ClosureComponent, DOMHelper } from '@closure-next/core';
 import { Component as NgComponent } from '@angular/core';
 import { ClosureComponentDirective } from '../index';
 
@@ -7,7 +7,7 @@ class TestComponent extends ClosureComponent {
   private title: string = '';
 
   constructor() {
-    super(new DomHelper(document));
+    super(new DOMHelper(document));
   }
 
   setTitle(title: string): void {
@@ -36,7 +36,7 @@ describe('ClosureComponentDirective', () => {
   @NgComponent({
     template: `
       <div [closureComponent]="component"
-           [closureComponentProps]="props"
+           [closureComponentState]="props"
            [ssrOptions]="ssrOptions">
       </div>
     `,

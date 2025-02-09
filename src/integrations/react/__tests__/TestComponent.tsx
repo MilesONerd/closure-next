@@ -1,11 +1,11 @@
-import { Component, DomHelper } from "@closure-next/core/dist/index.js";
+import { Component, DOMHelper } from "@closure-next/core/dist/index.js";
 
 export class TestComponent extends Component {
   private title: string = "";
   protected element: HTMLElement | null = null;
 
-  constructor(domHelper?: DomHelper) {
-    super(domHelper || new DomHelper(document));
+  constructor(domHelper?: DOMHelper) {
+    super(domHelper || new DOMHelper(document));
     this.element = document.createElement("div");
   }
 

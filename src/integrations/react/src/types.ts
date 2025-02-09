@@ -1,12 +1,12 @@
-import { Component, ComponentProps, ComponentInterface, DomHelper } from '@closure-next/core/dist/index.js';
+import { Component, ComponentState, ComponentInterface, DOMHelper } from '@closure-next/core/dist/index.js';
 import { MutableRefObject } from 'react';
 
 /**
  * Enhanced props type for Closure components in React
  */
-export interface ClosureComponentProps<T extends Component = Component> {
-  component: new (domHelper?: DomHelper) => T;
-  props?: ComponentProps;
+export interface ClosureComponentState<T extends Component = Component> {
+  component: new (domHelper?: DOMHelper) => T;
+  props?: ComponentState;
   errorBoundary?: boolean;
   fallback?: React.ReactNode;
 }
@@ -17,7 +17,7 @@ export interface ClosureComponentProps<T extends Component = Component> {
 export interface UseClosureComponentReturn<T extends Component = Component> {
   ref: MutableRefObject<HTMLDivElement | null>;
   component: MutableRefObject<T | null>;
-  setProps: (props: Partial<ComponentProps>) => void;
+  setProps: (props: Partial<ComponentState>) => void;
 }
 
 /**

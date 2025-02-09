@@ -1,5 +1,5 @@
 import { jest, describe, test, expect, beforeEach } from '@jest/globals';
-import { Component, DomHelper } from '@closure-next/core';
+import { Component, DOMHelper } from '@closure-next/core';
 import { render } from '@testing-library/svelte';
 import { fireEvent } from '@testing-library/dom';
 import '@testing-library/jest-dom';
@@ -7,7 +7,7 @@ import TestWrapper from './TestWrapper.svelte';
 
 class TestComponent extends Component {
   constructor() {
-    const domHelper = new DomHelper(document);
+    const domHelper = new DOMHelper(document);
     super(domHelper);
   }
 

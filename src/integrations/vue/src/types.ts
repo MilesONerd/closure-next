@@ -1,4 +1,4 @@
-import { Component, ComponentProps, ComponentInterface } from '@closure-next/core/dist/index.js';
+import { Component, ComponentState, ComponentInterface } from '@closure-next/core/dist/index.js';
 import { Ref, ShallowRef } from 'vue';
 
 /**
@@ -7,14 +7,14 @@ import { Ref, ShallowRef } from 'vue';
 export interface ClosureComponentRef<T extends Component = Component> {
   ref: Ref<HTMLElement | null>;
   component: ShallowRef<T | null>;
-  setProps: (props: Partial<ComponentProps>) => Promise<void>;
+  setProps: (props: Partial<ComponentState>) => Promise<void>;
 }
 
 /**
  * Vue component options type
  */
 export interface ClosureComponentOptions<T extends Component = Component> {
-  props?: ComponentProps;
+  props?: ComponentState;
   onMounted?: (component: T) => void;
   onUnmounted?: (component: T) => void;
   onError?: (error: Error) => void;

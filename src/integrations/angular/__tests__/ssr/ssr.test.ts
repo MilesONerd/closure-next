@@ -1,5 +1,8 @@
 import { Component, DOMHelper } from '@closure-next/core';
-import { renderClosureComponent, hydrateClosureComponent } from '../src/server';
+import { renderToString, hydrateComponent } from '../src/server';
+import { TestBed } from '@angular/core/testing';
+import { PLATFORM_ID } from '@angular/core';
+import { isPlatformServer } from '@angular/common';
 
 class TestComponent extends Component {
   private title: string = '';
@@ -17,19 +20,29 @@ class TestComponent extends Component {
   }
 
   public override createDom(): void {
-    if (!this.getElement()) {
-      const element = document.createElement('div');
-      element.className = 'test-component';
-      element.setAttribute('data-title', this.title);
-      element.textContent = `Test Component Content - ${this.title}`;
-      this.element = element;
-    }
+    const element = document.createElement('div');
+    element.className = 'test-component';
+    element.setAttribute('data-title', this.title);
+    element.textContent = `Test Component Content - ${this.title}`;
+    this.element = element;
   }
 }
 
-describe('Svelte SSR Integration', () => {
+describe('Angular SSR Integration', () => {
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: PLATFORM_ID, useValue: 'server' }
+      ]
+    });
+  });
+
+  it('should detect server platform', () => {
+    expect(isPlatformServer(TestBed.inject(PLATFORM_ID))).toBe(true);
+  });
+
   it('should render component to string', async () => {
-    const html = await renderClosureComponent(TestComponent, { title: 'SSR Title' });
+    const html = await renderToString(TestComponent, { title: 'SSR Title' });
     expect(html).toContain('data-title="SSR Title"');
     expect(html).toContain('Test Component Content - SSR Title');
   });
@@ -38,7 +51,7 @@ describe('Svelte SSR Integration', () => {
     const container = document.createElement('div');
     container.innerHTML = '<div class="test-component" data-title="SSR Title">Test Component Content - SSR Title</div>';
 
-    await hydrateClosureComponent(TestComponent, container, { title: 'SSR Title' });
+    await hydrateComponent(TestComponent, container, { title: 'SSR Title' });
     const element = container.querySelector('.test-component');
     expect(element).toBeTruthy();
     expect(element?.getAttribute('data-title')).toBe('SSR Title');
@@ -49,7 +62,7 @@ describe('Svelte SSR Integration', () => {
     const container = document.createElement('div');
     container.innerHTML = '<div class="test-component" data-title="SSR Title">Test Component Content - SSR Title</div>';
 
-    await hydrateClosureComponent(TestComponent, container, { title: 'SSR Title' }, {
+    await hydrateComponent(TestComponent, container, { title: 'SSR Title' }, {
       hydration: 'progressive',
       ssr: true
     });
@@ -57,5 +70,18 @@ describe('Svelte SSR Integration', () => {
     const element = container.querySelector('.test-component');
     expect(element).toBeTruthy();
     expect(element?.getAttribute('data-title')).toBe('SSR Title');
+  });
+
+  it('should handle client-only mode', async () => {
+    const container = document.createElement('div');
+    
+    await hydrateComponent(TestComponent, container, { title: 'Client Title' }, {
+      hydration: 'client-only',
+      ssr: false
+    });
+
+    const element = container.querySelector('.test-component');
+    expect(element).toBeTruthy();
+    expect(element?.getAttribute('data-title')).toBe('Client Title');
   });
 });

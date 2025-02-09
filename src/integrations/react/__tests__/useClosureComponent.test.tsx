@@ -1,13 +1,13 @@
 import React from "react";
 import { render, cleanup, act, screen } from "@testing-library/react";
 import { jest, describe, test, expect, beforeEach, afterEach } from '@jest/globals';
-import { Component, type ComponentInterface, DomHelper } from "@closure-next/core/dist/index.js";
+import { Component, type ComponentInterface, DOMHelper } from "@closure-next/core/dist/index.js";
 import { useClosureComponent } from "../src/index.js";
 import { TestComponent } from "./TestComponent.js";
 
 class ErrorComponent extends Component {
-  constructor(domHelper?: DomHelper) {
-    super(domHelper || new DomHelper(document));
+  constructor(domHelper?: DOMHelper) {
+    super(domHelper || new DOMHelper(document));
   }
 
   public override createDom(): void {
@@ -15,7 +15,7 @@ class ErrorComponent extends Component {
   }
 }
 
-const TestHook = ({ ComponentClass }: { ComponentClass: new (domHelper?: DomHelper) => ComponentInterface }) => {
+const TestHook = ({ ComponentClass }: { ComponentClass: new (domHelper?: DOMHelper) => ComponentInterface }) => {
   const ref = useClosureComponent(ComponentClass);
   return <div ref={ref} />;
 };
@@ -84,8 +84,8 @@ describe("useClosureComponent", () => {
 
   it("should handle dispose errors gracefully", () => {
     class DisposeErrorComponent extends Component {
-      constructor(domHelper?: DomHelper) {
-        super(domHelper || new DomHelper(document));
+      constructor(domHelper?: DOMHelper) {
+        super(domHelper || new DOMHelper(document));
       }
 
       public override dispose(): void {

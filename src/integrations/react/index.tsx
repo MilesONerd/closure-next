@@ -4,10 +4,10 @@
  */
 
 import React, { useEffect, useRef } from 'react';
-import { Component, ComponentInterface, DomHelper } from '@closure-next/core';
+import { Component, ComponentInterface, DOMHelper } from '@closure-next/core';
 
-interface ClosureComponentProps<T extends Component> {
-  component: { new(domHelper?: DomHelper): T };
+interface ClosureComponentState<T extends Component> {
+  component: { new(domHelper?: DOMHelper): T };
   props?: Record<string, unknown>;
 }
 
@@ -15,7 +15,7 @@ interface ClosureComponentProps<T extends Component> {
  * React hook for using Closure Next components
  */
 export function useClosureComponent<T extends Component>(
-  ComponentClass: { new(domHelper?: DomHelper): T },
+  ComponentClass: { new(domHelper?: DOMHelper): T },
   props?: Record<string, unknown>
 ): React.RefObject<HTMLDivElement> {
   const ref = useRef<HTMLDivElement>(null);
@@ -80,7 +80,7 @@ export function useClosureComponent<T extends Component>(
 export function ClosureComponent<T extends Component>({
   component: ComponentClass,
   props
-}: ClosureComponentProps<T>): JSX.Element {
+}: ClosureComponentState<T>): JSX.Element {
   const ref = useClosureComponent(ComponentClass, props);
   return <div ref={ref} data-testid="closure-component" />;
 }

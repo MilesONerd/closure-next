@@ -1,4 +1,4 @@
-import { Component, DomHelper } from '@closure-next/core';
+import { Component, DOMHelper } from '@closure-next/core';
 
 class TestComponent extends Component {
   private title: string = '';
@@ -32,7 +32,7 @@ describe('Basic Component Test', () => {
   beforeEach(() => {
     container = document.createElement('div');
     document.body.appendChild(container);
-    component = new TestComponent(new DomHelper(document));
+    component = new TestComponent(new DOMHelper(document));
   });
 
   afterEach(() => {
