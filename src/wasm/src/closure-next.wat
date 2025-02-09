@@ -1,54 +1,96 @@
 (module
-  ;; Memory for array and string operations
-  (memory 1)
+  ;; Memory for array and string operations (128 pages = 8MB)
+  (memory 128)
   (export "memory" (memory 0))
 
-  ;; Array sorting (bubble sort implementation)
-  (func $arraySort (param $ptr i32) (param $len i32)
+  ;; Helper function to get array element at index
+  (func $getElement (param $ptr i32) (param $index i32) (result f64)
+    (f64.load (i32.add (local.get $ptr) 
+      (i32.mul (local.get $index) (i32.const 8)))))
+
+  ;; Helper function to set array element at index
+  (func $setElement (param $ptr i32) (param $index i32) (param $value f64)
+    (f64.store 
+      (i32.add (local.get $ptr) 
+        (i32.mul (local.get $index) (i32.const 8)))
+      (local.get $value)))
+
+  ;; Helper function to swap elements
+  (func $swapElements (param $ptr i32) (param $i i32) (param $j i32)
+    (local $temp f64)
+    (local.set $temp (call $getElement (local.get $ptr) (local.get $i)))
+    (call $setElement 
+      (local.get $ptr) 
+      (local.get $i) 
+      (call $getElement (local.get $ptr) (local.get $j)))
+    (call $setElement (local.get $ptr) (local.get $j) (local.get $temp)))
+
+  ;; Partition function for quicksort
+  (func $partition (param $ptr i32) (param $low i32) (param $high i32) (result i32)
+    (local $pivot f64)
     (local $i i32)
     (local $j i32)
-    (local $temp f64)
     
-    (block $sort_done
-      (loop $outer
-        (local.set $j (i32.const 0))
-        (block $inner_done
-          (loop $inner
-            (br_if $inner_done 
-              (i32.ge_u (local.get $j) 
-                (i32.sub (local.get $len) (i32.const 1))))
-            
-            ;; Compare adjacent elements
-            (if 
-              (f64.gt 
-                (f64.load (i32.add (local.get $ptr) 
-                  (i32.mul (local.get $j) (i32.const 8))))
-                (f64.load (i32.add (local.get $ptr) 
-                  (i32.mul (i32.add (local.get $j) (i32.const 1)) 
-                    (i32.const 8)))))
-              (then
-                ;; Swap elements
-                (local.set $temp 
-                  (f64.load (i32.add (local.get $ptr) 
-                    (i32.mul (local.get $j) (i32.const 8)))))
-                (f64.store 
-                  (i32.add (local.get $ptr) 
-                    (i32.mul (local.get $j) (i32.const 8)))
-                  (f64.load (i32.add (local.get $ptr) 
-                    (i32.mul (i32.add (local.get $j) (i32.const 1)) 
-                      (i32.const 8)))))
-                (f64.store 
-                  (i32.add (local.get $ptr) 
-                    (i32.mul (i32.add (local.get $j) (i32.const 1)) 
-                      (i32.const 8)))
-                  (local.get $temp))))
-            
-            (local.set $j (i32.add (local.get $j) (i32.const 1)))
-            (br $inner)))
+    ;; Use last element as pivot
+    (local.set $pivot (call $getElement (local.get $ptr) (local.get $high)))
+    (local.set $i (i32.sub (local.get $low) (i32.const 1)))
+    
+    ;; Partition array around pivot
+    (local.set $j (local.get $low))
+    (block $partition_done
+      (loop $partition_loop
+        (br_if $partition_done (i32.ge_s (local.get $j) (local.get $high)))
         
-        (local.set $i (i32.add (local.get $i) (i32.const 1)))
-        (br_if $outer 
-          (i32.lt_u (local.get $i) (local.get $len))))))
+        (if (f64.le 
+              (call $getElement (local.get $ptr) (local.get $j))
+              (local.get $pivot))
+          (then
+            (local.set $i (i32.add (local.get $i) (i32.const 1)))
+            (call $swapElements 
+              (local.get $ptr) 
+              (local.get $i) 
+              (local.get $j))))
+        
+        (local.set $j (i32.add (local.get $j) (i32.const 1)))
+        (br $partition_loop)))
+    
+    ;; Place pivot in correct position
+    (local.set $i (i32.add (local.get $i) (i32.const 1)))
+    (call $swapElements (local.get $ptr) (local.get $i) (local.get $high))
+    (local.get $i))
+
+  ;; Quicksort implementation
+  (func $quicksort (param $ptr i32) (param $low i32) (param $high i32)
+    (if (i32.lt_s (local.get $low) (local.get $high))
+      (then
+        (local $pi i32)
+        ;; Get partition index
+        (local.set $pi 
+          (call $partition 
+            (local.get $ptr) 
+            (local.get $low) 
+            (local.get $high)))
+        
+        ;; Sort left partition
+        (call $quicksort 
+          (local.get $ptr) 
+          (local.get $low) 
+          (i32.sub (local.get $pi) (i32.const 1)))
+        
+        ;; Sort right partition
+        (call $quicksort 
+          (local.get $ptr) 
+          (i32.add (local.get $pi) (i32.const 1)) 
+          (local.get $high)))))
+
+  ;; Main array sort function (using quicksort)
+  (func $arraySort (param $ptr i32) (param $len i32)
+    (if (i32.gt_s (local.get $len) (i32.const 1))
+      (then
+        (call $quicksort 
+          (local.get $ptr) 
+          (i32.const 0) 
+          (i32.sub (local.get $len) (i32.const 1)))))))
   
   ;; Binary search
   (func $arrayBinarySearch 
@@ -150,8 +192,136 @@
     
     (local.get $outPtr))
 
+  ;; DOM tree traversal
+  (func $traverseDOM (param $nodePtr i32) (result i32)
+    (local $childPtr i32)
+    (local $siblingPtr i32)
+    (local $visited i32)
+    
+    ;; Visit current node
+    (local.set $visited (i32.const 1))
+    
+    ;; Get first child pointer
+    (local.set $childPtr 
+      (i32.load (i32.add (local.get $nodePtr) (i32.const 8))))
+    
+    ;; Traverse children if they exist
+    (if (local.get $childPtr)
+      (then
+        (local.set $visited 
+          (i32.add 
+            (local.get $visited)
+            (call $traverseDOM (local.get $childPtr))))))
+    
+    ;; Get next sibling pointer
+    (local.set $siblingPtr 
+      (i32.load (i32.add (local.get $nodePtr) (i32.const 16))))
+    
+    ;; Traverse siblings if they exist
+    (if (local.get $siblingPtr)
+      (then
+        (local.set $visited 
+          (i32.add 
+            (local.get $visited)
+            (call $traverseDOM (local.get $siblingPtr))))))
+    
+    (local.get $visited))
+
+  ;; Attribute handling
+  (func $getAttribute (param $nodePtr i32) (param $attrNamePtr i32) (param $attrNameLen i32) (result i32)
+    (local $attrPtr i32)
+    (local $attrCount i32)
+    (local $i i32)
+    
+    ;; Get attributes pointer
+    (local.set $attrPtr 
+      (i32.load (i32.add (local.get $nodePtr) (i32.const 24))))
+    
+    ;; Get attribute count
+    (local.set $attrCount 
+      (i32.load (local.get $attrPtr)))
+    
+    ;; Search through attributes
+    (block $search_done
+      (loop $search
+        (br_if $search_done 
+          (i32.ge_u (local.get $i) (local.get $attrCount)))
+        
+        ;; Compare attribute name
+        (if (call $stringCompare
+              (i32.add 
+                (local.get $attrPtr)
+                (i32.mul (i32.add (local.get $i) (i32.const 1))
+                  (i32.const 16)))
+              (local.get $attrNameLen)
+              (local.get $attrNamePtr)
+              (local.get $attrNameLen))
+          (then
+            ;; Return attribute value pointer
+            (return 
+              (i32.add 
+                (local.get $attrPtr)
+                (i32.mul (i32.add (local.get $i) (i32.const 1))
+                  (i32.const 16))))))
+        
+        (local.set $i (i32.add (local.get $i) (i32.const 1)))
+        (br $search)))
+    
+    (i32.const 0))
+
+  ;; Event system
+  (func $dispatchEvent (param $targetPtr i32) (param $eventTypePtr i32) (param $eventTypeLen i32) (result i32)
+    (local $currentPtr i32)
+    (local $handlerCount i32)
+    (local $i i32)
+    (local $handled i32)
+    
+    ;; Start at target node
+    (local.set $currentPtr (local.get $targetPtr))
+    
+    ;; Bubble up through parents
+    (block $bubble_done
+      (loop $bubble
+        (br_if $bubble_done (i32.eqz (local.get $currentPtr)))
+        
+        ;; Get handler count
+        (local.set $handlerCount 
+          (i32.load (i32.add (local.get $currentPtr) (i32.const 32))))
+        
+        ;; Execute handlers
+        (local.set $i (i32.const 0))
+        (block $handlers_done
+          (loop $handlers
+            (br_if $handlers_done 
+              (i32.ge_u (local.get $i) (local.get $handlerCount)))
+            
+            ;; Check event type match
+            (if (call $stringCompare
+                  (i32.add 
+                    (local.get $currentPtr)
+                    (i32.mul (i32.add (local.get $i) (i32.const 1))
+                      (i32.const 24)))
+                  (local.get $eventTypeLen)
+                  (local.get $eventTypePtr)
+                  (local.get $eventTypeLen))
+              (then
+                (local.set $handled (i32.const 1))))
+            
+            (local.set $i (i32.add (local.get $i) (i32.const 1)))
+            (br $handlers)))
+        
+        ;; Move to parent
+        (local.set $currentPtr 
+          (i32.load (local.get $currentPtr)))
+        (br $bubble)))
+    
+    (local.get $handled))
+
   ;; Export functions
   (export "arraySort" (func $arraySort))
   (export "arrayBinarySearch" (func $arrayBinarySearch))
   (export "stringCompare" (func $stringCompare))
-  (export "stringEncode" (func $stringEncode)))
+  (export "stringEncode" (func $stringEncode))
+  (export "traverseDOM" (func $traverseDOM))
+  (export "getAttribute" (func $getAttribute))
+  (export "dispatchEvent" (func $dispatchEvent))

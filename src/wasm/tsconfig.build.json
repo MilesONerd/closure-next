@@ -8,7 +8,7 @@
       "@closure-next/core": ["../../packages/core/src"]
     }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "src/benchmarks/**/*"],
   "exclude": ["**/__tests__/**/*", "node_modules", "dist"],
   "references": [
     { "path": "../../packages/core" }

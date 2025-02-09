@@ -11,7 +11,7 @@
  * 4. Event handling and dispatch
  */
 
-interface WasmExports {
+export interface WasmExports {
   memory: WebAssembly.Memory;
   arraySort: (ptr: number, len: number) => void;
   arrayBinarySearch: (ptr: number, len: number, target: number) => number;
@@ -27,7 +27,7 @@ export async function initWasm(): Promise<void> {
 
   try {
     // In test environment, use mock WebAssembly module
-    if (process.env.NODE_ENV === 'test') {
+    if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
       const mockModule = await WebAssembly.instantiate(new Uint8Array());
       wasmModule = mockModule.instance.exports as unknown as WasmExports;
       wasmMemory = wasmModule.memory;
