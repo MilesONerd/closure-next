@@ -1,16 +1,12 @@
 import '@testing-library/jest-dom';
+import { TextEncoder, TextDecoder } from 'util';
 
 // Set up TextEncoder/TextDecoder polyfills
-const util = require('util');
-Object.defineProperties(global, {
-  TextEncoder: { value: util.TextEncoder },
-  TextDecoder: { value: util.TextDecoder }
-});
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder as any;
 
-// Import JSDOM after polyfills are set up
+// Set up JSDOM
 const { JSDOM } = require('jsdom');
-
-// Set up JSDOM for SSR tests
 const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>', {
   url: 'http://localhost',
   pretendToBeVisual: true,
@@ -27,6 +23,8 @@ Object.defineProperties(global, {
   HTMLElement: { value: dom.window.HTMLElement },
   Event: { value: dom.window.Event },
   CustomEvent: { value: dom.window.CustomEvent },
-  MutationObserver: { value: dom.window.MutationObserver },
-  JSDOM: { value: JSDOM }
+  MutationObserver: { value: dom.window.MutationObserver }
 });
+
+// Make JSDOM available globally
+(global as any).JSDOM = JSDOM;
