@@ -1,61 +1,47 @@
-import { EventTarget } from '../src/events';
 import { describe, test, expect, jest, beforeEach } from '@jest/globals';
-
-type EventHandler = jest.MockedFunction<(this: unknown, evt: Event) => void>;
+import { EventTarget, EventType } from '../src/events';
 
 describe('EventTarget', () => {
-  let target: EventTarget;
+  let emitter: EventTarget;
 
   beforeEach(() => {
-    target = new EventTarget();
+    emitter = new EventTarget();
   });
 
   test('should handle event listeners', () => {
-    const handler = jest.fn() as EventHandler;
-    target.addEventListener('test', handler);
-    
-    const event = new CustomEvent('test', { detail: { value: 'test' } });
-    target.dispatchEvent(event);
-    
-    expect(handler).toHaveBeenCalledWith(expect.any(CustomEvent));
-    const receivedEvent = handler.mock.calls[0][0] as CustomEvent;
-    expect(receivedEvent.detail).toEqual({ value: 'test' });
+    const listener = jest.fn();
+    emitter.addEventListener(EventType.TEST, listener);
+    emitter.emit(EventType.TEST, 'data');
+    expect(listener).toHaveBeenCalledWith({
+      type: EventType.TEST,
+      target: emitter,
+      data: 'data'
+    });
   });
 
   test('should remove event listeners', () => {
-    const handler = jest.fn() as EventHandler;
-    target.addEventListener('test', handler);
-    target.removeEventListener('test', handler);
-    
-    target.dispatchEvent(new CustomEvent('test', { detail: { value: 'test' } }));
-    expect(handler).not.toHaveBeenCalled();
+    const listener = jest.fn();
+    emitter.addEventListener(EventType.TEST, listener);
+    emitter.removeEventListener(EventType.TEST, listener);
+    emitter.emit(EventType.TEST, 'data');
+    expect(listener).not.toHaveBeenCalled();
   });
 
   test('should handle multiple listeners', () => {
-    const handler1 = jest.fn() as EventHandler;
-    const handler2 = jest.fn() as EventHandler;
-    
-    target.addEventListener('test', handler1);
-    target.addEventListener('test', handler2);
-    
-    const event = new CustomEvent('test', { detail: { value: 'test' } });
-    target.dispatchEvent(event);
-    
-    expect(handler1).toHaveBeenCalledWith(expect.any(CustomEvent));
-    expect(handler2).toHaveBeenCalledWith(expect.any(CustomEvent));
-    const receivedEvent1 = handler1.mock.calls[0][0] as CustomEvent;
-    const receivedEvent2 = handler2.mock.calls[0][0] as CustomEvent;
-    expect(receivedEvent1.detail).toEqual({ value: 'test' });
-    expect(receivedEvent2.detail).toEqual({ value: 'test' });
+    const listener1 = jest.fn();
+    const listener2 = jest.fn();
+    emitter.addEventListener(EventType.TEST, listener1);
+    emitter.addEventListener(EventType.TEST, listener2);
+    emitter.emit(EventType.TEST, 'data');
+    expect(listener1).toHaveBeenCalled();
+    expect(listener2).toHaveBeenCalled();
   });
 
   test('should clean up on dispose', () => {
-    const handler = jest.fn() as EventHandler;
-    target.addEventListener('test', handler);
-    
-    target.dispose();
-    target.dispatchEvent(new CustomEvent('test', { detail: { value: 'test' } }));
-    
-    expect(handler).not.toHaveBeenCalled();
+    const listener = jest.fn();
+    emitter.addEventListener(EventType.TEST, listener);
+    emitter.dispose();
+    emitter.emit(EventType.TEST, 'data');
+    expect(listener).not.toHaveBeenCalled();
   });
 });

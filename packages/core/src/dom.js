@@ -1,76 +1,68 @@
-"use strict";
 /**
- * @fileoverview DOM helper utilities for Closure Next.
+ * @fileoverview DOM helper implementation for Closure Next.
  * @license Apache-2.0
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.DomHelper = void 0;
-/**
- * Helper class for DOM manipulation
- */
-class DomHelper {
-    constructor(opt_document) {
-        this.document = opt_document || document;
-    }
-    /**
-     * Creates an element
-     */
-    createElement(tagName) {
-        return this.document.createElement(tagName);
-    }
-    /**
-     * Gets an element by ID
-     */
-    getElement(id) {
-        return this.document.getElementById(id);
-    }
-    /**
-     * Gets elements by class name
-     */
-    getElementsByClass(className, opt_element) {
-        const root = opt_element || this.document;
-        return Array.from(root.getElementsByClassName(className));
-    }
-    /**
-     * Gets the first element with the given class name
-     */
-    getElementByClass(className, opt_element) {
-        const elements = this.getElementsByClass(className, opt_element);
-        return elements[0] || null;
-    }
-    /**
-     * Removes an element from its parent
-     */
-    removeNode(element) {
-        const parent = element.parentElement;
-        if (parent) {
-            parent.removeChild(element);
+export class DOMHelper {
+    constructor(document) {
+        if (!document) {
+            if (typeof window === 'undefined' || !window.document) {
+                throw new Error('DOMHelper requires a document instance when window.document is not available');
+            }
+            this.document = window.document;
+        }
+        else {
+            this.document = document;
         }
     }
-    /**
-     * Appends a child element
-     */
+    createElement(tagName) {
+        if (!this.document) {
+            throw new Error('DOMHelper document not initialized');
+        }
+        try {
+            return this.document.createElement(tagName);
+        }
+        catch (error) {
+            throw new Error(`Failed to create element with tag ${tagName}: ${error}`);
+        }
+    }
+    createTextNode(text) {
+        return this.document.createTextNode(text);
+    }
+    getElementById(id) {
+        return this.document.getElementById(id);
+    }
+    getElementsByTagName(tagName) {
+        return this.document.getElementsByTagName(tagName);
+    }
+    getElementsByClassName(className) {
+        return this.document.getElementsByClassName(className);
+    }
+    querySelector(selector) {
+        return this.document.querySelector(selector);
+    }
+    querySelectorAll(selector) {
+        return this.document.querySelectorAll(selector);
+    }
+    setAttribute(element, name, value) {
+        element.setAttribute(name, value);
+    }
+    getAttribute(element, name) {
+        return element.getAttribute(name);
+    }
+    removeAttribute(element, name) {
+        element.removeAttribute(name);
+    }
     appendChild(parent, child) {
         parent.appendChild(child);
     }
-    /**
-     * Adds an event listener to an element
-     */
-    addEventListener(element, type, listener, useCapture = false) {
-        element.addEventListener(type, listener, useCapture);
+    removeChild(parent, child) {
+        parent.removeChild(child);
     }
-    /**
-     * Removes an event listener from an element
-     */
-    removeEventListener(element, type, listener, useCapture = false) {
-        element.removeEventListener(type, listener, useCapture);
+    insertBefore(parent, newNode, referenceNode) {
+        parent.insertBefore(newNode, referenceNode);
     }
-    /**
-     * Returns the document object being used
-     */
-    getDocument() {
-        return this.document;
+    replaceChild(parent, newChild, oldChild) {
+        parent.replaceChild(newChild, oldChild);
     }
 }
-exports.DomHelper = DomHelper;
 //# sourceMappingURL=dom.js.map

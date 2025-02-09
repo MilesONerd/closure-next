@@ -1,34 +1,18 @@
-export * from './component';
-export * from './dom';
-export * from './events';
-export * from './types';
-export * from './lazy';
-export * from './cache';
-export * from './bundle';
+/**
+ * @fileoverview Entry point for Closure Next core package.
+ * @license Apache-2.0
+ */
 
-// Re-export commonly used types and utilities
+export { DOMHelper } from './dom';
+export { EventTarget, EventType } from './events';
+export { Component } from './component';
+export { Bundle } from './bundle';
+export { Lazy } from './lazy';
+
 export type {
-  Component,
-  ComponentProps,
-  DomHelper,
-  EventHandler,
-  LazyLoadOptions,
-  ModuleCache,
-  Cache,
-  ComponentPool,
-  ResourcePreloader,
-  ChunkConfig,
-  BundleConfig
+  EventInterface,
+  EventTargetInterface,
+  ComponentInterface,
+  ComponentState,
+  BundleInterface
 } from './types';
-
-export {
-  globalCache,
-  globalComponentPool,
-  globalResourcePreloader
-} from './cache';
-
-export {
-  defaultChunks,
-  createBundleConfig,
-  createRollupConfig
-} from './bundle';

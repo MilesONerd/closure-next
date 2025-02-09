@@ -1,6 +1,6 @@
 {
   "name": "@closure-next/vite",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Vite plugin for Closure Next",
   "type": "module",
   "main": "dist/index.js",
@@ -26,11 +26,10 @@
     "url": "https://github.com/MilesONerd/closure-next.git"
   },
   "peerDependencies": {
-    "@closure-next/core": "^1.0.0",
     "vite": "^5.0.0"
   },
   "dependencies": {
-    "@closure-next/core": "^1.0.0",
+    "@closure-next/core": "^1.0.14",
     "@jest/globals": "^29.7.0",
     "ts-jest": "^29.2.5"
   },

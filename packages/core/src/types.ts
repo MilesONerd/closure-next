@@ -1,76 +1,47 @@
-import { Component } from './component';
-import { DomHelper } from './dom';
+/**
+ * @fileoverview Type definitions for Closure Next.
+ * @license Apache-2.0
+ */
 
-// Component Types
-export type { Component, DomHelper };
+import { EventType } from './events';
 
-export interface ComponentProps {
+export interface EventInterface {
+  type: EventType | string;
+  target: EventTargetInterface;
+  data?: any;
+}
+
+export interface EventTargetInterface {
+  addEventListener(type: EventType | string, listener: (event: any) => void): void;
+  removeEventListener(type: EventType | string, listener: (event: any) => void): void;
+  dispatchEvent(type: EventType | string, event?: any): void;
+  emit(type: EventType | string, data?: any): void;
+  dispose(): void;
+  isDisposed(): boolean;
+}
+
+export interface ComponentState {
   [key: string]: any;
 }
 
-export interface ComponentStateInterface {
-  [key: string]: any;
+export interface ComponentInterface extends EventTargetInterface {
+  getId(): string;
+  setId(id: string): void;
+  addChild(child: ComponentInterface): void;
+  removeChild(child: ComponentInterface): void;
+  getParent(): ComponentInterface | null;
+  getChildren(): ComponentInterface[];
+  getState(): ComponentState;
+  setState(state: ComponentState): Promise<void>;
+  render(container: HTMLElement): Promise<void>;
+  renderToString(): Promise<string>;
+  hydrate(): Promise<void>;
 }
 
-// State flags as enum (not type)
-export enum ComponentStateFlags {
-  UNINITIALIZED = 0,
-  INITIALIZING = 1,
-  INITIALIZED = 2,
-  RENDERING = 3,
-  RENDERED = 4,
-  DISPOSING = 5,
-  DISPOSED = 6
-}
-
-// Event Types
-export interface ComponentEventMap {
-  [key: string]: any;
-}
-
-export type EventHandler<T = any> = (event: T) => void;
-
-// Lazy Loading Types
-export interface LazyLoadOptions {
-  timeout?: number;
-  retries?: number;
-  onProgress?: (progress: number) => void;
-}
-
-export interface ModuleCache {
-  get<T>(key: string, loader: () => Promise<T>): Promise<T>;
-  clear(): void;
-}
-
-// Cache Types
-export interface Cache<T> {
-  get(key: string): T | undefined;
-  set(key: string, value: T): void;
-  clear(): void;
-}
-
-export interface ComponentPool<T> {
-  acquire(): T | undefined;
-  release(component: T): void;
-  clear(): void;
-}
-
-export interface ResourcePreloader {
-  preloadScript(url: string): Promise<void>;
-  preloadStyle(url: string): Promise<void>;
-  isLoaded(url: string): boolean;
-}
-
-// Bundle Types
-export interface ChunkConfig {
-  name: string;
-  test: RegExp;
-  priority: number;
-}
-
-export interface BundleConfig {
-  chunks?: ChunkConfig[];
-  minChunkSize?: number;
-  maxAsyncRequests?: number;
-  maxInitialRequests?: number;
+export interface BundleInterface {
+  load(): Promise<void>;
+  unload(): Promise<void>;
+  isLoaded(): boolean;
+  getModule<T>(name: string): Promise<T>;
+  hasModule(name: string): boolean;
 }
