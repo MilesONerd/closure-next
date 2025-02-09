@@ -4,4 +4,5 @@ import type { ComponentState } from '@closure-next/core';
 export { Component, DOMHelper };
 export type { ComponentState };
 export * from './ClosureComponent';
+export * from './server';
 export * from './types';
