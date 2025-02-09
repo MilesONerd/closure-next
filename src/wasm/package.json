@@ -39,12 +39,12 @@
     "@closure-next/core": "^1.0.0"
   },
   "dependencies": {
-    "@closure-next/core": "^1.0.9"
+    "@closure-next/core": "^1.0.0"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",
     "@types/jest": "^29.5.14",
-    "@types/node": "^20.17.14",
+    "@types/node": "^20.17.17",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "ts-jest": "^29.2.5",
