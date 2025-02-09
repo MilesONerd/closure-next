@@ -7,13 +7,12 @@
     "declarationMap": true,
     "sourceMap": true,
     "composite": true,
-    "types": ["jest", "node"],
-    "baseUrl": ".",
-    "module": "esnext",
+    "module": "CommonJS",
     "moduleResolution": "node",
     "target": "es2020",
     "lib": ["es2020", "dom"],
     "esModuleInterop": true,
+    "skipLibCheck": true,
     "paths": {
       "@closure-next/core": ["./src"]
     }
