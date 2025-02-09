@@ -32,17 +32,22 @@
   ;; Helper function to swap elements
   (func $swapElements (type $swap_elements_type)
     (local $temp f64)
-    (local.set $temp (f64.load (i32.add (local.get 0) 
-      (i32.mul (local.get 1) (i32.const 8)))))
-    (f64.store 
+    (local $addr1 i32)
+    (local $addr2 i32)
+    
+    ;; Calculate addresses
+    (local.set $addr1 
       (i32.add (local.get 0) 
-        (i32.mul (local.get 1) (i32.const 8)))
-      (f64.load (i32.add (local.get 0) 
-        (i32.mul (local.get 2) (i32.const 8)))))
-    (f64.store 
+        (i32.mul (local.get 1) (i32.const 8))))
+    (local.set $addr2 
       (i32.add (local.get 0) 
-        (i32.mul (local.get 2) (i32.const 8)))
-      (local.get $temp)))
+        (i32.mul (local.get 2) (i32.const 8))))
+    
+    ;; Load and swap values
+    (local.set $temp (f64.load (local.get $addr1)))
+    (f64.store (local.get $addr1) 
+      (f64.load (local.get $addr2)))
+    (f64.store (local.get $addr2) (local.get $temp)))
 
   ;; Partition function for quicksort
   (func $partition (type $partition_type)
@@ -50,47 +55,49 @@
     (local $temp f64)
     (local $i i32)
     (local $j i32)
-    (local $addr i32)
+    (local $pivot_addr i32)
+    (local $curr_addr i32)
+    (local $swap_addr1 i32)
+    (local $swap_addr2 i32)
     
-    ;; Use last element as pivot
-    (local.set $addr 
+    ;; Calculate pivot address and load pivot value
+    (local.set $pivot_addr 
       (i32.add (local.get 0) 
         (i32.mul (local.get 2) (i32.const 8))))
-    (local.set $pivot (f64.load (local.get $addr)))
-    (local.set $i (i32.sub (local.get 1) (i32.const 1)))
+    (local.set $pivot (f64.load (local.get $pivot_addr)))
     
-    ;; Partition array around pivot
+    ;; Initialize indices
+    (local.set $i (i32.sub (local.get 1) (i32.const 1)))
     (local.set $j (local.get 1))
+    
     (block $partition_done
       (loop $partition_loop
         (br_if $partition_done (i32.ge_s (local.get $j) (local.get 2)))
         
         ;; Calculate current element address
-        (local.set $addr 
+        (local.set $curr_addr 
           (i32.add (local.get 0) 
             (i32.mul (local.get $j) (i32.const 8))))
         
         (if (f64.le 
-              (f64.load (local.get $addr))
+              (f64.load (local.get $curr_addr))
               (local.get $pivot))
           (then
             (local.set $i (i32.add (local.get $i) (i32.const 1)))
             
-            ;; Calculate addresses for swap
-            (local.set $addr 
+            ;; Calculate swap addresses
+            (local.set $swap_addr1 
               (i32.add (local.get 0) 
                 (i32.mul (local.get $i) (i32.const 8))))
-            (local.set $temp (f64.load (local.get $addr)))
-            
-            (f64.store 
-              (local.get $addr)
-              (f64.load (i32.add (local.get 0) 
-                (i32.mul (local.get $j) (i32.const 8)))))
-            
-            (f64.store 
+            (local.set $swap_addr2 
               (i32.add (local.get 0) 
-                (i32.mul (local.get $j) (i32.const 8)))
-              (local.get $temp))))
+                (i32.mul (local.get $j) (i32.const 8))))
+            
+            ;; Perform swap
+            (local.set $temp (f64.load (local.get $swap_addr1)))
+            (f64.store (local.get $swap_addr1) 
+              (f64.load (local.get $swap_addr2)))
+            (f64.store (local.get $swap_addr2) (local.get $temp))))
         
         (local.set $j (i32.add (local.get $j) (i32.const 1)))
         (br $partition_loop)))
@@ -139,8 +146,13 @@
     (local $right i32)
     (local $mid i32)
     (local $value f64)
+    (local $target f64)
     (local $addr i32)
     
+    ;; Store target value
+    (local.set $target (local.get 2))
+    
+    ;; Initialize search bounds
     (local.set $left (i32.const 0))
     (local.set $right (local.get 1))
     
@@ -163,11 +175,11 @@
         ;; Load value at midpoint
         (local.set $value (f64.load (local.get $addr)))
         
-        (if (f64.eq (local.get $value) (local.get 2))
+        (if (f64.eq (local.get $value) (local.get $target))
           (then 
             (return (local.get $mid)))
           (else
-            (if (f64.lt (local.get $value) (local.get 2))
+            (if (f64.lt (local.get $value) (local.get $target))
               (then
                 (local.set $left 
                   (i32.add (local.get $mid) (i32.const 1))))
