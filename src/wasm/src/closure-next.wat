@@ -209,7 +209,7 @@
     
     ;; Get first child pointer
     (local.set $childPtr 
-      (i32.load (i32.add (local.get $nodePtr) (i32.const 8))))
+      (i32.load (i32.add (local.get 0) (i32.const 8))))
     
     ;; Traverse children if they exist
     (if (local.get $childPtr)
@@ -221,7 +221,7 @@
     
     ;; Get next sibling pointer
     (local.set $siblingPtr 
-      (i32.load (i32.add (local.get $nodePtr) (i32.const 16))))
+      (i32.load (i32.add (local.get 0) (i32.const 16))))
     
     ;; Traverse siblings if they exist
     (if (local.get $siblingPtr)
@@ -241,7 +241,7 @@
     
     ;; Get attributes pointer
     (local.set $attrPtr 
-      (i32.load (i32.add (local.get $nodePtr) (i32.const 24))))
+      (i32.load (i32.add (local.get 0) (i32.const 24))))
     
     ;; Get attribute count
     (local.set $attrCount 
@@ -259,9 +259,9 @@
                 (local.get $attrPtr)
                 (i32.mul (i32.add (local.get $i) (i32.const 1))
                   (i32.const 16)))
-              (local.get $attrNameLen)
-              (local.get $attrNamePtr)
-              (local.get $attrNameLen))
+              (local.get 2)
+              (local.get 1)
+              (local.get 2))
           (then
             ;; Return attribute value pointer
             (return 
@@ -283,7 +283,7 @@
     (local $handled i32)
     
     ;; Start at target node
-    (local.set $currentPtr (local.get $targetPtr))
+    (local.set $currentPtr (local.get 0))
     
     ;; Bubble up through parents
     (block $bubble_done
@@ -307,9 +307,9 @@
                     (local.get $currentPtr)
                     (i32.mul (i32.add (local.get $i) (i32.const 1))
                       (i32.const 24)))
-                  (local.get $eventTypeLen)
-                  (local.get $eventTypePtr)
-                  (local.get $eventTypeLen))
+                  (local.get 2)
+                  (local.get 1)
+                  (local.get 2))
               (then
                 (local.set $handled (i32.const 1))))
             
