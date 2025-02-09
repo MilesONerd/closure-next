@@ -9,52 +9,52 @@
     (local $temp f64)
     
     ;; Outer loop
-    (block $outer_done
-      (loop $outer
-        (local.set $j (i32.const 0))
-        
-        ;; Inner loop
-        (block $inner_done
-          (loop $inner
-            (if (i32.lt_u (local.get $j) 
-                (i32.sub (local.get $len) (i32.const 1)))
+    (loop $outer
+      (local.set $j (i32.const 0))
+      (drop)  ;; Drop the result of local.set
+      
+      ;; Inner loop
+      (loop $inner
+        (if (i32.lt_u (local.get $j) 
+            (i32.sub (local.get $len) (i32.const 1)))
+          (then
+            ;; Compare adjacent elements
+            (if (f64.gt 
+                (f64.load (i32.add (local.get $ptr) 
+                  (i32.mul (local.get $j) (i32.const 8))))
+                (f64.load (i32.add (local.get $ptr)
+                  (i32.mul (i32.add (local.get $j) (i32.const 1)) 
+                    (i32.const 8)))))
               (then
-                ;; Compare adjacent elements
-                (if (f64.gt 
-                    (f64.load (i32.add (local.get $ptr) 
-                      (i32.mul (local.get $j) (i32.const 8))))
-                    (f64.load (i32.add (local.get $ptr)
-                      (i32.mul (i32.add (local.get $j) (i32.const 1)) 
-                        (i32.const 8)))))
-                  (then
-                    ;; Swap elements
-                    (local.set $temp 
-                      (f64.load (i32.add (local.get $ptr)
-                        (i32.mul (local.get $j) (i32.const 8)))))
-                    (f64.store 
-                      (i32.add (local.get $ptr)
-                        (i32.mul (local.get $j) (i32.const 8)))
-                      (f64.load (i32.add (local.get $ptr)
-                        (i32.mul (i32.add (local.get $j) (i32.const 1))
-                          (i32.const 8)))))
-                    (f64.store
-                      (i32.add (local.get $ptr)
-                        (i32.mul (i32.add (local.get $j) (i32.const 1))
-                          (i32.const 8)))
-                      (local.get $temp))
-                  )
-                )
-                (local.set $j (i32.add (local.get $j) (i32.const 1)))
-                (br $inner)
+                ;; Swap elements
+                (local.set $temp 
+                  (f64.load (i32.add (local.get $ptr)
+                    (i32.mul (local.get $j) (i32.const 8)))))
+                (drop)  ;; Drop the result of local.set
+                (f64.store 
+                  (i32.add (local.get $ptr)
+                    (i32.mul (local.get $j) (i32.const 8)))
+                  (f64.load (i32.add (local.get $ptr)
+                    (i32.mul (i32.add (local.get $j) (i32.const 1))
+                      (i32.const 8)))))
+                (f64.store
+                  (i32.add (local.get $ptr)
+                    (i32.mul (i32.add (local.get $j) (i32.const 1))
+                      (i32.const 8)))
+                  (local.get $temp))
               )
             )
+            (local.set $j (i32.add (local.get $j) (i32.const 1)))
+            (drop)  ;; Drop the result of local.set
+            (br $inner)
           )
         )
-        
-        (local.set $i (i32.add (local.get $i) (i32.const 1)))
-        (if (i32.lt_u (local.get $i) (local.get $len))
-          (then (br $outer))
-        )
+      )
+      
+      (local.set $i (i32.add (local.get $i) (i32.const 1)))
+      (drop)  ;; Drop the result of local.set
+      (if (i32.lt_u (local.get $i) (local.get $len))
+        (then (br $outer))
       )
     )
   )
@@ -70,41 +70,44 @@
     
     ;; Initialize bounds
     (local.set $left (i32.const 0))
+    (drop)  ;; Drop the result of local.set
     (local.set $right (local.get $len))
+    (drop)  ;; Drop the result of local.set
     
     ;; Binary search loop
-    (block $done
-      (loop $search
-        (if (i32.lt_u (local.get $left) (local.get $right))
-          (then
-            ;; Calculate midpoint
-            (local.set $mid 
-              (i32.div_u 
-                (i32.add (local.get $left) (local.get $right))
-                (i32.const 2)))
-            
-            ;; Load value at midpoint
-            (local.set $value 
-              (f64.load 
-                (i32.add (local.get $ptr)
-                  (i32.mul (local.get $mid) (i32.const 8)))))
-            
-            ;; Compare with target
-            (if (f64.eq (local.get $value) (local.get $target))
-              (then (return (local.get $mid)))
-              (else
-                (if (f64.lt (local.get $value) (local.get $target))
-                  (then
-                    (local.set $left 
-                      (i32.add (local.get $mid) (i32.const 1))))
-                  (else
-                    (local.set $right (local.get $mid)))
-                )
+    (loop $search
+      (if (i32.lt_u (local.get $left) (local.get $right))
+        (then
+          ;; Calculate midpoint
+          (local.set $mid 
+            (i32.div_u 
+              (i32.add (local.get $left) (local.get $right))
+              (i32.const 2)))
+          (drop)  ;; Drop the result of local.set
+          
+          ;; Load value at midpoint
+          (local.set $value 
+            (f64.load 
+              (i32.add (local.get $ptr)
+                (i32.mul (local.get $mid) (i32.const 8)))))
+          (drop)  ;; Drop the result of local.set
+          
+          ;; Compare with target
+          (if (f64.eq (local.get $value) (local.get $target))
+            (then (return (local.get $mid)))
+            (else
+              (if (f64.lt (local.get $value) (local.get $target))
+                (then
+                  (local.set $left 
+                    (i32.add (local.get $mid) (i32.const 1)))
+                  (drop))  ;; Drop the result of local.set
+                (else
+                  (local.set $right (local.get $mid))
+                  (drop))  ;; Drop the result of local.set
               )
             )
-            (br $search)
           )
-          (else (br $done))
+          (br $search)
         )
       )
     )
@@ -122,33 +125,33 @@
     (local $char2 i32)
     
     ;; Compare characters
-    (block $done
-      (loop $compare
-        (if (i32.and 
-              (i32.lt_u (local.get $i) (local.get $len1))
-              (i32.lt_u (local.get $i) (local.get $len2)))
-          (then
-            ;; Load characters
-            (local.set $char1 
-              (i32.load8_u 
-                (i32.add (local.get $ptr1) (local.get $i))))
-            (local.set $char2
-              (i32.load8_u
-                (i32.add (local.get $ptr2) (local.get $i))))
-            
-            ;; Compare characters
-            (if (i32.ne (local.get $char1) (local.get $char2))
-              (then
-                (return
-                  (i32.sub 
-                    (local.get $char1)
-                    (local.get $char2))))
-            )
-            
-            (local.set $i (i32.add (local.get $i) (i32.const 1)))
-            (br $compare)
+    (loop $compare
+      (if (i32.and 
+            (i32.lt_u (local.get $i) (local.get $len1))
+            (i32.lt_u (local.get $i) (local.get $len2)))
+        (then
+          ;; Load characters
+          (local.set $char1 
+            (i32.load8_u 
+              (i32.add (local.get $ptr1) (local.get $i))))
+          (drop)  ;; Drop the result of local.set
+          (local.set $char2
+            (i32.load8_u
+              (i32.add (local.get $ptr2) (local.get $i))))
+          (drop)  ;; Drop the result of local.set
+          
+          ;; Compare characters
+          (if (i32.ne (local.get $char1) (local.get $char2))
+            (then
+              (return
+                (i32.sub 
+                  (local.get $char1)
+                  (local.get $char2))))
           )
-          (else (br $done))
+          
+          (local.set $i (i32.add (local.get $i) (i32.const 1)))
+          (drop)  ;; Drop the result of local.set
+          (br $compare)
         )
       )
     )
@@ -168,47 +171,49 @@
     (local.set $outPtr 
       (i32.add (local.get $ptr)
         (i32.mul (local.get $len) (i32.const 2))))
+    (drop)  ;; Drop the result of local.set
     
     ;; Encode characters
-    (block $done
-      (loop $encode
-        (if (i32.lt_u (local.get $i) (local.get $len))
-          (then
-            ;; Load character
-            (local.set $char
-              (i32.load8_u
-                (i32.add (local.get $ptr) (local.get $i))))
-            
-            ;; Simple UTF-8 encoding
-            (if (i32.lt_u (local.get $char) (i32.const 128))
-              (then
-                ;; ASCII character
-                (i32.store8
-                  (i32.add (local.get $outPtr) (local.get $bytesWritten))
-                  (local.get $char))
-                (local.set $bytesWritten 
-                  (i32.add (local.get $bytesWritten) (i32.const 1))))
-              (else
-                ;; Multi-byte character (simplified)
-                (i32.store8
-                  (i32.add (local.get $outPtr) (local.get $bytesWritten))
-                  (i32.or
-                    (i32.const 0xC0)
-                    (i32.shr_u (local.get $char) (i32.const 6))))
-                (i32.store8
-                  (i32.add (local.get $outPtr)
-                    (i32.add (local.get $bytesWritten) (i32.const 1)))
-                  (i32.or
-                    (i32.const 0x80)
-                    (i32.and (local.get $char) (i32.const 0x3F))))
-                (local.set $bytesWritten 
-                  (i32.add (local.get $bytesWritten) (i32.const 2))))
-            )
-            
-            (local.set $i (i32.add (local.get $i) (i32.const 1)))
-            (br $encode)
+    (loop $encode
+      (if (i32.lt_u (local.get $i) (local.get $len))
+        (then
+          ;; Load character
+          (local.set $char
+            (i32.load8_u
+              (i32.add (local.get $ptr) (local.get $i))))
+          (drop)  ;; Drop the result of local.set
+          
+          ;; Simple UTF-8 encoding
+          (if (i32.lt_u (local.get $char) (i32.const 128))
+            (then
+              ;; ASCII character
+              (i32.store8
+                (i32.add (local.get $outPtr) (local.get $bytesWritten))
+                (local.get $char))
+              (local.set $bytesWritten 
+                (i32.add (local.get $bytesWritten) (i32.const 1)))
+              (drop))  ;; Drop the result of local.set
+            (else
+              ;; Multi-byte character (simplified)
+              (i32.store8
+                (i32.add (local.get $outPtr) (local.get $bytesWritten))
+                (i32.or
+                  (i32.const 0xC0)
+                  (i32.shr_u (local.get $char) (i32.const 6))))
+              (i32.store8
+                (i32.add (local.get $outPtr)
+                  (i32.add (local.get $bytesWritten) (i32.const 1)))
+                (i32.or
+                  (i32.const 0x80)
+                  (i32.and (local.get $char) (i32.const 0x3F))))
+              (local.set $bytesWritten 
+                (i32.add (local.get $bytesWritten) (i32.const 2)))
+              (drop))  ;; Drop the result of local.set
           )
-          (else (br $done))
+          
+          (local.set $i (i32.add (local.get $i) (i32.const 1)))
+          (drop)  ;; Drop the result of local.set
+          (br $encode)
         )
       )
     )
