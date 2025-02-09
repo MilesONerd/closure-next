@@ -16,4 +16,4 @@ commands:
   - mkdocs build  
 
 sphinx:
-  configuration: ""  
+  configuration: docs/source/conf.py
