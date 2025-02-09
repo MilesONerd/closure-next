@@ -48,9 +48,7 @@
         )
       )
       (local.set $i (i32.add (local.get $i) (i32.const 1)))
-      (if (i32.lt_u (local.get $i) (local.get $len))
-        (then (br $outer))
-      )
+      (br_if $outer (i32.lt_u (local.get $i) (local.get $len)))
     )
   )
 
