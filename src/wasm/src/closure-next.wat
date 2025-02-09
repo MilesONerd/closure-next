@@ -81,39 +81,57 @@
     (param $arr i32) (param $low i32) (param $high i32) (result i32)
     (local $i i32)
     (local $j i32)
-    (local $pivot_addr i32)
-    (local $curr_addr i32)
     (local $pivot_val f64)
     (local $curr_val f64)
     
-    ;; Calculate pivot address and load value
-    (local.set $pivot_addr (call $calcAddr (local.get $arr) (local.get $high)))
-    (local.set $pivot_val (f64.load (local.get $pivot_addr)))
+    ;; Safety check for valid range
+    (if (i32.or 
+          (i32.lt_s (local.get $low) (i32.const 0))
+          (i32.ge_s (local.get $low) (local.get $high)))
+      (then
+        (return (local.get $low))))
     
-    ;; Initialize indices
+    ;; Load pivot value (using last element)
+    (local.set $pivot_val 
+      (call $getElement (local.get $arr) (local.get $high)))
+    
+    ;; Initialize partition index
     (local.set $i (i32.sub (local.get $low) (i32.const 1)))
-    (local.set $j (local.get $low))
     
+    ;; Scan through array
+    (local.set $j (local.get $low))
     (block $partition_done
       (loop $partition_loop
-        (br_if $partition_done (i32.ge_s (local.get $j) (local.get $high)))
+        (br_if $partition_done 
+          (i32.ge_s (local.get $j) (local.get $high)))
         
-        ;; Calculate current address and load value
-        (local.set $curr_addr (call $calcAddr (local.get $arr) (local.get $j)))
-        (local.set $curr_val (f64.load (local.get $curr_addr)))
+        ;; Load and compare current element
+        (local.set $curr_val 
+          (call $getElement (local.get $arr) (local.get $j)))
         
-        ;; Compare values
         (if (f64.le (local.get $curr_val) (local.get $pivot_val))
           (then
+            ;; Move smaller element to left side
             (local.set $i (i32.add (local.get $i) (i32.const 1)))
-            (call $swapElements (local.get $arr) (local.get $i) (local.get $j))))
+            (if (i32.ne (local.get $i) (local.get $j))
+              (then
+                (call $swapElements 
+                  (local.get $arr) 
+                  (local.get $i) 
+                  (local.get $j))))))
         
         (local.set $j (i32.add (local.get $j) (i32.const 1)))
         (br $partition_loop)))
     
-    ;; Place pivot in correct position
+    ;; Place pivot in final position
     (local.set $i (i32.add (local.get $i) (i32.const 1)))
-    (call $swapElements (local.get $arr) (local.get $i) (local.get $high))
+    (if (i32.ne (local.get $i) (local.get $high))
+      (then
+        (call $swapElements 
+          (local.get $arr) 
+          (local.get $i) 
+          (local.get $high))))
+    
     (local.get $i))
 
   ;; Quicksort implementation
