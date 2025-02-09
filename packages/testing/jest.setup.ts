@@ -1,8 +1,5 @@
 import '@testing-library/jest-dom';
 import { JSDOM } from 'jsdom';
 
-declare global {
-  var JSDOM: typeof JSDOM;
-}
-
-global.JSDOM = JSDOM;
+// Set up JSDOM for SSR tests
+(global as any).JSDOM = JSDOM;
