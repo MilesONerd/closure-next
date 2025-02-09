@@ -44,7 +44,6 @@
                 )
               )
               (local.set $j (i32.add (local.get $j) (i32.const 1)))
-              (br $inner)
             )
           )
         )
@@ -72,34 +71,37 @@
     ;; Binary search loop
     (block $done
       (loop $search
-        (br_if $done (i32.ge_u (local.get $left) (local.get $right)))
-        
-        ;; Calculate midpoint
-        (local.set $mid 
-          (i32.div_u 
-            (i32.add (local.get $left) (local.get $right))
-            (i32.const 2)))
-        
-        ;; Load value at midpoint
-        (local.set $value 
-          (f64.load 
-            (i32.add (local.get $ptr)
-              (i32.mul (local.get $mid) (i32.const 8)))))
-        
-        ;; Compare with target
-        (if (f64.eq (local.get $value) (local.get $target))
-          (then (return (local.get $mid)))
-          (else
-            (if (f64.lt (local.get $value) (local.get $target))
-              (then
-                (local.set $left 
-                  (i32.add (local.get $mid) (i32.const 1))))
+        (if (i32.lt_u (local.get $left) (local.get $right))
+          (then
+            ;; Calculate midpoint
+            (local.set $mid 
+              (i32.div_u 
+                (i32.add (local.get $left) (local.get $right))
+                (i32.const 2)))
+            
+            ;; Load value at midpoint
+            (local.set $value 
+              (f64.load 
+                (i32.add (local.get $ptr)
+                  (i32.mul (local.get $mid) (i32.const 8)))))
+            
+            ;; Compare with target
+            (if (f64.eq (local.get $value) (local.get $target))
+              (then (return (local.get $mid)))
               (else
-                (local.set $right (local.get $mid)))
+                (if (f64.lt (local.get $value) (local.get $target))
+                  (then
+                    (local.set $left 
+                      (i32.add (local.get $mid) (i32.const 1))))
+                  (else
+                    (local.set $right (local.get $mid)))
+                )
+              )
             )
+            (br $search)
           )
         )
-        (br $search))
+      )
     )
     ;; Not found
     (i32.const -1)
@@ -117,31 +119,32 @@
     ;; Compare characters
     (block $done
       (loop $compare
-        (br_if $done 
-          (i32.eqz
-            (i32.and 
+        (if (i32.and 
               (i32.lt_u (local.get $i) (local.get $len1))
-              (i32.lt_u (local.get $i) (local.get $len2)))))
-        
-        ;; Load characters
-        (local.set $char1 
-          (i32.load8_u 
-            (i32.add (local.get $ptr1) (local.get $i))))
-        (local.set $char2
-          (i32.load8_u
-            (i32.add (local.get $ptr2) (local.get $i))))
-        
-        ;; Compare characters
-        (if (i32.ne (local.get $char1) (local.get $char2))
+              (i32.lt_u (local.get $i) (local.get $len2)))
           (then
-            (return
-              (i32.sub 
-                (local.get $char1)
-                (local.get $char2))))
+            ;; Load characters
+            (local.set $char1 
+              (i32.load8_u 
+                (i32.add (local.get $ptr1) (local.get $i))))
+            (local.set $char2
+              (i32.load8_u
+                (i32.add (local.get $ptr2) (local.get $i))))
+            
+            ;; Compare characters
+            (if (i32.ne (local.get $char1) (local.get $char2))
+              (then
+                (return
+                  (i32.sub 
+                    (local.get $char1)
+                    (local.get $char2))))
+            )
+            
+            (local.set $i (i32.add (local.get $i) (i32.const 1)))
+            (br $compare)
+          )
         )
-        
-        (local.set $i (i32.add (local.get $i) (i32.const 1)))
-        (br $compare))
+      )
     )
     
     ;; Compare lengths if common prefix matches
@@ -196,7 +199,6 @@
                   (i32.add (local.get $bytesWritten) (i32.const 2)))))
             
             (local.set $i (i32.add (local.get $i) (i32.const 1)))
-            (br $encode)
           )
         )
       )
