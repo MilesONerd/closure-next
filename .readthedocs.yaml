@@ -15,5 +15,4 @@ build:
 commands:
   - mkdocs build 
 
-sphinx:
-  configuration: ""
+sphinx: {}
