@@ -1,24 +1,16 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "outDir": "./dist",
-    "rootDir": "../..",
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "module": "esnext",
+    "outDir": "../../dist/mobile",
+    "rootDir": ".",
+    "baseUrl": ".",
+    "module": "ESNext",
     "moduleResolution": "bundler",
-    "target": "es2020",
-    "lib": ["es2020", "dom"],
-    "esModuleInterop": true,
-    "baseUrl": "../..",
     "paths": {
-      "@closure-next/core": ["packages/core/src"],
-      "@closure-next/core/*": ["packages/core/src/*"]
+      "@closure-next/core": ["../../packages/core/src"]
     }
   },
-  "include": ["index.ts", "__tests__/**/*", "../../packages/core/src/**/*"],
-  "exclude": ["node_modules", "dist"],
+  "include": ["./**/*.ts"],
   "references": [
     { "path": "../../packages/core" }
   ]

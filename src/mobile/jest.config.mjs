@@ -7,6 +7,8 @@ export default {
     '^@closure-next/core$': '<rootDir>/../../packages/core/src/index.ts',
     '^@closure-next/core/(.*)$': '<rootDir>/../../packages/core/src/$1'
   },
+  rootDir: '.',
+  roots: ['<rootDir>', '<rootDir>/../../packages/core/src'],
   transform: {
     '^.+\\.(t|j)sx?$': ['ts-jest', {
       useESM: true,
@@ -18,7 +20,7 @@ export default {
   transformIgnorePatterns: [
     'node_modules/(?!(@closure-next)/)'
   ],
-  moduleDirectories: ['node_modules'],
+  moduleDirectories: ['node_modules', 'src'],
   testEnvironmentOptions: {
     customExportConditions: ['node', 'node-addons']
   },
