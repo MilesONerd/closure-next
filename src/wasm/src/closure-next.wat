@@ -32,12 +32,17 @@
   ;; Helper function to swap elements
   (func $swapElements (type $swap_elements_type)
     (local $temp f64)
-    (local.set $temp (call $getElement (local.get 0) (local.get 1)))
-    (call $setElement 
-      (local.get 0) 
-      (local.get 1) 
-      (call $getElement (local.get 0) (local.get 2)))
-    (call $setElement (local.get 0) (local.get 2) (local.get $temp)))
+    (local.set $temp (f64.load (i32.add (local.get 0) 
+      (i32.mul (local.get 1) (i32.const 8)))))
+    (f64.store 
+      (i32.add (local.get 0) 
+        (i32.mul (local.get 1) (i32.const 8)))
+      (f64.load (i32.add (local.get 0) 
+        (i32.mul (local.get 2) (i32.const 8)))))
+    (f64.store 
+      (i32.add (local.get 0) 
+        (i32.mul (local.get 2) (i32.const 8)))
+      (local.get $temp)))
 
   ;; Partition function for quicksort
   (func $partition (type $partition_type)
@@ -46,7 +51,8 @@
     (local $j i32)
     
     ;; Use last element as pivot
-    (local.set $pivot (call $getElement (local.get 0) (local.get 2)))
+    (local.set $pivot (f64.load (i32.add (local.get 0) 
+      (i32.mul (local.get 2) (i32.const 8)))))
     (local.set $i (i32.sub (local.get 1) (i32.const 1)))
     
     ;; Partition array around pivot
@@ -56,14 +62,22 @@
         (br_if $partition_done (i32.ge_s (local.get $j) (local.get 2)))
         
         (if (f64.le 
-              (call $getElement (local.get 0) (local.get $j))
+              (f64.load (i32.add (local.get 0) 
+                (i32.mul (local.get $j) (i32.const 8))))
               (local.get $pivot))
           (then
             (local.set $i (i32.add (local.get $i) (i32.const 1)))
-            (call $swapElements 
-              (local.get 0) 
-              (local.get $i) 
-              (local.get $j))))
+            (local.set $temp (f64.load (i32.add (local.get 0) 
+              (i32.mul (local.get $i) (i32.const 8)))))
+            (f64.store 
+              (i32.add (local.get 0) 
+                (i32.mul (local.get $i) (i32.const 8)))
+              (f64.load (i32.add (local.get 0) 
+                (i32.mul (local.get $j) (i32.const 8)))))
+            (f64.store 
+              (i32.add (local.get 0) 
+                (i32.mul (local.get $j) (i32.const 8)))
+              (local.get $temp))))
         
         (local.set $j (i32.add (local.get $j) (i32.const 1)))
         (br $partition_loop)))
@@ -127,7 +141,8 @@
             (i32.const 2)))
         
         (local.set $value 
-          (call $getElement (local.get 0) (local.get $mid)))
+          (f64.load (i32.add (local.get 0) 
+            (i32.mul (local.get $mid) (i32.const 8)))))
         
         (if (f64.eq (local.get $value) (local.get 2))
           (then 
@@ -330,4 +345,4 @@
   (export "stringEncode" (func $stringEncode))
   (export "traverseDOM" (func $traverseDOM))
   (export "getAttribute" (func $getAttribute))
-  (export "dispatchEvent" (func $dispatchEvent))
+  (export "dispatchEvent" (func $dispatchEvent)))
