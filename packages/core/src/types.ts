@@ -4,6 +4,7 @@
  */
 
 import { Component } from './component';
+import { DomHelper } from './dom';
 
 /**
  * Generic component props type
@@ -13,9 +14,16 @@ export interface ComponentProps<T = unknown> {
 }
 
 /**
- * Component state type
+ * Generic component state type
  */
-export type ComponentStateType = {
+export interface ComponentState<T = unknown> {
+  [key: string]: T;
+}
+
+/**
+ * Component state flags
+ */
+export interface ComponentStateFlags {
   ALL: 0xFF;
   DISABLED: 0x01;
   HOVER: 0x02;
@@ -24,34 +32,7 @@ export type ComponentStateType = {
   CHECKED: 0x10;
   FOCUSED: 0x20;
   OPENED: 0x40;
-};
-
-/**
- * Component event type
- */
-export type ComponentEventType = {
-  BEFORE_SHOW: 'beforeshow';
-  SHOW: 'show';
-  HIDE: 'hide';
-  DISABLE: 'disable';
-  ENABLE: 'enable';
-  HIGHLIGHT: 'highlight';
-  UNHIGHLIGHT: 'unhighlight';
-  ACTIVATE: 'activate';
-  DEACTIVATE: 'deactivate';
-  SELECT: 'select';
-  UNSELECT: 'unselect';
-  CHECK: 'check';
-  UNCHECK: 'uncheck';
-  FOCUS: 'focus';
-  BLUR: 'blur';
-  OPEN: 'open';
-  CLOSE: 'close';
-  ENTER: 'enter';
-  LEAVE: 'leave';
-  ACTION: 'action';
-  CHANGE: 'change';
-};
+}
 
 /**
  * Event handler type with proper 'this' binding

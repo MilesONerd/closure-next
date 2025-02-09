@@ -3,7 +3,8 @@
  * @license Apache-2.0
  */
 
-import type { ComponentEventMap, ComponentEventOptions, EventHandler } from './types';
+import type { ComponentEventMap, EventHandler } from './types';
+import { Component } from './component';
 
 export class EventTarget {
   protected readonly listeners: Map<string, Set<EventHandler>> = new Map();
@@ -40,7 +41,7 @@ export class EventTarget {
       for (const listener of listeners) {
         try {
           const listenerEvent = this.cloneEvent(event);
-          listener.call(this, listenerEvent);
+          listener.call(this as unknown as Component, listenerEvent);
           if (listenerEvent.defaultPrevented) {
             defaultPrevented = true;
           }
