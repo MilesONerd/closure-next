@@ -9,8 +9,8 @@ build:
       - pip install mkdocs
       - pip install mkdocs-github
 
-      tools:
-        python: "3.9"
+  tools:
+    python: "3.9"  
 
-  commands:
-    - mkdocs build 
+commands:
+  - mkdocs build 
