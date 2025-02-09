@@ -49,9 +49,11 @@ export function closureNextRollup(options: ClosureNextRollupOptions = {}): Plugi
 
       // Handle TypeScript files
       if (id.endsWith('.ts') || id.endsWith('.tsx')) {
-        code = code
-          .replace(/\.ts(['"])/g, '.js$1')
-          .replace(/from\s+['"]([^'"]+)\.ts['"]/g, 'from "$1.js"');
+        // Keep the original code for TypeScript files
+        return {
+          code,
+          map: null
+        };
       }
 
       // Tree shaking optimization
