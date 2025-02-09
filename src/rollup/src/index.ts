@@ -4,16 +4,33 @@
  */
 
 import type { Plugin } from 'rollup';
+import { createFilter } from '@rollup/pluginutils';
 
 interface ClosureNextRollupOptions {
   /** Enable code splitting */
   codeSplitting?: boolean;
   /** Custom module resolution paths */
   paths?: Record<string, string>;
+  /** Enable tree shaking optimizations */
+  treeShaking?: boolean;
+  /** Enable minification */
+  minify?: boolean;
+  /** Files to include */
+  include?: string[];
+  /** Files to exclude */
+  exclude?: string[];
 }
 
 export function closureNextRollup(options: ClosureNextRollupOptions = {}): Plugin {
-  const { paths = {} } = options;
+  const { 
+    paths = {},
+    treeShaking = true,
+    minify = true,
+    include = ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
+    exclude = ['node_modules/**']
+  } = options;
+
+  const filter = createFilter(include, exclude);
 
   return {
     name: 'closure-next',
@@ -27,16 +44,63 @@ export function closureNextRollup(options: ClosureNextRollupOptions = {}): Plugi
       return null;
     },
 
-    transform(code, id) {
+    transform(code: string, id: string) {
+      if (!filter(id)) return null;
+
+      // Handle TypeScript files
       if (id.endsWith('.ts') || id.endsWith('.tsx')) {
-        return {
-          code: code
-            .replace(/\.ts(['"])/g, '.js$1')
-            .replace(/from\s+['"]([^'"]+)\.ts['"]/g, 'from "$1.js"'),
-          map: null
-        };
+        code = code
+          .replace(/\.ts(['"])/g, '.js$1')
+          .replace(/from\s+['"]([^'"]+)\.ts['"]/g, 'from "$1.js"');
       }
-      return null;
+
+      // Tree shaking optimization
+      if (treeShaking) {
+        // Remove unused exports
+        code = code.replace(/export\s+(?:const|let|var|function|class)\s+\w+[^;]*;\s*/g, '');
+        // Remove unused imports
+        code = code.replace(/import\s+{\s*[^}]+}\s+from\s+['"][^'"]+['"];\s*/g, '');
+      }
+
+      // Minification
+      if (minify) {
+        // Remove comments
+        code = code.replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '');
+        // Remove whitespace
+        code = code.replace(/\s+/g, ' ');
+        // Remove unnecessary semicolons
+        code = code.replace(/;+/g, ';');
+        // Remove unnecessary brackets
+        code = code.replace(/{\s+}/g, '{}');
+      }
+
+      return {
+        code,
+        map: null
+      };
+    },
+
+    renderChunk(code: string) {
+      if (!minify) return null;
+
+      // Final minification pass
+      code = code
+        .replace(/\s+/g, ' ')
+        .replace(/;\s+/g, ';')
+        .replace(/{\s+/g, '{')
+        .replace(/}\s+/g, '}')
+        .replace(/,\s+/g, ',')
+        .replace(/\s*:\s*/g, ':')
+        .replace(/\s*=\s*/g, '=')
+        .replace(/\s*\+\s*/g, '+')
+        .replace(/\s*-\s*/g, '-')
+        .replace(/\s*\*\s*/g, '*')
+        .replace(/\s*\/\s*/g, '/');
+
+      return {
+        code,
+        map: null
+      };
     }
   };
 }
