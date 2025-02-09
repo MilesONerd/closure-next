@@ -1,67 +1,33 @@
-/**
- * @fileoverview Event handling system for Closure Next.
- * @license Apache-2.0
- */
-/**
- * Base class for event targets that provides event handling capabilities
- */
-export class EventTarget {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.EventTarget = void 0;
+class EventTarget {
     constructor() {
         this.listeners = new Map();
     }
-    /**
-     * Adds an event listener
-     */
     addEventListener(type, listener) {
         if (!this.listeners.has(type)) {
             this.listeners.set(type, new Set());
         }
         this.listeners.get(type).add(listener);
     }
-    /**
-     * Removes an event listener
-     */
     removeEventListener(type, listener) {
-        const typeListeners = this.listeners.get(type);
-        if (typeListeners) {
-            typeListeners.delete(listener);
-            if (typeListeners.size === 0) {
+        const listeners = this.listeners.get(type);
+        if (listeners) {
+            listeners.delete(listener);
+            if (listeners.size === 0) {
                 this.listeners.delete(type);
             }
         }
     }
-    /**
-     * Dispatches an event
-     */
     dispatchEvent(event) {
-        const type = event.type;
-        const typeListeners = this.listeners.get(type);
+        const typeListeners = this.listeners.get(event.type);
         let defaultPrevented = event.defaultPrevented;
         if (typeListeners) {
-            // Convert Set to Array to avoid modification during iteration
             const listeners = Array.from(typeListeners);
             for (const listener of listeners) {
                 try {
-                    // Create a new event for each listener to prevent modification
-                    const listenerEvent = event instanceof CustomEvent ?
-                        new CustomEvent(event.type, {
-                            bubbles: event.bubbles,
-                            cancelable: event.cancelable,
-                            detail: event.detail
-                        }) :
-                        new Event(event.type, {
-                            bubbles: event.bubbles,
-                            cancelable: event.cancelable
-                        });
-                    // Copy standard event properties that are writable
-                    listenerEvent.cancelBubble = event.cancelBubble;
-                    listenerEvent.returnValue = event.returnValue;
-                    if (event.defaultPrevented) {
-                        listenerEvent.preventDefault();
-                    }
-                    if (event.cancelBubble) {
-                        listenerEvent.stopPropagation();
-                    }
+                    const listenerEvent = this.cloneEvent(event);
                     listener.call(this, listenerEvent);
                     if (listenerEvent.defaultPrevented) {
                         defaultPrevented = true;
@@ -74,17 +40,19 @@ export class EventTarget {
         }
         return !defaultPrevented;
     }
-    /**
-     * Removes all event listeners
-     */
-    dispose() {
-        // Clear all event listeners
-        this.listeners.forEach((listeners) => {
-            listeners.clear();
+    cloneEvent(event) {
+        if (event instanceof CustomEvent) {
+            return new CustomEvent(event.type, {
+                bubbles: event.bubbles,
+                cancelable: event.cancelable,
+                detail: event.detail
+            });
+        }
+        return new Event(event.type, {
+            bubbles: event.bubbles,
+            cancelable: event.cancelable
         });
-        this.listeners.clear();
-        // Reset state
-        this.listeners = new Map();
     }
 }
+exports.EventTarget = EventTarget;
 //# sourceMappingURL=events.js.map

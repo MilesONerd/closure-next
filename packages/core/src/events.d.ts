@@ -1,27 +1,9 @@
-/**
- * @fileoverview Event handling system for Closure Next.
- * @license Apache-2.0
- */
-/**
- * Base class for event targets that provides event handling capabilities
- */
+import type { ComponentEventMap, EventHandler } from './types';
 export declare class EventTarget {
-    protected listeners: Map<string, Set<(evt: Event) => void>>;
-    /**
-     * Adds an event listener
-     */
-    addEventListener(type: string, listener: (this: unknown, evt: Event) => void): void;
-    /**
-     * Removes an event listener
-     */
-    removeEventListener(type: string, listener: (this: unknown, evt: Event) => void): void;
-    /**
-     * Dispatches an event
-     */
-    dispatchEvent(event: Event): boolean;
-    /**
-     * Removes all event listeners
-     */
-    dispose(): void;
+    protected readonly listeners: Map<string, Set<EventHandler>>;
+    addEventListener<K extends keyof ComponentEventMap>(type: K, listener: EventHandler<ComponentEventMap[K]>): void;
+    removeEventListener<K extends keyof ComponentEventMap>(type: K, listener: EventHandler<ComponentEventMap[K]>): void;
+    dispatchEvent<K extends keyof ComponentEventMap>(event: ComponentEventMap[K]): boolean;
+    protected cloneEvent<K extends keyof ComponentEventMap>(event: ComponentEventMap[K]): ComponentEventMap[K];
 }
 //# sourceMappingURL=events.d.ts.map

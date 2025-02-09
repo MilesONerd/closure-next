@@ -1,11 +1,14 @@
+"use strict";
 /**
  * @fileoverview DOM helper utilities for Closure Next.
  * @license Apache-2.0
  */
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DomHelper = void 0;
 /**
  * Helper class for DOM manipulation
  */
-export class DomHelper {
+class DomHelper {
     constructor(opt_document) {
         this.document = opt_document || document;
     }
@@ -69,4 +72,5 @@ export class DomHelper {
         return this.document;
     }
 }
+exports.DomHelper = DomHelper;
 //# sourceMappingURL=dom.js.map

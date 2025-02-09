@@ -1,15 +1,34 @@
-/**
- * @fileoverview Entry point for Closure Next core functionality.
- * @license Apache-2.0
- */
-
-// Re-export everything at the root level
-export * from './events';
+export * from './component';
 export * from './dom';
-export * from './id';
-export * from './utils';
+export * from './events';
+export * from './types';
+export * from './lazy';
+export * from './cache';
+export * from './bundle';
 
-// Export Component and types
-export { Component } from './component';
-export { ComponentState, ComponentEventType } from './component';
-export type { ComponentInterface, ComponentConstructor } from './component';
+// Re-export commonly used types and utilities
+export type {
+  Component,
+  ComponentProps,
+  DomHelper,
+  EventHandler,
+  LazyLoadOptions,
+  ModuleCache,
+  Cache,
+  ComponentPool,
+  ResourcePreloader,
+  ChunkConfig,
+  BundleConfig
+} from './types';
+
+export {
+  globalCache,
+  globalComponentPool,
+  globalResourcePreloader
+} from './cache';
+
+export {
+  defaultChunks,
+  createBundleConfig,
+  createRollupConfig
+} from './bundle';

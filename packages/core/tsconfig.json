@@ -1,24 +1,22 @@
 {
-  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "outDir": "./dist",
+    "outDir": "dist",
     "rootDir": ".",
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "composite": true,
-    "types": ["jest", "node"],
     "baseUrl": ".",
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "target": "es2020",
-    "lib": ["es2020", "dom"],
+    "target": "ES2015",
+    "module": "CommonJS",
+    "moduleResolution": "node",
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "declaration": true,
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "types": ["jest", "node"],
     "paths": {
       "@closure-next/core": ["./src"]
     }
   },
   "include": ["src/**/*", "__tests__/**/*"],
-  "exclude": ["node_modules", "dist"],
-  "references": []
+  "exclude": ["node_modules", "dist"]
 }

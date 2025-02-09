@@ -1,96 +1,107 @@
 /**
- * @fileoverview Event handling system for Closure Next.
+ * @fileoverview Event handling implementation for Closure Next.
  * @license Apache-2.0
  */
 
-/**
- * Base class for event targets that provides event handling capabilities
- */
-export class EventTarget {
-  protected listeners: Map<string, Set<(evt: Event) => void>> = new Map();
+import type { EventInterface, EventTargetInterface } from './types';
 
-  /**
-   * Adds an event listener
-   */
-  addEventListener(type: string, listener: (this: unknown, evt: Event) => void): void {
+export const EventType = {
+  ALL: 'all',
+  STATECHANGE: 'statechange',
+  DISPOSE: 'dispose',
+  TEST: 'test'
+} as const;
+
+export type EventType = typeof EventType[keyof typeof EventType];
+
+export class EventTarget implements EventTargetInterface {
+  private listeners: Map<EventType | string, Set<(event: EventInterface) => void>>;
+  private disposed: boolean;
+
+  constructor() {
+    this.listeners = new Map();
+    this.disposed = false;
+    // Initialize ALL event type by default
+    this.listeners.set(EventType.ALL, new Set());
+  }
+
+  addEventListener(type: EventType | string, listener: (event: EventInterface) => void): void {
+    if (this.disposed) {
+      return;
+    }
+
     if (!this.listeners.has(type)) {
       this.listeners.set(type, new Set());
     }
+
     this.listeners.get(type)!.add(listener);
   }
 
-  /**
-   * Removes an event listener
-   */
-  removeEventListener(type: string, listener: (this: unknown, evt: Event) => void): void {
-    const typeListeners = this.listeners.get(type);
-    if (typeListeners) {
-      typeListeners.delete(listener);
-      if (typeListeners.size === 0) {
+  removeEventListener(type: EventType | string, listener: (event: EventInterface) => void): void {
+    if (this.disposed) {
+      return;
+    }
+
+    const listeners = this.listeners.get(type);
+    if (listeners) {
+      listeners.delete(listener);
+      if (listeners.size === 0) {
         this.listeners.delete(type);
       }
     }
   }
 
-  /**
-   * Dispatches an event
-   */
-  dispatchEvent(event: Event): boolean {
-    const type = event.type;
-    const typeListeners = this.listeners.get(type);
-    let defaultPrevented = event.defaultPrevented;
-
-    if (typeListeners) {
-      // Convert Set to Array to avoid modification during iteration
-      const listeners = Array.from(typeListeners);
-      for (const listener of listeners) {
-        try {
-          // Create a new event for each listener to prevent modification
-          const listenerEvent = event instanceof CustomEvent ?
-            new CustomEvent(event.type, {
-              bubbles: event.bubbles,
-              cancelable: event.cancelable,
-              detail: event.detail
-            }) :
-            new Event(event.type, {
-              bubbles: event.bubbles,
-              cancelable: event.cancelable
-            });
-          
-          // Copy standard event properties that are writable
-          listenerEvent.cancelBubble = event.cancelBubble;
-          listenerEvent.returnValue = event.returnValue;
-          if (event.defaultPrevented) {
-            listenerEvent.preventDefault();
-          }
-          if (event.cancelBubble) {
-            listenerEvent.stopPropagation();
-          }
-          
-          listener.call(this, listenerEvent);
-          if (listenerEvent.defaultPrevented) {
-            defaultPrevented = true;
-          }
-        } catch (e) {
-          console.error('Error in event handler:', e);
-        }
-      }
-    }
-
-    return !defaultPrevented;
+  emit(type: EventType | string, data?: any): void {
+    this.dispatchEvent(type, data);
   }
 
-  /**
-   * Removes all event listeners
-   */
-  dispose(): void {
-    // Clear all event listeners
-    this.listeners.forEach((listeners) => {
-      listeners.clear();
-    });
-    this.listeners.clear();
+  dispatchEvent(type: EventType | string, data?: any): void {
+    if (this.disposed) {
+      return;
+    }
 
-    // Reset state
-    this.listeners = new Map();
+    const event: EventInterface = {
+      type,
+      target: this,
+      data
+    };
+
+    // Call specific event type listeners
+    const typeListeners = this.listeners.get(type);
+    if (typeListeners) {
+      typeListeners.forEach(listener => {
+        try {
+          listener(event);
+        } catch (error) {
+          console.error('Error in event listener:', error);
+        }
+      });
+    }
+
+    // Call ALL event type listeners
+    const allListeners = this.listeners.get(EventType.ALL);
+    if (allListeners) {
+      allListeners.forEach(listener => {
+        try {
+          listener(event);
+        } catch (error) {
+          console.error('Error in ALL event listener:', error);
+        }
+      });
+    }
+  }
+
+  dispose(): void {
+    if (this.disposed) {
+      return;
+    }
+
+    this.dispatchEvent(EventType.DISPOSE);
+    this.listeners.clear();
+    this.disposed = true;
+  }
+
+  isDisposed(): boolean {
+    return this.disposed;
   }
 }

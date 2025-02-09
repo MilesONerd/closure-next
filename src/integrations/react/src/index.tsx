@@ -1,22 +1,35 @@
-import { Component, DomHelper, type ComponentInterface } from "@closure-next/core/dist/index.js";
+import { Component, DomHelper, type ComponentProps } from "@closure-next/core/dist/index.js";
 import React from "react";
+import type { ClosureComponentProps, UseClosureComponentReturn, ClosureInstance } from './types';
 
-export interface ClosureComponentProps {
-  component: new (domHelper?: DomHelper) => ComponentInterface;
-  props?: Record<string, unknown>;
-  errorBoundary?: boolean;
-  fallback?: React.ReactNode;
-}
-
-export function useClosureComponent(Component: new (domHelper?: DomHelper) => ComponentInterface): React.RefCallback<HTMLDivElement> {
-  const componentRef = React.useRef<ComponentInterface | null>(null);
+export function useClosureComponent<T extends Component>(
+  ComponentClass: new (domHelper?: DomHelper) => T
+): UseClosureComponentReturn<T> {
+  const componentRef = React.useRef<ClosureInstance<T> | null>(null);
   const elementRef = React.useRef<HTMLDivElement | null>(null);
+
+  const setProps = React.useCallback((props: Partial<ComponentProps>) => {
+    if (componentRef.current) {
+      Object.entries(props).forEach(([key, value]) => {
+        const method = `set${key.charAt(0).toUpperCase()}${key.slice(1)}`;
+        if (typeof componentRef.current![method as keyof T] === 'function') {
+          (componentRef.current![method as keyof T] as Function)(value);
+        }
+      });
+
+      // Re-render if component is already in document
+      if (componentRef.current.isInDocument()) {
+        componentRef.current.exitDocument();
+        componentRef.current.enterDocument();
+      }
+    }
+  }, []);
 
   React.useEffect(() => {
     if (elementRef.current && !componentRef.current) {
       try {
-        const component = new Component(new DomHelper(document));
-        componentRef.current = component;
+        const component = new ComponentClass(new DomHelper(document));
+        componentRef.current = component as ClosureInstance<T>;
         
         component.enterDocument();
         const componentElement = component.getElement();
@@ -34,43 +47,18 @@ export function useClosureComponent(Component: new (domHelper?: DomHelper) => Co
           componentRef.current.dispose();
           componentRef.current = null;
         } catch (error) {
-          console.error('Error cleaning up previous component:', error);
+          console.error('Error cleaning up component:', error);
         }
       }
     };
-  }, [Component]);
+  }, [ComponentClass]);
 
-  const renderCallback = React.useCallback((element: HTMLDivElement | null) => {
-    if (componentRef.current) {
-      try {
-        componentRef.current.exitDocument();
-        componentRef.current.dispose();
-      } catch (error) {
-        console.error('Error cleaning up previous component:', error);
-      }
-      componentRef.current = null;
-    }
-
-    elementRef.current = element;
-    if (element) {
-      element.setAttribute('data-testid', 'hook-wrapper');
-      try {
-        const component = new Component(new DomHelper(document));
-        componentRef.current = component;
-        
-        component.enterDocument();
-        const componentElement = component.getElement();
-        if (componentElement) {
-          element.appendChild(componentElement);
-        }
-      } catch (error) {
-        console.error('Error rendering Closure component:', error);
-      }
-    }
-  }, [Component]);
-
-  return renderCallback;
+  return {
+    ref: elementRef,
+    component: componentRef as React.MutableRefObject<T | null>,
+    setProps
+  };
 }
 
-export { Component, type ComponentInterface };
-export { ClosureComponent } from './ClosureComponent.js';
+export { ClosureComponent } from './ClosureComponent';
+export type { ClosureComponentProps, UseClosureComponentReturn, ClosureInstance } from './types';

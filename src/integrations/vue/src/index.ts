@@ -1,173 +1,91 @@
-import { ref, shallowRef, onMounted, onBeforeUnmount, watch, nextTick, type Ref, type ShallowRef } from 'vue';
-import { Component, DomHelper, type ComponentConstructor } from '@closure-next/core/dist/index.js';
-
-export interface ClosureComponentRef<T extends Component> {
-  ref: Ref<HTMLElement | null>;
-  component: ShallowRef<T | null>;
-}
-
-export interface ClosureComponentOptions {
-  props?: Record<string, unknown>;
-}
+import { ref, shallowRef, onMounted, onBeforeUnmount, nextTick, type Ref, type ShallowRef } from 'vue';
+import { Component, DomHelper, type ComponentProps } from '@closure-next/core/dist/index.js';
+import type { ClosureComponentRef, ClosureComponentOptions, ClosureInstance } from './types';
 
 export function useClosureComponent<T extends Component>(
-  ComponentClass: ComponentConstructor<T>,
-  domHelper: DomHelper,
-  options: ClosureComponentOptions = {}
+  ComponentClass: new (domHelper?: DomHelper) => T,
+  options: ClosureComponentOptions<T> = {}
 ): ClosureComponentRef<T> {
   const elementRef = ref<HTMLElement | null>(null);
-  const componentRef = shallowRef<T | null>(null);
+  const componentRef = shallowRef<ClosureInstance<T> | null>(null);
 
-  const initializeComponent = async () => {
+  const setProps = async (props: Partial<ComponentProps>): Promise<void> => {
+    if (componentRef.value) {
+      Object.entries(props).forEach(([key, value]) => {
+        const method = `set${key.charAt(0).toUpperCase()}${key.slice(1)}`;
+        if (typeof componentRef.value![method as keyof T] === 'function') {
+          (componentRef.value![method as keyof T] as Function)(value);
+        }
+      });
+
+      // Re-render if component is already in document
+      if (componentRef.value.isInDocument()) {
+        componentRef.value.exitDocument();
+        await nextTick();
+        componentRef.value.enterDocument();
+      }
+    }
+  };
+
+  const initializeComponent = async (): Promise<ClosureInstance<T>> => {
     if (!elementRef.value) {
-      console.error('Element ref not available');
-      throw new Error('Element ref is not available');
+      throw new Error('Element ref not available');
     }
 
     try {
-      const component = new ComponentClass(domHelper);
+      const component = new ComponentClass(new DomHelper(document)) as ClosureInstance<T>;
       componentRef.value = component;
-
-      // Create DOM first
-      component.createDom();
-      const element = component.getElement();
-      if (!element) {
-        console.error('Failed to create DOM element');
-        throw new Error('Component failed to create DOM element');
-      }
 
       // Apply initial props
       if (options.props) {
-        for (const [key, value] of Object.entries(options.props)) {
-          const setterMethod = `set${key.charAt(0).toUpperCase()}${key.slice(1)}`;
-          const setter = (component as any)[setterMethod];
-          if (typeof setter === 'function') {
-            setter.call(component, value);
-            // Re-create DOM to reflect initial props
-            component.createDom();
-          }
-        }
+        await setProps(options.props);
       }
 
-      // Get the updated element and enter document
-      const updatedElement = component.getElement();
-      if (updatedElement) {
-        elementRef.value.appendChild(updatedElement);
-        component.enterDocument();
-        await nextTick();
+      // Create DOM and enter document
+      component.createDom();
+      const element = component.getElement();
+      if (!element) {
+        throw new Error('Component failed to create DOM element');
       }
-      
+
+      elementRef.value.appendChild(element);
+      component.enterDocument();
+      await nextTick();
+
+      options.onMounted?.(component);
       return component;
     } catch (error) {
-      console.error('Error during component initialization:', error);
-      componentRef.value = null;
-      throw error;
+      const err = error instanceof Error ? error : new Error(String(error));
+      options.onError?.(err);
+      throw err;
     }
   };
 
   onMounted(async () => {
     try {
-      const component = await initializeComponent();
-      componentRef.value = component;
-
-      // Set up watchers for prop changes
-      if (options.props) {
-        for (const [key, value] of Object.entries(options.props)) {
-          // Set up watcher for each prop
-          watch(() => options.props?.[key], async (newValue) => {
-            if (componentRef.value) {
-              const setterMethod = `set${key.charAt(0).toUpperCase()}${key.slice(1)}`;
-              const setter = (componentRef.value as any)[setterMethod];
-              if (typeof setter === 'function') {
-                try {
-                  console.log('Updating prop:', key, 'to value:', newValue);
-                  
-                  // Update the component's state first
-                  if (key === 'title') {
-                    componentRef.value.setTitle(newValue);
-                  } else {
-                    setter.call(componentRef.value, newValue);
-                  }
-                  
-                  // Wait for Vue's reactivity to settle
-                  await nextTick();
-                  
-                  // Update the component's state first
-                  if (componentRef.value) {
-                    // Update state
-                    if (key === 'title') {
-                      // Exit document before update
-                      if (componentRef.value.isInDocument()) {
-                        componentRef.value.exitDocument();
-                      }
-
-                      // Update state and recreate DOM
-                      componentRef.value.setTitle(newValue);
-                      componentRef.value.createDom();
-
-                      // Get new element and re-enter document
-                      const element = componentRef.value.getElement();
-                      if (element && elementRef.value) {
-                        // Clear existing content
-                        while (elementRef.value.firstChild) {
-                          elementRef.value.removeChild(elementRef.value.firstChild);
-                        }
-                        elementRef.value.appendChild(element);
-                        componentRef.value.enterDocument();
-
-                        // Wait for Vue's reactivity to settle and force update
-                        await nextTick();
-                        await new Promise(resolve => setTimeout(resolve, 50));
-                        element.setAttribute('data-title', newValue);
-                        element.textContent = `Test Component Content - ${newValue}`;
-                        await nextTick();
-                        await new Promise(resolve => setTimeout(resolve, 50));
-                      }
-                    }
-                  }
-                } catch (error) {
-                  console.error('Error during prop update:', error);
-                }
-              }
-            }
-          }, { flush: 'sync', immediate: true });
-        }
-      }
+      await initializeComponent();
     } catch (error) {
       console.error('Error during component initialization:', error);
-      componentRef.value = null;
-      throw error;
-    }
-  });
-
-  onBeforeUnmount(() => {
-    if (componentRef.value?.isInDocument()) {
-      componentRef.value.exitDocument();
-      const element = componentRef.value.getElement();
-      if (element?.parentElement) {
-        element.parentElement.removeChild(element);
-      }
-      componentRef.value = null;
     }
   });
 
   onBeforeUnmount(() => {
     const component = componentRef.value;
     if (component) {
+      options.onUnmounted?.(component);
       if (component.isInDocument()) {
         component.exitDocument();
       }
-      const element = component.getElement();
-      if (element?.parentElement) {
-        element.parentElement.removeChild(element);
-      }
+      component.dispose();
       componentRef.value = null;
     }
   });
 
-  // Return the refs
   return {
     ref: elementRef,
-    component: componentRef
-  } as ClosureComponentRef<T>;
+    component: componentRef,
+    setProps
+  };
 }
+
+export type { ClosureComponentRef, ClosureComponentOptions, ClosureInstance } from './types';

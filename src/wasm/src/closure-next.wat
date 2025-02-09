@@ -1,100 +1,230 @@
 (module
-  ;; Memory for array and string operations
-  (memory 1)
+  ;; Memory for array and string operations (256 pages = 16MB)
+  (memory 256)
   (export "memory" (memory 0))
+  
+  ;; Memory bounds checking helper
+  (func $check_bounds (param $addr i32) (param $size i32) (result i32)
+    (i32.and
+      (i32.ge_s (local.get $addr) (i32.const 0))
+      (i32.lt_s 
+        (i32.add (local.get $addr) (local.get $size))
+        (i32.mul (memory.size) (i32.const 65536)))))
 
-  ;; Array sorting (bubble sort implementation)
-  (func $arraySort (param $ptr i32) (param $len i32)
+  ;; Function declarations
+  (type $get_element_type (func (param $arr i32) (param $idx i32) (result f64)))
+  (type $set_element_type (func (param $arr i32) (param $idx i32) (param $val f64)))
+  (type $swap_elements_type (func (param $arr i32) (param $i i32) (param $j i32)))
+  (type $partition_type (func (param $arr i32) (param $low i32) (param $high i32) (result i32)))
+  (type $quicksort_type (func (param $arr i32) (param $low i32) (param $high i32)))
+  (type $array_sort_type (func (param $arr i32) (param $len i32)))
+  (type $binary_search_type (func (param $arr i32) (param $len i32) (param $target f64) (result i32)))
+  (type $string_compare_type (func (param $str1 i32) (param $len1 i32) (param $str2 i32) (param $len2 i32) (result i32)))
+  (type $string_encode_type (func (param $str i32) (param $len i32) (result i32)))
+  (type $traverse_dom_type (func (param $node i32) (result i32)))
+  (type $get_attribute_type (func (param $node i32) (param $attr i32) (param $len i32) (result i32)))
+  (type $dispatch_event_type (func (param $node i32) (param $event i32) (param $data i32) (result i32)))
+  (type $calc_addr_type (func (param $arr i32) (param $idx i32) (result i32)))
+  (type $compare_type (func (param $a f64) (param $b f64) (result i32)))
+
+  ;; Helper function to compare two f64 values
+  (func $compare (type $compare_type) (param $a f64) (param $b f64) (result i32)
+    (if (result i32) (f64.lt (local.get $a) (local.get $b))
+      (then (i32.const -1))
+      (else
+        (if (result i32) (f64.gt (local.get $a) (local.get $b))
+          (then (i32.const 1))
+          (else (i32.const 0))))))
+
+  ;; Helper function to calculate array address with bounds checking
+  (func $calcAddr (type $calc_addr_type) (param $arr i32) (param $idx i32) (result i32)
+    (local $addr i32)
+    (local.set $addr 
+      (i32.add (local.get $arr)
+        (i32.mul (local.get $idx) (i32.const 8))))
+    (if (result i32)
+      (call $check_bounds (local.get $addr) (i32.const 8))
+      (then (local.get $addr))
+      (else (unreachable))))
+
+  ;; Helper function to get array element at index
+  (func $getElement (type $get_element_type) (param $arr i32) (param $idx i32) (result f64)
+    (f64.load (call $calcAddr (local.get $arr) (local.get $idx))))
+
+  ;; Helper function to set array element at index
+  (func $setElement (type $set_element_type) (param $arr i32) (param $idx i32) (param $val f64)
+    (f64.store 
+      (call $calcAddr (local.get $arr) (local.get $idx))
+      (local.get $val)))
+
+  ;; Helper function to swap elements
+  (func $swapElements (type $swap_elements_type) (param $arr i32) (param $i i32) (param $j i32)
+    (local $addr1 i32)
+    (local $addr2 i32)
+    (local $val1 f64)
+    (local $val2 f64)
+    
+    ;; Calculate addresses
+    (local.set $addr1 (call $calcAddr (local.get $arr) (local.get $i)))
+    (local.set $addr2 (call $calcAddr (local.get $arr) (local.get $j)))
+    
+    ;; Load values
+    (local.set $val1 (f64.load (local.get $addr1)))
+    (local.set $val2 (f64.load (local.get $addr2)))
+    
+    ;; Store swapped values
+    (f64.store (local.get $addr1) (local.get $val2))
+    (f64.store (local.get $addr2) (local.get $val1)))
+
+  ;; Partition function for quicksort
+  (func $partition (type $partition_type)
+    (param $arr i32) (param $low i32) (param $high i32) (result i32)
     (local $i i32)
     (local $j i32)
-    (local $temp f64)
+    (local $pivot_val f64)
+    (local $curr_val f64)
     
-    (block $sort_done
-      (loop $outer
-        (local.set $j (i32.const 0))
-        (block $inner_done
-          (loop $inner
-            (br_if $inner_done 
-              (i32.ge_u (local.get $j) 
-                (i32.sub (local.get $len) (i32.const 1))))
-            
-            ;; Compare adjacent elements
-            (if 
-              (f64.gt 
-                (f64.load (i32.add (local.get $ptr) 
-                  (i32.mul (local.get $j) (i32.const 8))))
-                (f64.load (i32.add (local.get $ptr) 
-                  (i32.mul (i32.add (local.get $j) (i32.const 1)) 
-                    (i32.const 8)))))
+    ;; Safety check for valid range
+    (if (i32.or 
+          (i32.lt_s (local.get $low) (i32.const 0))
+          (i32.ge_s (local.get $low) (local.get $high)))
+      (then
+        (return (local.get $low))))
+    
+    ;; Load pivot value (using last element)
+    (local.set $pivot_val 
+      (call $getElement (local.get $arr) (local.get $high)))
+    
+    ;; Initialize partition index
+    (local.set $i (i32.sub (local.get $low) (i32.const 1)))
+    
+    ;; Scan through array
+    (local.set $j (local.get $low))
+    (block $partition_done
+      (loop $partition_loop
+        (br_if $partition_done 
+          (i32.ge_s (local.get $j) (local.get $high)))
+        
+        ;; Load and compare current element
+        (local.set $curr_val 
+          (call $getElement (local.get $arr) (local.get $j)))
+        
+        (if (f64.le (local.get $curr_val) (local.get $pivot_val))
+          (then
+            ;; Move smaller element to left side
+            (local.set $i (i32.add (local.get $i) (i32.const 1)))
+            (if (i32.ne (local.get $i) (local.get $j))
               (then
-                ;; Swap elements
-                (local.set $temp 
-                  (f64.load (i32.add (local.get $ptr) 
-                    (i32.mul (local.get $j) (i32.const 8)))))
-                (f64.store 
-                  (i32.add (local.get $ptr) 
-                    (i32.mul (local.get $j) (i32.const 8)))
-                  (f64.load (i32.add (local.get $ptr) 
-                    (i32.mul (i32.add (local.get $j) (i32.const 1)) 
-                      (i32.const 8)))))
-                (f64.store 
-                  (i32.add (local.get $ptr) 
-                    (i32.mul (i32.add (local.get $j) (i32.const 1)) 
-                      (i32.const 8)))
-                  (local.get $temp))))
+                (call $swapElements 
+                  (local.get $arr) 
+                  (local.get $i) 
+                  (local.get $j))))))
+        
+        (local.set $j (i32.add (local.get $j) (i32.const 1)))
+        (br $partition_loop)))
+    
+    ;; Place pivot in final position
+    (local.set $i (i32.add (local.get $i) (i32.const 1)))
+    (if (i32.ne (local.get $i) (local.get $high))
+      (then
+        (call $swapElements 
+          (local.get $arr) 
+          (local.get $i) 
+          (local.get $high))))
+    
+    (local.get $i))
+
+  ;; Insertion sort implementation
+  (func $arraySort (type $array_sort_type) (param $arr i32) (param $len i32)
+    (local $i i32)
+    (local $j i32)
+    (local $key f64)
+    (local $addr i32)
+    
+    ;; Start from second element
+    (local.set $i (i32.const 1))
+    
+    ;; Outer loop: iterate through array
+    (block $sort_done
+      (loop $sort_loop
+        (br_if $sort_done (i32.ge_s (local.get $i) (local.get $len)))
+        
+        ;; Get current element as key
+        (local.set $key (call $getElement (local.get $arr) (local.get $i)))
+        (local.set $j (i32.sub (local.get $i) (i32.const 1)))
+        
+        ;; Inner loop: move elements greater than key
+        (block $insert_done
+          (loop $insert_loop
+            (br_if $insert_done 
+              (i32.or
+                (i32.lt_s (local.get $j) (i32.const 0))
+                (f64.le (call $getElement (local.get $arr) (local.get $j)) 
+                       (local.get $key))))
             
-            (local.set $j (i32.add (local.get $j) (i32.const 1)))
-            (br $inner)))
+            ;; Move element right
+            (call $setElement 
+              (local.get $arr)
+              (i32.add (local.get $j) (i32.const 1))
+              (call $getElement (local.get $arr) (local.get $j)))
+            
+            (local.set $j (i32.sub (local.get $j) (i32.const 1)))
+            (br $insert_loop)))
+        
+        ;; Insert key at correct position
+        (call $setElement 
+          (local.get $arr)
+          (i32.add (local.get $j) (i32.const 1))
+          (local.get $key))
         
         (local.set $i (i32.add (local.get $i) (i32.const 1)))
-        (br_if $outer 
-          (i32.lt_u (local.get $i) (local.get $len))))))
+        (br $sort_loop))))
   
   ;; Binary search
-  (func $arrayBinarySearch 
-    (param $ptr i32) (param $len i32) (param $target f64) 
-    (result i32)
+  (func $arrayBinarySearch (type $binary_search_type) (param $arr i32) (param $len i32) (param $target f64) (result i32)
     (local $left i32)
     (local $right i32)
     (local $mid i32)
-    (local $value f64)
+    (local $curr_addr i32)
+    (local $curr_val f64)
     
+    ;; Initialize search bounds
     (local.set $left (i32.const 0))
-    (local.set $right (local.get $len))
+    (local.set $right (i32.sub (local.get $len) (i32.const 1)))
     
     (block $search_done
       (loop $search
         (br_if $search_done 
-          (i32.ge_s (local.get $left) (local.get $right)))
+          (i32.gt_s (local.get $left) (local.get $right)))
         
+        ;; Calculate midpoint
         (local.set $mid 
           (i32.div_u 
             (i32.add (local.get $left) (local.get $right)) 
             (i32.const 2)))
         
-        (local.set $value 
-          (f64.load (i32.add (local.get $ptr) 
-            (i32.mul (local.get $mid) (i32.const 8)))))
+        ;; Calculate address and load value
+        (local.set $curr_addr (call $calcAddr (local.get $arr) (local.get $mid)))
+        (local.set $curr_val (f64.load (local.get $curr_addr)))
         
-        (if (f64.eq (local.get $value) (local.get $target))
+        ;; Compare values
+        (if (f64.eq (local.get $curr_val) (local.get $target))
           (then 
             (return (local.get $mid)))
           (else
-            (if (f64.lt (local.get $value) (local.get $target))
+            (if (f64.lt (local.get $curr_val) (local.get $target))
               (then
                 (local.set $left 
                   (i32.add (local.get $mid) (i32.const 1))))
               (else
-                (local.set $right (local.get $mid))))
+                (local.set $right 
+                  (i32.sub (local.get $mid) (i32.const 1)))))
             (br $search)))))
     
     (i32.const -1))
   
   ;; String comparison
-  (func $stringCompare 
-    (param $ptr1 i32) (param $len1 i32) 
-    (param $ptr2 i32) (param $len2 i32) 
-    (result i32)
+  (func $stringCompare (type $string_compare_type)
     (local $i i32)
     (local $char1 i32)
     (local $char2 i32)
@@ -103,13 +233,13 @@
       (loop $compare
         (br_if $compare_done 
           (i32.or
-            (i32.ge_u (local.get $i) (local.get $len1))
-            (i32.ge_u (local.get $i) (local.get $len2))))
+            (i32.ge_u (local.get $i) (local.get 1))
+            (i32.ge_u (local.get $i) (local.get 3))))
         
         (local.set $char1 
-          (i32.load8_u (i32.add (local.get $ptr1) (local.get $i))))
+          (i32.load8_u (i32.add (local.get 0) (local.get $i))))
         (local.set $char2 
-          (i32.load8_u (i32.add (local.get $ptr2) (local.get $i))))
+          (i32.load8_u (i32.add (local.get 2) (local.get $i))))
         
         (if (i32.ne (local.get $char1) (local.get $char2))
           (then
@@ -119,26 +249,24 @@
         (local.set $i (i32.add (local.get $i) (i32.const 1)))
         (br $compare)))
     
-    (i32.sub (local.get $len1) (local.get $len2)))
+    (i32.sub (local.get 1) (local.get 3)))
   
   ;; String encoding (simple UTF-8)
-  (func $stringEncode 
-    (param $ptr i32) (param $len i32) 
-    (result i32)
+  (func $stringEncode (type $string_encode_type)
     (local $i i32)
     (local $char i32)
     (local $outPtr i32)
     
     (local.set $outPtr 
-      (i32.add (local.get $ptr) (local.get $len)))
+      (i32.add (local.get 0) (local.get 1)))
     
     (block $encode_done
       (loop $encode
         (br_if $encode_done 
-          (i32.ge_u (local.get $i) (local.get $len)))
+          (i32.ge_u (local.get $i) (local.get 1)))
         
         (local.set $char 
-          (i32.load8_u (i32.add (local.get $ptr) (local.get $i))))
+          (i32.load8_u (i32.add (local.get 0) (local.get $i))))
         
         ;; Simple pass-through for ASCII
         (i32.store8 
@@ -150,8 +278,136 @@
     
     (local.get $outPtr))
 
+  ;; DOM tree traversal
+  (func $traverseDOM (type $traverse_dom_type)
+    (local $childPtr i32)
+    (local $siblingPtr i32)
+    (local $visited i32)
+    
+    ;; Visit current node
+    (local.set $visited (i32.const 1))
+    
+    ;; Get first child pointer
+    (local.set $childPtr 
+      (i32.load (i32.add (local.get 0) (i32.const 8))))
+    
+    ;; Traverse children if they exist
+    (if (local.get $childPtr)
+      (then
+        (local.set $visited 
+          (i32.add 
+            (local.get $visited)
+            (call $traverseDOM (local.get $childPtr))))))
+    
+    ;; Get next sibling pointer
+    (local.set $siblingPtr 
+      (i32.load (i32.add (local.get 0) (i32.const 16))))
+    
+    ;; Traverse siblings if they exist
+    (if (local.get $siblingPtr)
+      (then
+        (local.set $visited 
+          (i32.add 
+            (local.get $visited)
+            (call $traverseDOM (local.get $siblingPtr))))))
+    
+    (local.get $visited))
+
+  ;; Attribute handling
+  (func $getAttribute (type $get_attribute_type)
+    (local $attrPtr i32)
+    (local $attrCount i32)
+    (local $i i32)
+    
+    ;; Get attributes pointer
+    (local.set $attrPtr 
+      (i32.load (i32.add (local.get 0) (i32.const 24))))
+    
+    ;; Get attribute count
+    (local.set $attrCount 
+      (i32.load (local.get $attrPtr)))
+    
+    ;; Search through attributes
+    (block $search_done
+      (loop $search
+        (br_if $search_done 
+          (i32.ge_u (local.get $i) (local.get $attrCount)))
+        
+        ;; Compare attribute name
+        (if (call $stringCompare
+              (i32.add 
+                (local.get $attrPtr)
+                (i32.mul (i32.add (local.get $i) (i32.const 1))
+                  (i32.const 16)))
+              (local.get 2)
+              (local.get 1)
+              (local.get 2))
+          (then
+            ;; Return attribute value pointer
+            (return 
+              (i32.add 
+                (local.get $attrPtr)
+                (i32.mul (i32.add (local.get $i) (i32.const 1))
+                  (i32.const 16))))))
+        
+        (local.set $i (i32.add (local.get $i) (i32.const 1)))
+        (br $search)))
+    
+    (i32.const 0))
+
+  ;; Event system
+  (func $dispatchEvent (type $dispatch_event_type)
+    (local $currentPtr i32)
+    (local $handlerCount i32)
+    (local $i i32)
+    (local $handled i32)
+    
+    ;; Start at target node
+    (local.set $currentPtr (local.get 0))
+    
+    ;; Bubble up through parents
+    (block $bubble_done
+      (loop $bubble
+        (br_if $bubble_done (i32.eqz (local.get $currentPtr)))
+        
+        ;; Get handler count
+        (local.set $handlerCount 
+          (i32.load (i32.add (local.get $currentPtr) (i32.const 32))))
+        
+        ;; Execute handlers
+        (local.set $i (i32.const 0))
+        (block $handlers_done
+          (loop $handlers
+            (br_if $handlers_done 
+              (i32.ge_u (local.get $i) (local.get $handlerCount)))
+            
+            ;; Check event type match
+            (if (call $stringCompare
+                  (i32.add 
+                    (local.get $currentPtr)
+                    (i32.mul (i32.add (local.get $i) (i32.const 1))
+                      (i32.const 24)))
+                  (local.get 2)
+                  (local.get 1)
+                  (local.get 2))
+              (then
+                (local.set $handled (i32.const 1))))
+            
+            (local.set $i (i32.add (local.get $i) (i32.const 1)))
+            (br $handlers)))
+        
+        ;; Move to parent
+        (local.set $currentPtr 
+          (i32.load (local.get $currentPtr)))
+        (br $bubble)))
+    
+    (local.get $handled))
+
   ;; Export functions
   (export "arraySort" (func $arraySort))
   (export "arrayBinarySearch" (func $arrayBinarySearch))
   (export "stringCompare" (func $stringCompare))
-  (export "stringEncode" (func $stringEncode)))
+  (export "stringEncode" (func $stringEncode))
+  (export "traverseDOM" (func $traverseDOM))
+  (export "getAttribute" (func $getAttribute))
+  (export "dispatchEvent" (func $dispatchEvent)))

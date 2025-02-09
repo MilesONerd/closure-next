@@ -14,9 +14,12 @@ import {
   NgModule,
   NgZone,
   Injectable,
-  Inject
+  Inject,
+  PLATFORM_ID,
+  Optional
 } from '@angular/core';
-import type { Component as ClosureComponent } from '@closure-next/core';
+import { isPlatformServer } from '@angular/common';
+import { Component as ClosureComponent, type SSROptions } from '@closure-next/core';
 
 // Type declarations
 import type { Type } from '@angular/core';
@@ -34,6 +37,10 @@ export class ClosureComponentDirective implements OnInit, OnDestroy, OnChanges {
   @Input('closureComponent') component!: ClosureComponentConstructor | ClosureComponent;
   @Input() closureComponentProps: any;
   @Input() errorBoundary = true;
+  @Input() ssrOptions: SSROptions = {
+    hydration: 'progressive',
+    ssr: true
+  };
 
   public instance: ClosureComponent | null = null;
   private element: HTMLElement;
@@ -42,7 +49,9 @@ export class ClosureComponentDirective implements OnInit, OnDestroy, OnChanges {
 
   constructor(
     @Inject(ElementRef) private elementRef: ElementRef,
-    @Inject(NgZone) private ngZone: NgZone
+    @Inject(NgZone) private ngZone: NgZone,
+    @Inject(PLATFORM_ID) private platformId: Object,
+    @Optional() @Inject('CLOSURE_SSR_SERVICE') private ssrService?: any
   ) {
     this.element = this.elementRef.nativeElement;
   }
@@ -90,7 +99,28 @@ export class ClosureComponentDirective implements OnInit, OnDestroy, OnChanges {
       }
 
       await this.ngZone.runOutsideAngular(async () => {
-        this.instance!.render(this.element);
+        if (isPlatformServer(this.platformId) && this.ssrOptions.ssr) {
+          // Server-side rendering
+          if (this.ssrService) {
+            const html = await this.ssrService.renderToString(
+              this.instance!,
+              this.element.id || `closure-${Date.now()}`,
+              this.ssrOptions
+            );
+            this.element.innerHTML = html;
+          }
+        } else {
+          // Client-side rendering or hydration
+          if (this.ssrService && this.ssrOptions.hydration !== 'client-only') {
+            await this.ssrService.hydrate(
+              this.instance!,
+              this.element.id || `closure-${Date.now()}`,
+              this.ssrOptions
+            );
+          } else {
+            await this.instance!.render(this.element);
+          }
+        }
         await Promise.resolve();
       });
 
