@@ -19,9 +19,11 @@ export class Cache<T> {
 
   set(key: string, value: T): void {
     if (this.cache.size >= this.maxSize) {
-      // Remove oldest entry
-      const oldestKey = this.cache.keys().next().value;
-      this.cache.delete(oldestKey);
+      // Remove oldest entry if it exists
+      const entries = Array.from(this.cache.entries());
+      if (entries.length > 0) {
+        this.cache.delete(entries[0][0]);
+      }
     }
 
     this.cache.set(key, {
@@ -99,7 +101,7 @@ export class ResourcePreloader {
       this.loading.set(url, loadPromise);
     }
 
-    return this.loading.get(url);
+    return this.loading.get(url)!;
   }
 
   async preloadStyle(url: string): Promise<void> {
@@ -121,7 +123,7 @@ export class ResourcePreloader {
       this.loading.set(url, loadPromise);
     }
 
-    return this.loading.get(url);
+    return this.loading.get(url)!;
   }
 
   isLoaded(url: string): boolean {

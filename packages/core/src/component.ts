@@ -1,119 +1,50 @@
 import { DomHelper } from './dom';
-import { EventTarget } from './events';
-import { ComponentStateFlags } from './types';
-import type {
+import { EventEmitter } from './events';
+import {
   ComponentProps,
   ComponentStateInterface,
   ComponentEventMap,
-  EventHandler
+  ComponentStateFlags
 } from './types';
 
-export class Component<
-  P extends ComponentProps = ComponentProps,
-  S extends ComponentStateInterface = ComponentStateInterface
-> extends EventTarget {
-  protected stateFlags: ComponentStateFlags = ComponentStateFlags.NONE;
+export class Component extends EventEmitter {
   protected element: HTMLElement | null = null;
-  protected children: Component[] = [];
-  protected childIndex: number = -1;
-  protected parent: Component | null = null;
-  protected props: P = {} as P;
-  protected state: S = {} as S;
-
+  protected props: ComponentProps = {};
+  protected state: ComponentStateInterface = {};
+  protected stateFlags: ComponentStateFlags = ComponentStateFlags.UNINITIALIZED;
+  
   constructor(protected readonly domHelper: DomHelper) {
     super();
   }
 
-  public getId(): string {
-    return this.element?.id || '';
+  protected createDom(): void {
+    // Default implementation
   }
 
-  public setId(id: string): void {
+  async render(container: HTMLElement): Promise<void> {
+    this.stateFlags = ComponentStateFlags.RENDERING;
+    this.createDom();
     if (this.element) {
-      this.element.id = id;
+      container.appendChild(this.element);
     }
+    this.stateFlags = ComponentStateFlags.RENDERED;
   }
 
-  public getElement(): HTMLElement | null {
+  getElement(): HTMLElement | null {
     return this.element;
   }
 
-  public isInDocument(): boolean {
-    return !!this.element && document.contains(this.element);
+  isInDocument(): boolean {
+    return !!(this.element && this.element.parentElement);
   }
 
-  public getParent(): Component | null {
-    return this.parent;
-  }
-
-  public render(opt_parentElement?: HTMLElement): void {
-    if (!this.element) {
-      this.createDom();
+  dispose(): void {
+    this.stateFlags = ComponentStateFlags.DISPOSING;
+    if (this.element && this.element.parentElement) {
+      this.element.parentElement.removeChild(this.element);
     }
-    if (opt_parentElement && this.element) {
-      opt_parentElement.appendChild(this.element);
-    }
-  }
-
-  public dispose(): void {
-    this.exitDocument();
     this.element = null;
-    this.children.forEach(child => child.dispose());
-    this.children = [];
-  }
-
-  public enterDocument(): void {
-    this.children.forEach(child => child.enterDocument());
-  }
-
-  public exitDocument(): void {
-    this.children.forEach(child => child.exitDocument());
-    if (this.element && this.element.parentNode) {
-      this.element.parentNode.removeChild(this.element);
-    }
-  }
-
-  public addChild(child: Component): void {
-    child.parent = this;
-    child.childIndex = this.children.length;
-    this.children.push(child);
-  }
-
-  public removeChild(child: Component): void {
-    const index = this.children.indexOf(child);
-    if (index > -1) {
-      child.exitDocument();
-      child.parent = null;
-      child.childIndex = -1;
-      this.children.splice(index, 1);
-    }
-  }
-
-  protected createDom(): void {
-    // Override in subclasses
-  }
-
-  protected setState(state: Partial<S>): void {
-    this.state = { ...this.state, ...state };
-    if (this.isInDocument()) {
-      this.exitDocument();
-      this.enterDocument();
-    }
-  }
-
-  protected getState(): S {
-    return this.state;
-  }
-
-  protected setProps(props: Partial<P>): void {
-    this.props = { ...this.props, ...props };
-    if (this.isInDocument()) {
-      this.exitDocument();
-      this.enterDocument();
-    }
-  }
-
-  protected getProps(): P {
-    return this.props;
+    this.clear();
+    this.stateFlags = ComponentStateFlags.DISPOSED;
   }
 }

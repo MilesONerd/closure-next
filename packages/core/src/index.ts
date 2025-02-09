@@ -24,8 +24,11 @@ export type {
 export {
   globalCache,
   globalComponentPool,
-  globalResourcePreloader,
+  globalResourcePreloader
+} from './cache';
+
+export {
   defaultChunks,
   createBundleConfig,
   createRollupConfig
-} from './cache';
+} from './bundle';
