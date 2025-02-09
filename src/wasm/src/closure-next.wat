@@ -98,13 +98,13 @@
           (local.get 2)))))
 
   ;; Main array sort function (using quicksort)
-  (func $arraySort (param $ptr i32) (param $len i32)
-    (if (i32.gt_s (local.get $len) (i32.const 1))
+  (func $arraySort (type $array_sort_type)
+    (if (i32.gt_s (local.get 1) (i32.const 1))
       (then
         (call $quicksort 
-          (local.get $ptr) 
+          (local.get 0) 
           (i32.const 0) 
-          (i32.sub (local.get $len) (i32.const 1)))))))
+          (i32.sub (local.get 1) (i32.const 1))))))
   
   ;; Binary search
   (func $arrayBinarySearch (type $binary_search_type)
