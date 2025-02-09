@@ -23,15 +23,6 @@ function ClosureContent<T extends Component>({
   const containerRef = useRef<HTMLDivElement>(null);
   const componentRef = useRef<ClosureInstance<T>>({ component, domHelper });
 
-  useEffect(() => {
-    if (containerRef.current) {
-      component.render(containerRef.current);
-    }
-    return () => {
-      component.dispose();
-    };
-  }, [component]);
-
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
@@ -45,6 +36,9 @@ function ClosureContent<T extends Component>({
       }
     };
     setup();
+    return () => {
+      component.dispose();
+    };
   }, [component]);
 
   if (error && fallback) {
