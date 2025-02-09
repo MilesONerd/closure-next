@@ -12,6 +12,7 @@
     (block $done
       (loop $outer
         (local.set $j (i32.const 0))
+        (drop)  ;; Explicitly drop the i32 result
         
         ;; Inner loop
         (loop $inner
@@ -44,10 +45,12 @@
                 )
               )
               (local.set $j (i32.add (local.get $j) (i32.const 1)))
+              (drop)  ;; Explicitly drop the i32 result
             )
           )
         )
         (local.set $i (i32.add (local.get $i) (i32.const 1)))
+        (drop)  ;; Explicitly drop the i32 result
         (if (i32.lt_u (local.get $i) (local.get $len))
           (then (br $outer))
         )
@@ -142,6 +145,7 @@
             )
             
             (local.set $i (i32.add (local.get $i) (i32.const 1)))
+            (drop)  ;; Explicitly drop the i32 result
             (br $compare)
           )
           (else (br $done))
@@ -183,7 +187,8 @@
                   (i32.add (local.get $outPtr) (local.get $bytesWritten))
                   (local.get $char))
                 (local.set $bytesWritten 
-                  (i32.add (local.get $bytesWritten) (i32.const 1))))
+                  (i32.add (local.get $bytesWritten) (i32.const 1)))
+                (drop))  ;; Explicitly drop the i32 result
               (else
                 ;; Multi-byte character (simplified)
                 (i32.store8
@@ -198,9 +203,12 @@
                     (i32.const 0x80)
                     (i32.and (local.get $char) (i32.const 0x3F))))
                 (local.set $bytesWritten 
-                  (i32.add (local.get $bytesWritten) (i32.const 2)))))
+                  (i32.add (local.get $bytesWritten) (i32.const 2)))
+                (drop))  ;; Explicitly drop the i32 result
+            )
             
             (local.set $i (i32.add (local.get $i) (i32.const 1)))
+            (drop)  ;; Explicitly drop the i32 result
             (br $encode)
           )
           (else (br $done))
