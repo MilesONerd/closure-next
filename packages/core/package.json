@@ -3,8 +3,9 @@
   "version": "1.0.10",
   "description": "Core package for Closure Next",
   "main": "dist/index.js",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
-  "type": "commonjs",
+  "type": "module",
   "scripts": {
     "build": "tsc --build tsconfig.build.json",
     "test": "jest",
