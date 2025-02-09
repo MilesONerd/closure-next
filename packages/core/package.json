@@ -1,52 +1,21 @@
 {
   "name": "@closure-next/core",
   "version": "1.0.10",
-  "description": "Modern TypeScript-based reimplementation of Google Closure Library with framework integrations",
-  "type": "module",
+  "description": "Core package for Closure Next",
   "main": "dist/index.js",
-  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
-    }
-  },
+  "type": "commonjs",
   "scripts": {
-    "prepare": "npm run build",
     "build": "tsc --build tsconfig.build.json",
-    "test:compile": "tsc --build tsconfig.test.json",
-    "test": "npm run test:compile && node --experimental-vm-modules $(which jest)",
-    "lint": "eslint src/**/*.ts",
-    "format": "prettier --write \"src/**/*.ts\""
-  },
-  "publishConfig": {
-    "access": "public"
-  },
-  "keywords": [
-    "Closure",
-    "TypeScript",
-    "JavaScript",
-    "Closure Library",
-    "MilesONerd",
-    "Closure Next"
-  ],
-  "author": "Closure Next Team",
-  "license": "Apache-2.0",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/MilesONerd/closure-next.git"
+    "test": "jest",
+    "clean": "rimraf dist"
   },
   "devDependencies": {
-    "@types/jest": "^29.5.14",
-    "@types/node": "^22.10.7",
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0",
-    "eslint": "^8.0.0",
+    "@types/jest": "^29.5.11",
+    "@types/node": "^20.11.5",
     "jest": "^29.7.0",
-    "prettier": "^3.0.0",
-    "ts-jest": "^29.0.0",
-    "typescript": "^5.7.3"
+    "jest-environment-jsdom": "^29.7.0",
+    "ts-jest": "^29.1.2",
+    "typescript": "^5.3.3"
   }
 }

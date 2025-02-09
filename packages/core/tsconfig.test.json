@@ -1,25 +1,16 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "types": ["jest", "node"],
+    "module": "CommonJS",
+    "moduleResolution": "node",
     "esModuleInterop": true,
-    "jsx": "react",
-    "module": "esnext",
-    "target": "es2020",
-    "sourceMap": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "strictPropertyInitialization": false,
-    "useDefineForClassFields": false,
+    "allowJs": true,
     "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
     "composite": true,
-    "noImplicitOverride": true,
-    "baseUrl": ".",
-    "rootDir": ".",
-    "paths": {
-      "@closure-next/core": ["./src"],
-      "@closure-next/core/*": ["./src/*"]
-    }
+    "types": ["jest", "node"],
+    "skipLibCheck": true
   },
   "include": ["src/**/*", "__tests__/**/*"],
   "exclude": ["node_modules", "dist"]

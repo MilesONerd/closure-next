@@ -8,8 +8,6 @@ module.exports = {
     }]
   },
   moduleNameMapper: {
-    '^@closure-next/core$': '<rootDir>/../core/src/index.ts',
     '^(\\.{1,2}/.*)\\.js$': '$1'
-  },
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts']
+  }
 };
