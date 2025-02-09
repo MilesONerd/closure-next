@@ -13,6 +13,7 @@ build:
     python: "3.9"  
 
 commands:
-  - mkdocs build 
+  - mkdocs build  
 
-sphinx: {}
+sphinx:
+  configuration: ""  
