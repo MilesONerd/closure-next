@@ -117,37 +117,43 @@
     (local.get $i))
 
   ;; Quicksort implementation
-  (func $quicksort (type $quicksort_type)
+  (func $quicksort (type $quicksort_type) (param $arr i32) (param $low i32) (param $high i32)
     (local $pi i32)
-    (if (i32.lt_s (local.get 1) (local.get 2))
+    (if (i32.and 
+          (i32.ge_s (local.get $low) (i32.const 0))
+          (i32.lt_s (local.get $low) (local.get $high)))
       (then
         ;; Get partition index
         (local.set $pi 
           (call $partition 
-            (local.get 0) 
-            (local.get 1) 
-            (local.get 2)))
+            (local.get $arr) 
+            (local.get $low) 
+            (local.get $high)))
         
         ;; Sort left partition
-        (call $quicksort 
-          (local.get 0) 
-          (local.get 1) 
-          (i32.sub (local.get $pi) (i32.const 1)))
+        (if (i32.gt_s (local.get $pi) (i32.const 0))
+          (then
+            (call $quicksort 
+              (local.get $arr) 
+              (local.get $low) 
+              (i32.sub (local.get $pi) (i32.const 1)))))
         
         ;; Sort right partition
-        (call $quicksort 
-          (local.get 0) 
-          (i32.add (local.get $pi) (i32.const 1)) 
-          (local.get 2)))))
+        (if (i32.lt_s (local.get $pi) (local.get $high))
+          (then
+            (call $quicksort 
+              (local.get $arr) 
+              (i32.add (local.get $pi) (i32.const 1)) 
+              (local.get $high)))))))
 
   ;; Main array sort function (using quicksort)
-  (func $arraySort (type $array_sort_type)
-    (if (i32.gt_s (local.get 1) (i32.const 1))
+  (func $arraySort (type $array_sort_type) (param $arr i32) (param $len i32)
+    (if (i32.gt_s (local.get $len) (i32.const 1))
       (then
         (call $quicksort 
-          (local.get 0) 
+          (local.get $arr) 
           (i32.const 0) 
-          (i32.sub (local.get 1) (i32.const 1))))))
+          (i32.sub (local.get $len) (i32.const 1))))))
   
   ;; Binary search
   (func $arrayBinarySearch (type $binary_search_type) (param $arr i32) (param $len i32) (param $target f64) (result i32)
