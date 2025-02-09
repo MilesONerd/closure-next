@@ -1,6 +1,6 @@
 {
   "name": "@closure-next/webpack",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Webpack plugin for Closure Next",
   "type": "module",
   "main": "dist/index.js",
@@ -33,11 +33,10 @@
     "url": "https://github.com/MilesONerd/closure-next.git"
   },
   "peerDependencies": {
-    "@closure-next/core": "^1.0.0",
     "webpack": "^5.0.0"
   },
   "dependencies": {
-    "@closure-next/core": "^1.0.0"
+    "@closure-next/core": "^1.0.14"
   },
   "devDependencies": {
     "@babel/core": "^7.26.7",
