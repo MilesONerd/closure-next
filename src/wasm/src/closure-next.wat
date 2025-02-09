@@ -16,17 +16,21 @@
   (type $traverse_dom_type (func (param i32) (result i32)))
   (type $get_attribute_type (func (param i32 i32 i32) (result i32)))
   (type $dispatch_event_type (func (param i32 i32 i32) (result i32)))
+  (type $calc_addr_type (func (param i32 i32) (result i32)))
+
+  ;; Helper function to calculate array address
+  (func $calcAddr (type $calc_addr_type)
+    (i32.add (local.get 0)
+      (i32.mul (local.get 1) (i32.const 8))))
 
   ;; Helper function to get array element at index
   (func $getElement (type $get_element_type)
-    (f64.load (i32.add (local.get 0) 
-      (i32.mul (local.get 1) (i32.const 8)))))
+    (f64.load (call $calcAddr (local.get 0) (local.get 1))))
 
   ;; Helper function to set array element at index
   (func $setElement (type $set_element_type)
     (f64.store 
-      (i32.add (local.get 0) 
-        (i32.mul (local.get 1) (i32.const 8)))
+      (call $calcAddr (local.get 0) (local.get 1))
       (local.get 2)))
 
   ;; Helper function to swap elements
@@ -36,35 +40,22 @@
     (local $addr2 i32)
     
     ;; Calculate addresses
-    (local.set $addr1 
-      (i32.add (local.get 0) 
-        (i32.mul (local.get 1) (i32.const 8))))
-    (local.set $addr2 
-      (i32.add (local.get 0) 
-        (i32.mul (local.get 2) (i32.const 8))))
+    (local.set $addr1 (call $calcAddr (local.get 0) (local.get 1)))
+    (local.set $addr2 (call $calcAddr (local.get 0) (local.get 2)))
     
     ;; Load and swap values
     (local.set $temp (f64.load (local.get $addr1)))
-    (f64.store (local.get $addr1) 
-      (f64.load (local.get $addr2)))
+    (f64.store (local.get $addr1) (f64.load (local.get $addr2)))
     (f64.store (local.get $addr2) (local.get $temp)))
 
   ;; Partition function for quicksort
   (func $partition (type $partition_type)
     (local $pivot f64)
-    (local $temp f64)
     (local $i i32)
     (local $j i32)
-    (local $pivot_addr i32)
-    (local $curr_addr i32)
-    (local $swap_addr1 i32)
-    (local $swap_addr2 i32)
     
-    ;; Calculate pivot address and load pivot value
-    (local.set $pivot_addr 
-      (i32.add (local.get 0) 
-        (i32.mul (local.get 2) (i32.const 8))))
-    (local.set $pivot (f64.load (local.get $pivot_addr)))
+    ;; Load pivot value
+    (local.set $pivot (call $getElement (local.get 0) (local.get 2)))
     
     ;; Initialize indices
     (local.set $i (i32.sub (local.get 1) (i32.const 1)))
@@ -74,30 +65,12 @@
       (loop $partition_loop
         (br_if $partition_done (i32.ge_s (local.get $j) (local.get 2)))
         
-        ;; Calculate current element address
-        (local.set $curr_addr 
-          (i32.add (local.get 0) 
-            (i32.mul (local.get $j) (i32.const 8))))
-        
         (if (f64.le 
-              (f64.load (local.get $curr_addr))
+              (call $getElement (local.get 0) (local.get $j))
               (local.get $pivot))
           (then
             (local.set $i (i32.add (local.get $i) (i32.const 1)))
-            
-            ;; Calculate swap addresses
-            (local.set $swap_addr1 
-              (i32.add (local.get 0) 
-                (i32.mul (local.get $i) (i32.const 8))))
-            (local.set $swap_addr2 
-              (i32.add (local.get 0) 
-                (i32.mul (local.get $j) (i32.const 8))))
-            
-            ;; Perform swap
-            (local.set $temp (f64.load (local.get $swap_addr1)))
-            (f64.store (local.get $swap_addr1) 
-              (f64.load (local.get $swap_addr2)))
-            (f64.store (local.get $swap_addr2) (local.get $temp))))
+            (call $swapElements (local.get 0) (local.get $i) (local.get $j))))
         
         (local.set $j (i32.add (local.get $j) (i32.const 1)))
         (br $partition_loop)))
@@ -147,19 +120,18 @@
     (local $mid i32)
     (local $value f64)
     (local $target f64)
-    (local $addr i32)
     
     ;; Store target value
     (local.set $target (local.get 2))
     
     ;; Initialize search bounds
     (local.set $left (i32.const 0))
-    (local.set $right (local.get 1))
+    (local.set $right (i32.sub (local.get 1) (i32.const 1)))
     
     (block $search_done
       (loop $search
         (br_if $search_done 
-          (i32.ge_s (local.get $left) (local.get $right)))
+          (i32.gt_s (local.get $left) (local.get $right)))
         
         ;; Calculate midpoint
         (local.set $mid 
@@ -167,13 +139,8 @@
             (i32.add (local.get $left) (local.get $right)) 
             (i32.const 2)))
         
-        ;; Calculate array address
-        (local.set $addr 
-          (i32.add (local.get 0) 
-            (i32.mul (local.get $mid) (i32.const 8))))
-        
         ;; Load value at midpoint
-        (local.set $value (f64.load (local.get $addr)))
+        (local.set $value (call $getElement (local.get 0) (local.get $mid)))
         
         (if (f64.eq (local.get $value) (local.get $target))
           (then 
@@ -184,7 +151,8 @@
                 (local.set $left 
                   (i32.add (local.get $mid) (i32.const 1))))
               (else
-                (local.set $right (local.get $mid))))
+                (local.set $right 
+                  (i32.sub (local.get $mid) (i32.const 1)))))
             (br $search)))))
     
     (i32.const -1))
