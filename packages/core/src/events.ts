@@ -1,33 +1,34 @@
+import { Component } from './component';
 import type { ComponentEventMap, EventHandler } from './types';
 
 export class EventTarget {
-  protected readonly listeners: Map<keyof ComponentEventMap, Set<EventHandler>> = new Map();
+  protected readonly listeners: Map<string, Set<EventHandler>> = new Map();
 
   public addEventListener<K extends keyof ComponentEventMap>(
     type: K,
     listener: EventHandler<ComponentEventMap[K]>
   ): void {
-    if (!this.listeners.has(type)) {
-      this.listeners.set(type, new Set());
+    if (!this.listeners.has(type as string)) {
+      this.listeners.set(type as string, new Set());
     }
-    this.listeners.get(type)!.add(listener as EventHandler);
+    this.listeners.get(type as string)!.add(listener as EventHandler);
   }
 
   public removeEventListener<K extends keyof ComponentEventMap>(
     type: K,
     listener: EventHandler<ComponentEventMap[K]>
   ): void {
-    const listeners = this.listeners.get(type);
+    const listeners = this.listeners.get(type as string);
     if (listeners) {
       listeners.delete(listener as EventHandler);
       if (listeners.size === 0) {
-        this.listeners.delete(type);
+        this.listeners.delete(type as string);
       }
     }
   }
 
   public dispatchEvent(event: Event): boolean {
-    const typeListeners = this.listeners.get(event.type as keyof ComponentEventMap);
+    const typeListeners = this.listeners.get(event.type);
     let defaultPrevented = event.defaultPrevented;
 
     if (typeListeners) {
@@ -35,7 +36,7 @@ export class EventTarget {
       for (const listener of listeners) {
         try {
           const listenerEvent = this.cloneEvent(event);
-          listener.call(this, listenerEvent);
+          listener.call(this as unknown as Component, listenerEvent);
           if (listenerEvent.defaultPrevented) {
             defaultPrevented = true;
           }

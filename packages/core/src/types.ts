@@ -1,6 +1,21 @@
 import { Component } from './component';
 
 /**
+ * Component state flags
+ */
+export enum ComponentStateFlags {
+  NONE = 0,
+  DISABLED = 1 << 0,
+  HIDDEN = 1 << 1,
+  FOCUSED = 1 << 2,
+  ACTIVE = 1 << 3,
+  SELECTED = 1 << 4,
+  CHECKED = 1 << 5,
+  OPENED = 1 << 6,
+  HIGHLIGHTED = 1 << 7
+}
+
+/**
  * Generic component props type
  */
 export interface ComponentProps<T = unknown> {
@@ -45,6 +60,21 @@ export interface ComponentEventMap {
   action: CustomEvent<unknown>;
   change: CustomEvent<unknown>;
   [key: string]: Event;
+}
+
+/**
+ * Component constructor type
+ */
+export interface ComponentConstructor<T extends Component = Component> {
+  new (...args: any[]): T;
+}
+
+/**
+ * SSR options interface
+ */
+export interface SSROptions {
+  hydration?: 'client-only' | 'server-first' | 'progressive';
+  ssr?: boolean;
 }
 
 /**
