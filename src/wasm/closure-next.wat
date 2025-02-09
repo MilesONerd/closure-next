@@ -150,6 +150,7 @@
     (local $i i32)
     (local $outPtr i32)
     (local $char i32)
+    (local $bytesWritten i32)
     
     ;; Output buffer starts after input
     (local.set $outPtr 
@@ -169,22 +170,25 @@
             (then
               ;; ASCII character
               (i32.store8
-                (i32.add (local.get $outPtr) (local.get $i))
-                (local.get $char)))
+                (i32.add (local.get $outPtr) (local.get $bytesWritten))
+                (local.get $char))
+              (local.set $bytesWritten 
+                (i32.add (local.get $bytesWritten) (i32.const 1))))
             (else
               ;; Multi-byte character (simplified)
               (i32.store8
-                (i32.add (local.get $outPtr) (local.get $i))
+                (i32.add (local.get $outPtr) (local.get $bytesWritten))
                 (i32.or
                   (i32.const 0xC0)
                   (i32.shr_u (local.get $char) (i32.const 6))))
               (i32.store8
-                (i32.add 
-                  (i32.add (local.get $outPtr) (local.get $i))
-                  (i32.const 1))
+                (i32.add (local.get $outPtr)
+                  (i32.add (local.get $bytesWritten) (i32.const 1)))
                 (i32.or
                   (i32.const 0x80)
                   (i32.and (local.get $char) (i32.const 0x3F))))
+              (local.set $bytesWritten 
+                (i32.add (local.get $bytesWritten) (i32.const 2))))
             )
           )
           
@@ -194,8 +198,8 @@
       )
     )
     
-    ;; Return pointer to encoded string
-    (local.get $outPtr)
+    ;; Return number of bytes written
+    (local.get $bytesWritten)
   )
 
   ;; Export functions
