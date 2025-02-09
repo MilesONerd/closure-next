@@ -1,6 +1,6 @@
 {
   "name": "@closure-next/wasm",
-  "version": "1.0.3",
+  "version": "1.0.30",
   "description": "WebAssembly optimizations for Closure Next",
   "type": "module",
   "main": "./dist/index.js",
