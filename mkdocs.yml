@@ -11,6 +11,13 @@ theme:
 nav:
   - Home: index.md
   - Core API: api/core.md
+  - Framework Integration Guides: guides/frameworks/README.md
+  - Angular Integration Guide: guides/frameworks/angular.md
+  - React Integration Guide: guides/frameworks/react.md
+  - Svelte Integration Guide: guides/frameworks/svelte.md
+  - Vue Integration Guide: guides/frameworks/vue.md
+  - Performance Optimization Guide: guides/performance/README.md
+  - Server-Side Rendering Guide: guides/ssr/README.md
   - Framework Integration Guides: guides/integrations.md
   - Implementation Details: implementation/details.md
 
