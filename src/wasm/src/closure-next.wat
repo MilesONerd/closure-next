@@ -1,7 +1,15 @@
 (module
-  ;; Memory for array and string operations (128 pages = 8MB)
-  (memory 128)
+  ;; Memory for array and string operations (256 pages = 16MB)
+  (memory 256)
   (export "memory" (memory 0))
+  
+  ;; Memory bounds checking helper
+  (func $check_bounds (param $addr i32) (param $size i32) (result i32)
+    (i32.and
+      (i32.ge_s (local.get $addr) (i32.const 0))
+      (i32.lt_s 
+        (i32.add (local.get $addr) (local.get $size))
+        (i32.mul (memory.size) (i32.const 65536)))))
 
   ;; Function declarations
   (type $get_element_type (func (param $arr i32) (param $idx i32) (result f64)))
@@ -28,10 +36,16 @@
           (then (i32.const 1))
           (else (i32.const 0))))))
 
-  ;; Helper function to calculate array address
+  ;; Helper function to calculate array address with bounds checking
   (func $calcAddr (type $calc_addr_type) (param $arr i32) (param $idx i32) (result i32)
-    (i32.add (local.get $arr)
-      (i32.mul (local.get $idx) (i32.const 8))))
+    (local $addr i32)
+    (local.set $addr 
+      (i32.add (local.get $arr)
+        (i32.mul (local.get $idx) (i32.const 8))))
+    (if (result i32)
+      (call $check_bounds (local.get $addr) (i32.const 8))
+      (then (local.get $addr))
+      (else (unreachable))))
 
   ;; Helper function to get array element at index
   (func $getElement (type $get_element_type) (param $arr i32) (param $idx i32) (result f64)
