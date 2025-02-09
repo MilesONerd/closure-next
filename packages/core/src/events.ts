@@ -27,7 +27,7 @@ export class EventTarget {
     }
   }
 
-  public dispatchEvent(event: Event): boolean {
+  public dispatchEvent<K extends keyof ComponentEventMap>(event: ComponentEventMap[K]): boolean {
     const typeListeners = this.listeners.get(event.type);
     let defaultPrevented = event.defaultPrevented;
 
@@ -36,7 +36,7 @@ export class EventTarget {
       for (const listener of listeners) {
         try {
           const listenerEvent = this.cloneEvent(event);
-          listener.call(this as unknown as Component, listenerEvent);
+          listener.call(this as unknown as Component, listenerEvent as ComponentEventMap[K]);
           if (listenerEvent.defaultPrevented) {
             defaultPrevented = true;
           }
@@ -49,17 +49,17 @@ export class EventTarget {
     return !defaultPrevented;
   }
 
-  protected cloneEvent(event: Event): Event {
+  protected cloneEvent<K extends keyof ComponentEventMap>(event: ComponentEventMap[K]): ComponentEventMap[K] {
     if (event instanceof CustomEvent) {
       return new CustomEvent(event.type, {
         bubbles: event.bubbles,
         cancelable: event.cancelable,
         detail: event.detail
-      });
+      }) as ComponentEventMap[K];
     }
     return new Event(event.type, {
       bubbles: event.bubbles,
       cancelable: event.cancelable
-    });
+    }) as ComponentEventMap[K];
   }
 }
