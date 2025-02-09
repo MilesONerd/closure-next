@@ -8,11 +8,7 @@ build:
 
 python:
   install:
-    - requirements: docs/requirements.txt 
-
-sphinx:
-  configuration: false  
+    - requirements: docs/requirements.txt  
 
 mkdocs:
   configuration: mkdocs.yml  
-
