@@ -6,7 +6,7 @@ build:
     version: 16
     install:
       - pip install mkdocs
-      - pip install mkdocs-material
+      - pip install mkdocs-github
   tools:
     mkdocs: "1.2"
 sphinx: false
