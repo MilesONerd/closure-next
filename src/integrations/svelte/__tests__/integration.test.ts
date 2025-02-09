@@ -1,5 +1,5 @@
 import { jest, describe, test, beforeEach, afterEach, expect } from '@jest/globals';
-import { Component, type ComponentInterface, type DomHelper } from '@closure-next/core';
+import { Component, type ComponentInterface, type DOMHelper } from '@closure-next/core';
 import { render, cleanup, waitFor, fireEvent } from '@testing-library/svelte';
 import '@testing-library/jest-dom';
 import TestWrapper from './TestWrapper.svelte';
@@ -36,7 +36,7 @@ declare global {
 class TestComponent extends Component implements ComponentInterface {
   private title: string = '';
   
-  constructor(domHelper?: DomHelper) {
+  constructor(domHelper?: DOMHelper) {
     super(domHelper);
   }
 

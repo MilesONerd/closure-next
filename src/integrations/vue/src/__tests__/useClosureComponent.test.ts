@@ -1,13 +1,13 @@
 import { mount, type VueWrapper } from '@vue/test-utils';
 import { defineComponent, h, type ComponentPublicInstance, type PropType } from 'vue';
 import { useClosureComponent } from '../index.js';
-import { Component, DomHelper, type ComponentConstructor, type ComponentInterface } from '@closure-next/core/dist/index.js';
+import { Component, DOMHelper, type ComponentConstructor, type ComponentInterface } from '@closure-next/core/dist/index.js';
 
 class TestComponent extends Component implements ComponentInterface {
   private title: string = '';
   private disposed: boolean = false;
   
-  constructor(domHelper: DomHelper) {
+  constructor(domHelper: DOMHelper) {
     super(domHelper);
     this.title = '';
   }
@@ -60,13 +60,13 @@ class TestComponent extends Component implements ComponentInterface {
   }
 }
 
-interface TestComponentProps {
+interface TestComponentState {
   title?: string;
   updateTitle?: (title: string) => void;
   component?: TestComponent;
 }
 
-interface TestComponentInstance extends ComponentPublicInstance<TestComponentProps> {
+interface TestComponentInstance extends ComponentPublicInstance<TestComponentState> {
   component?: TestComponent;
 }
 
@@ -85,9 +85,9 @@ describe('useClosureComponent', () => {
   });
 
   test('should create and mount component', async () => {
-    const TestVue = defineComponent<TestComponentProps>({
+    const TestVue = defineComponent<TestComponentState>({
       setup() {
-        const domHelper = new DomHelper(document);
+        const domHelper = new DOMHelper(document);
         const { ref, component } = useClosureComponent(
           TestComponent as ComponentConstructor<TestComponent>,
           domHelper
@@ -108,9 +108,9 @@ describe('useClosureComponent', () => {
   });
 
   test('should apply initial props', async () => {
-    const TestVue = defineComponent<TestComponentProps>({
+    const TestVue = defineComponent<TestComponentState>({
       setup() {
-        const domHelper = new DomHelper(document);
+        const domHelper = new DOMHelper(document);
         const { ref, component } = useClosureComponent(
           TestComponent as ComponentConstructor<TestComponent>,
           domHelper,
@@ -136,12 +136,12 @@ describe('useClosureComponent', () => {
   });
 
   test('should handle prop updates', async () => {
-    const TestVue = defineComponent<TestComponentProps>({
+    const TestVue = defineComponent<TestComponentState>({
       props: {
         updateTitle: Function as PropType<(title: string) => void>
       },
       setup() {
-        const domHelper = new DomHelper(document);
+        const domHelper = new DOMHelper(document);
         const { ref, component } = useClosureComponent(
           TestComponent as ComponentConstructor<TestComponent>,
           domHelper,
@@ -213,9 +213,9 @@ describe('useClosureComponent', () => {
   });
 
   test('should clean up on unmount', async () => {
-    const TestVue = defineComponent<TestComponentProps>({
+    const TestVue = defineComponent<TestComponentState>({
       setup() {
-        const domHelper = new DomHelper(document);
+        const domHelper = new DOMHelper(document);
         const { ref, component } = useClosureComponent(
           TestComponent as ComponentConstructor<TestComponent>,
           domHelper

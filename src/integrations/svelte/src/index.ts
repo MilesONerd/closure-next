@@ -1,10 +1,10 @@
 import { onMount, onDestroy } from 'svelte';
 import { writable, get } from 'svelte/store';
-import { Component, DomHelper } from '@closure-next/core/dist/index.js';
+import { Component, DOMHelper } from '@closure-next/core/dist/index.js';
 import type { ClosureComponentOptions, ClosureStore, ClosureInstance, ClosureSSRContext } from './types';
 
 export function createClosureStore<T extends Component>(
-  ComponentClass: new (domHelper?: DomHelper) => T,
+  ComponentClass: new (domHelper?: DOMHelper) => T,
   options: ClosureComponentOptions<T> = {}
 ): ClosureStore<T> {
   const component = writable<ClosureInstance<T> | null>(null);
@@ -32,7 +32,7 @@ export function createClosureStore<T extends Component>(
 
   onMount(() => {
     try {
-      const instance = new ComponentClass(new DomHelper(document)) as ClosureInstance<T>;
+      const instance = new ComponentClass(new DOMHelper(document)) as ClosureInstance<T>;
       component.set(instance);
 
       // Apply initial props

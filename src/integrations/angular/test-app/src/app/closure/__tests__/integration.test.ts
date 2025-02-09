@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Component as ClosureComponent, DomHelper } from '@closure-next/core';
+import { Component as ClosureComponent, DOMHelper } from '@closure-next/core';
 import { ClosureComponentDirective } from '../index';
 import { Injectable, Inject, ElementRef, NgZone } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
@@ -12,7 +12,7 @@ class TestComponent extends Component {
   protected override element: HTMLElement | null = null;
   
   constructor(@Inject(DOCUMENT) document: Document) {
-    super(new DomHelper(document));
+    super(new DOMHelper(document));
     this.element = document.createElement('div');
   }
   

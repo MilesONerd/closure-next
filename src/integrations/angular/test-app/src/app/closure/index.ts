@@ -15,10 +15,10 @@ import {
   NgZone
 } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
-import { Component as ClosureComponent, DomHelper } from '@closure-next/core';
+import { Component as ClosureComponent, DOMHelper } from '@closure-next/core';
 import { InjectionToken, Type, Inject, Injectable, inject } from '@angular/core';
 
-export const DOM_HELPER = new InjectionToken<DomHelper>('DOM_HELPER');
+export const DOM_HELPER = new InjectionToken<DOMHelper>('DOM_HELPER');
 
 interface ClosureComponentConstructor {
   new(...args: any[]): ClosureComponent;
@@ -32,7 +32,7 @@ interface ClosureComponentConstructor {
   selector: '[closureComponent]',
   standalone: true,
   providers: [
-    { provide: DOM_HELPER, useFactory: (doc: Document) => new DomHelper(doc), deps: [DOCUMENT] }
+    { provide: DOM_HELPER, useFactory: (doc: Document) => new DOMHelper(doc), deps: [DOCUMENT] }
   ]
 })
 export class ClosureComponentDirective implements OnInit, OnDestroy, OnChanges {
@@ -47,7 +47,7 @@ export class ClosureComponentDirective implements OnInit, OnDestroy, OnChanges {
   constructor(
     private readonly elementRef: ElementRef,
     private readonly ngZone: NgZone,
-    @Inject(DOM_HELPER) private readonly domHelper: DomHelper
+    @Inject(DOM_HELPER) private readonly domHelper: DOMHelper
   ) {
     this.element = elementRef.nativeElement;
   }
@@ -69,7 +69,7 @@ export class ClosureComponentDirective implements OnInit, OnDestroy, OnChanges {
       throw new Error('Component class must be provided');
     }
 
-    // Create the Closure component with injected DomHelper
+    // Create the Closure component with injected DOMHelper
     this.instance = new this.component(this.domHelper);
     
     // Store reference to Closure component
@@ -150,7 +150,7 @@ export class ClosureComponentDirective implements OnInit, OnDestroy, OnChanges {
   providers: [
     {
       provide: DOM_HELPER,
-      useFactory: () => new DomHelper(document),
+      useFactory: () => new DOMHelper(document),
       deps: [DOCUMENT]
     }
   ]

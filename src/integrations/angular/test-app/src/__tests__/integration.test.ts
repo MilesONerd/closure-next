@@ -1,12 +1,12 @@
-import { Component, ComponentState, ComponentInterface, DomHelper } from '@closure-next/core';
-import { DomHelper } from '@closure-next/core';
+import { Component, ComponentState, ComponentInterface, DOMHelper } from '@closure-next/core';
+import { DOMHelper } from '@closure-next/core';
 import { ClosureComponentDirective } from '../../../src';
 
 class TestComponent extends Component {
   private title: string = '';
   
   constructor() {
-    super(new DomHelper(document));
+    super(new DOMHelper(document));
   }
   
   setTitle(title: string): void {

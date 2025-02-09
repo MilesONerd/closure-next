@@ -1,13 +1,13 @@
 import { describe, test, expect, beforeEach, afterEach } from '@jest/globals';
 import { mount } from '@vue/test-utils';
-import { Component, DomHelper, type ComponentConstructor } from '@closure-next/core/dist/index.js';
+import { Component, DOMHelper, type ComponentConstructor } from '@closure-next/core/dist/index.js';
 import { useClosureComponent } from '../src/index.js';
 import { defineComponent, h } from 'vue';
 
 class TestComponent extends Component {
   private title: string = '';
   
-  constructor(domHelper: DomHelper) {
+  constructor(domHelper: DOMHelper) {
     super(domHelper);
   }
 
@@ -74,7 +74,7 @@ const TestVue = defineComponent({
     }
   },
   setup(props) {
-    const domHelper = new DomHelper(document);
+    const domHelper = new DOMHelper(document);
     const { ref: elementRef, component } = useClosureComponent<TestComponent>(
       TestComponent as ComponentConstructor<TestComponent>,
       domHelper,
