@@ -51,6 +51,7 @@
         (br_if $done (i32.ge_u (local.get $i) (local.get $len)))
         (br $outer))
     )
+    (nop)
   )
 
   ;; Binary search
