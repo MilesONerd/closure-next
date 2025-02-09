@@ -61,9 +61,9 @@
 
   ;; Quicksort implementation
   (func $quicksort (param $ptr i32) (param $low i32) (param $high i32)
+    (local $pi i32)
     (if (i32.lt_s (local.get $low) (local.get $high))
       (then
-        (local $pi i32)
         ;; Get partition index
         (local.set $pi 
           (call $partition 
