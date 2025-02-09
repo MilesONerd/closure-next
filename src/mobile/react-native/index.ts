@@ -1,10 +1,11 @@
 import { MobileComponent } from '../components/mobile';
-import type { Component } from '@closure-next/core';
+import type { Component, DOMHelper } from '@closure-next/core';
 import type { ReactNativeOptions } from '../types';
 
 export const createReactNativeComponent = <T extends Component>(
-  ComponentClass: new () => T,
-  options: ReactNativeOptions = {}
+  ComponentClass: new (domHelper: DOMHelper) => T,
+  options: ReactNativeOptions = {},
+  domHelper?: DOMHelper
 ): MobileComponent<T> => {
   const mobileOptions: ReactNativeOptions = {
     ...options,
@@ -13,5 +14,5 @@ export const createReactNativeComponent = <T extends Component>(
     gestures: options.gestures ?? true,
     platformStyles: options.platformStyles ?? true
   };
-  return new MobileComponent(ComponentClass, mobileOptions);
+  return new MobileComponent(ComponentClass, mobileOptions, domHelper);
 };

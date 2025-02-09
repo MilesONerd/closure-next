@@ -6,6 +6,9 @@ import { createIonicComponent } from '../ionic';
 import { createFlutterComponent } from '../flutter';
 import type { MobileComponentOptions } from '../types';
 
+// Create a shared DOMHelper instance for tests
+const testDomHelper = new DOMHelper(document);
+
 // Add Jest types for ESM compatibility
 declare const jest: any;
 declare const describe: (name: string, fn: () => void) => void;
@@ -23,8 +26,8 @@ interface TestComponentBase {
 class TestComponent extends Component implements TestComponentBase {
   private title: string = '';
   
-  constructor() {
-    super(new DOMHelper(document));
+  constructor(domHelper: DOMHelper) {
+    super(domHelper);
   }
   
   setTitle(title: string): void {
@@ -111,7 +114,7 @@ describe('Mobile Integration', () => {
       const component = createReactNativeComponent(TestComponent, {
         touch: true,
         reactNative: { nativeModules: true }
-      });
+      }, testDomHelper);
       expect(component).toBeInstanceOf(MobileComponent);
       
       const element = document.createElement('div');
@@ -123,7 +126,7 @@ describe('Mobile Integration', () => {
       const component = createIonicComponent(TestComponent, {
         touch: true,
         platformStyles: true
-      });
+      }, testDomHelper);
       expect(component).toBeInstanceOf(MobileComponent);
       
       const element = document.createElement('div');
@@ -135,7 +138,7 @@ describe('Mobile Integration', () => {
       const component = createFlutterComponent(TestComponent, {
         touch: true,
         platformStyles: true
-      });
+      }, testDomHelper);
       
       const element = document.createElement('div');
       await component.render(element);
