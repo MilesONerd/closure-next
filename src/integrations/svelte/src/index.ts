@@ -1,31 +1,82 @@
-/**
- * @fileoverview Svelte integration for Closure Next.
- * @license Apache-2.0
- */
+import { onMount, onDestroy } from 'svelte';
+import { writable, get } from 'svelte/store';
+import { Component, DomHelper } from '@closure-next/core/dist/index.js';
+import type { ClosureComponentOptions, ClosureStore, ClosureInstance, ClosureSSRContext } from './types';
 
-import { Component, type ComponentConstructor } from '@closure-next/core';
-import type { ComponentType } from 'svelte';
-import { createSSRComponent } from './server';
+export function createClosureStore<T extends Component>(
+  ComponentClass: new (domHelper?: DomHelper) => T,
+  options: ClosureComponentOptions<T> = {}
+): ClosureStore<T> {
+  const component = writable<ClosureInstance<T> | null>(null);
+  const props = writable(options.props || {});
+  const element = writable<HTMLElement | null>(null);
 
-export type { SSROptions } from '@closure-next/core';
-export { renderClosureComponent, hydrateClosureComponent } from './server';
+  const setProps = async (newProps: Partial<typeof props>): Promise<void> => {
+    const currentComponent = get(component);
+    if (currentComponent) {
+      Object.entries(newProps).forEach(([key, value]) => {
+        const method = `set${key.charAt(0).toUpperCase()}${key.slice(1)}`;
+        if (typeof currentComponent[method as keyof typeof currentComponent] === 'function') {
+          (currentComponent[method as keyof typeof currentComponent] as Function)(value);
+        }
+      });
 
-interface ClosureComponentOptions<T extends Component> {
-  target: HTMLElement;
-  props?: Record<string, unknown>;
-  component: new () => T;
-  ssrOptions?: {
-    hydration?: 'client-only' | 'server-first' | 'progressive';
-    ssr?: boolean;
+      // Re-render if component is in document
+      if (currentComponent.isInDocument()) {
+        currentComponent.exitDocument();
+        currentComponent.enterDocument();
+      }
+    }
+    props.set({ ...get(props), ...newProps });
+  };
+
+  onMount(() => {
+    try {
+      const instance = new ComponentClass(new DomHelper(document)) as ClosureInstance<T>;
+      component.set(instance);
+
+      // Apply initial props
+      const currentProps = get(props);
+      if (currentProps) {
+        Object.entries(currentProps).forEach(([key, value]) => {
+          const method = `set${key.charAt(0).toUpperCase()}${key.slice(1)}`;
+          if (typeof instance[method as keyof typeof instance] === 'function') {
+            (instance[method as keyof typeof instance] as Function)(value);
+          }
+        });
+      }
+
+      const currentElement = get(element);
+      if (currentElement) {
+        instance.render(currentElement);
+      }
+
+      options.onMount?.(instance);
+    } catch (error) {
+      const err = error instanceof Error ? error : new Error(String(error));
+      options.onError?.(err);
+      throw err;
+    }
+  });
+
+  onDestroy(() => {
+    const currentComponent = get(component);
+    if (currentComponent) {
+      options.onDestroy?.(currentComponent);
+      if (currentComponent.isInDocument()) {
+        currentComponent.exitDocument();
+      }
+      currentComponent.dispose();
+      component.set(null);
+    }
+  });
+
+  return {
+    component,
+    props,
+    element,
+    setProps
   };
 }
 
-/**
- * Creates a Svelte-compatible wrapper for a Closure Next component
- */
-export function closureComponent<T extends Component>(
-  options: ClosureComponentOptions<T>
-): ComponentType {
-  const { component: ComponentClass, ssrOptions = { hydration: 'progressive', ssr: true } } = options;
-  return createSSRComponent(ComponentClass, ssrOptions);
-}
+export * from './types';
