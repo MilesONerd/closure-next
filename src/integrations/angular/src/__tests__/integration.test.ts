@@ -1,8 +1,9 @@
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component, DomHelper } from '@closure-next/core';
+import { Component as ClosureComponent, DomHelper } from '@closure-next/core';
+import { Component as NgComponent } from '@angular/core';
 import { ClosureComponentDirective } from '../index';
 
-class TestComponent extends Component {
+class TestComponent extends ClosureComponent {
   private title: string = '';
 
   constructor() {
@@ -32,7 +33,7 @@ describe('ClosureComponentDirective', () => {
   let fixture: ComponentFixture<TestHostComponent>;
   let hostComponent: TestHostComponent;
 
-  @Component({
+  @NgComponent({
     template: `
       <div [closureComponent]="component"
            [closureComponentProps]="props"
@@ -79,7 +80,7 @@ describe('ClosureComponentDirective', () => {
 
   it('should handle SSR options', () => {
     hostComponent.ssrOptions = {
-      hydration: 'server-first',
+      hydration: 'progressive' as const,
       ssr: true
     };
     fixture.detectChanges();
