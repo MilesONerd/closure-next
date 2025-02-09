@@ -3,7 +3,6 @@ site_url: https://closure-next.github.io
 site_description: Closure Library rewritten in TypeScript
 theme:
   name: github
-  custom_dir: theme
   palette:
     primary: 'blue'
     accent: 'yellow'
