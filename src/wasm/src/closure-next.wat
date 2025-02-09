@@ -47,6 +47,7 @@
   ;; Partition function for quicksort
   (func $partition (type $partition_type)
     (local $pivot f64)
+    (local $temp f64)
     (local $i i32)
     (local $j i32)
     
