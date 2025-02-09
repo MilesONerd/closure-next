@@ -6,15 +6,15 @@ import { ClosureComponent } from '../src/ClosureComponent.js';
 import { TestComponent } from './TestComponent.js';
 
 class ErrorComponent extends Component {
-  constructor() {
-    super(new DOMHelper(document));
+  constructor(domHelper: DOMHelper) {
+    super(domHelper);
   }
 
-  public override enterDocument(): void {
+  public async render(container: HTMLElement): Promise<void> {
     throw new Error('Test error');
   }
 
-  public override dispose(): void {
+  public dispose(): void {
     const element = this.getElement();
     if (element) {
       element.remove();
@@ -38,7 +38,7 @@ describe('ClosureComponent', () => {
 
   it('should render and unmount component', () => {
     const { container, unmount } = render(
-      <ClosureComponent component={TestComponent} />
+      <ClosureComponent component={new TestComponent()} domHelper={new DOMHelper(document)} />
     );
 
     const wrapper = screen.getByTestId("hook-wrapper");
@@ -55,9 +55,10 @@ describe('ClosureComponent', () => {
   it('should handle component props', () => {
     const { container } = render(
       <ClosureComponent 
-        component={TestComponent}
-        props={{ title: 'Test Title' }}
-      />
+        component={new TestComponent()} domHelper={new DOMHelper(document)}
+      >
+        <div data-title="Test Title" />
+      </ClosureComponent>
     );
 
     const wrapper = screen.getByTestId("hook-wrapper");
@@ -70,9 +71,10 @@ describe('ClosureComponent', () => {
 
   it('should handle errors with error boundary', () => {
     const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const domHelper = new DOMHelper(document);
     
     act(() => {
-      render(<ClosureComponent component={ErrorComponent} />);
+      render(<ClosureComponent component={new ErrorComponent(domHelper)} domHelper={domHelper} />);
     });
     
     const errorBoundaryRoot = screen.getByTestId('error-boundary-root');
@@ -88,9 +90,10 @@ describe('ClosureComponent', () => {
   it('should use custom fallback for errors', () => {
     const fallback = <div data-testid="custom-error">Custom Error</div>;
     const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const domHelper = new DOMHelper(document);
     
     act(() => {
-      render(<ClosureComponent component={ErrorComponent} fallback={fallback} />);
+      render(<ClosureComponent component={new ErrorComponent(domHelper)} domHelper={domHelper} fallback={fallback} />);
     });
 
     const errorBoundaryRoot = screen.getByTestId('error-boundary-root');
@@ -105,9 +108,10 @@ describe('ClosureComponent', () => {
 
   it('should not use error boundary when disabled', () => {
     const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const domHelper = new DOMHelper(document);
     
     expect(() => {
-      render(<ClosureComponent component={ErrorComponent} errorBoundary={false} />);
+      render(<ClosureComponent component={new ErrorComponent(domHelper)} domHelper={domHelper} children={null} />);
     }).toThrow('Test error');
     
     consoleError.mockRestore();

@@ -1,14 +1,16 @@
-import { Component } from '@closure-next/core';
+import { Component, DOMHelper } from '@closure-next/core';
 
 export class AppComponent extends Component {
   title = 'App Component';
 
-  constructor() {
-    super();
+  constructor(domHelper: DOMHelper) {
+    super(domHelper);
   }
 
-  renderToString() {
-    return `<div>${this.title}</div>`;
+  async render(container: HTMLElement): Promise<void> {
+    const element = document.createElement('div');
+    element.textContent = this.title;
+    container.appendChild(element);
   }
 }
 
