@@ -12,7 +12,7 @@
     "target": "es2020",
     "lib": ["es2020", "dom"],
     "esModuleInterop": true,
-    "types": ["node", "react", "jest"],
+    "types": ["node", "react", "jest", "next"],
     "composite": true,
     "paths": {
       "@closure-next/core": ["../../packages/core/src"]

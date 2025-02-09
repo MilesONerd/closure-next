@@ -15,8 +15,9 @@
   },
   "scripts": {
     "prebuild": "mkdir -p dist",
-    "build": "tsc --build tsconfig.build.json && npm run build:wasm",
+    "build": "npm run build:wasm && npm run build:rust && tsc --build tsconfig.build.json",
     "build:wasm": "wat2wasm src/closure-next.wat -o dist/closure-next-wasm.wasm",
+    "build:rust": "cd rust && wasm-pack build --target web --out-dir ../dist/rust",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --config=jest.config.mjs"
   },
   "keywords": [
@@ -49,6 +50,7 @@
     "jest-environment-jsdom": "^29.7.0",
     "ts-jest": "^29.2.5",
     "typescript": "^5.0.0",
-    "wat2wasm": "^3.0.0"
+    "wat2wasm": "^3.0.0",
+    "wasm-pack": "^0.12.1"
   }
 }

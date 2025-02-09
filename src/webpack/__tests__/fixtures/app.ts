@@ -1,4 +1,4 @@
-import { Component, DomHelper } from '@closure-next/core';
+import { Component, DOMHelper } from '@closure-next/core';
 
 // This constant should be tree-shaken
 const UNUSED_CONSTANT = 'unused';
@@ -7,7 +7,7 @@ const UNUSED_CONSTANT = 'unused';
 class TestComponent extends Component {
   private title: string = '';
   
-  constructor(domHelper: DomHelper) {
+  constructor(domHelper: DOMHelper) {
     super(domHelper);
   }
 
@@ -23,9 +23,9 @@ class TestComponent extends Component {
     return this.title;
   }
 
-  public override createDom(): void {
+  protected override async createDom(): Promise<void> {
     if (!this.element) {
-      super.createDom();
+      await super.createDom();
       const element = this.getElement();
       if (element) {
         element.setAttribute('data-testid', 'test-component');
@@ -35,22 +35,14 @@ class TestComponent extends Component {
     }
   }
 
-  public override enterDocument(): void {
-    if (!this.isInDocument()) {
-      super.enterDocument();
+  public override async render(container: HTMLElement): Promise<void> {
+    if (!this.element) {
+      await this.createDom();
     }
-  }
-
-  public override exitDocument(): void {
-    if (this.isInDocument()) {
-      super.exitDocument();
-    }
+    await super.render(container);
   }
 
   public override dispose(): void {
-    if (this.isInDocument()) {
-      this.exitDocument();
-    }
     if (this.element && this.element.parentElement) {
       this.element.parentElement.removeChild(this.element);
     }

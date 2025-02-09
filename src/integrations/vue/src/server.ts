@@ -3,9 +3,13 @@ import type { ComponentInterface } from '@closure-next/core';
 
 export class ServerComponent extends Component implements ComponentInterface {
   private ssrEnabled: boolean = true;
+  protected element: HTMLElement | null = null;
+  protected domHelper: DOMHelper;
+  protected id: string = '';
 
   constructor(domHelper: DOMHelper) {
     super(domHelper);
+    this.domHelper = domHelper;
   }
 
   async renderToString(): Promise<string> {
@@ -34,6 +38,11 @@ export class ServerComponent extends Component implements ComponentInterface {
       }
     }
     await this.createDom();
+  }
+
+  protected async createDom(): Promise<void> {
+    // Implementation will be provided by derived classes
+    await super.createDom();
   }
 
   enableSSR(): void {

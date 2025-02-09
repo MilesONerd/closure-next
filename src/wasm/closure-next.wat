@@ -150,53 +150,52 @@
     (local $i i32)
     (local $outPtr i32)
     (local $char i32)
+    (local $bytesWritten i32)
     
     ;; Output buffer starts after input
     (local.set $outPtr 
       (i32.add (local.get $ptr)
         (i32.mul (local.get $len) (i32.const 2))))
     
-    (loop $encode
-      (if (i32.lt_u (local.get $i) (local.get $len))
-        (then
-          ;; Load character
-          (local.set $char
-            (i32.load8_u
-              (i32.add (local.get $ptr) (local.get $i))))
-          
-          ;; Simple UTF-8 encoding
-          (if (i32.lt_u (local.get $char) (i32.const 128))
-            (then
-              ;; ASCII character
-              (i32.store8
-                (i32.add (local.get $outPtr) (local.get $i))
-                (local.get $char)))
-            (else
-              ;; Multi-byte character (simplified)
-              (i32.store8
-                (i32.add (local.get $outPtr) (local.get $i))
-                (i32.or
-                  (i32.const 0xC0)
-                  (i32.shr_u (local.get $char) (i32.const 6))))
-              (i32.store8
-                (i32.add 
-                  (i32.add (local.get $outPtr) (local.get $i))
-                  (i32.const 1))
-                (i32.or
-                  (i32.const 0x80)
-                  (i32.and (local.get $char) (i32.const 0x3F))))
-            )
-          )
-          
-          (local.set $i (i32.add (local.get $i) (i32.const 1)))
-          (br $encode)
-        )
-      )
-    )
+    (block $done
+      (loop $encode
+        (br_if $done (i32.ge_u (local.get $i) (local.get $len)))
+        
+        ;; Load character
+        (local.set $char
+          (i32.load8_u
+            (i32.add (local.get $ptr) (local.get $i))))
+        
+        ;; Simple UTF-8 encoding
+        (if (i32.lt_u (local.get $char) (i32.const 128))
+          (then
+            ;; ASCII character
+            (i32.store8
+              (i32.add (local.get $outPtr) (local.get $bytesWritten))
+              (local.get $char))
+            (local.set $bytesWritten 
+              (i32.add (local.get $bytesWritten) (i32.const 1))))
+          (else
+            ;; Multi-byte character (simplified)
+            (i32.store8
+              (i32.add (local.get $outPtr) (local.get $bytesWritten))
+              (i32.or
+                (i32.const 0xC0)
+                (i32.shr_u (local.get $char) (i32.const 6))))
+            (i32.store8
+              (i32.add (local.get $outPtr)
+                (i32.add (local.get $bytesWritten) (i32.const 1)))
+              (i32.or
+                (i32.const 0x80)
+                (i32.and (local.get $char) (i32.const 0x3F))))
+            (local.set $bytesWritten 
+              (i32.add (local.get $bytesWritten) (i32.const 2)))))
+        
+        (local.set $i (i32.add (local.get $i) (i32.const 1)))
+        (br $encode)))
     
-    ;; Return pointer to encoded string
-    (local.get $outPtr)
-  )
+    ;; Return number of bytes written
+    (local.get $bytesWritten))
 
   ;; Export functions
   (export "arraySort" (func $arraySort))

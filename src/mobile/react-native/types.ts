@@ -1,4 +1,4 @@
-import type { Component } from '../../../packages/core';
+import type { Component } from '@closure-next/core';
 
 export interface ReactNativeOptions {
   /**
@@ -37,7 +37,7 @@ export interface ReactNativeOptions {
   };
 }
 
-export type ReactNativeComponent<T extends Component> = T & {
+export type ReactNativeComponent<T extends Component = Component> = T & {
   /**
    * React Native specific properties
    */

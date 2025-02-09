@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import type { NextPage, NextComponentType, NextPageContext } from 'next/types/index';
+import type { NextPage, NextComponentType, NextPageContext } from 'next';
 import type { Component } from '@closure-next/core';
 
 // Add JSX namespace

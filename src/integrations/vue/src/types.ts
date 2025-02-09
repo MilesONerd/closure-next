@@ -1,4 +1,4 @@
-import { Component, ComponentState, ComponentInterface } from '@closure-next/core/dist/index.js';
+import { Component, ComponentState, ComponentInterface } from '@closure-next/core';
 import { Ref, ShallowRef } from 'vue';
 
 /**
