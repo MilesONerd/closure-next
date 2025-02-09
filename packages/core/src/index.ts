@@ -13,3 +13,7 @@ export * from './utils';
 export { Component } from './component';
 export { ComponentState, ComponentEventType } from './component';
 export type { ComponentInterface, ComponentConstructor } from './component';
+
+// Export SSR-specific types and utilities
+export type { SSROptions } from './server';
+export { renderToString, hydrateComponent } from './server';
