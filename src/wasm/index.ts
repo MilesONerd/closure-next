@@ -11,32 +11,26 @@
  * 4. Event handling and dispatch
  */
 
-interface WasmModule {
-  memory: WebAssembly.Memory;
-  arraySort: (ptr: number, len: number) => void;
-  arrayBinarySearch: (ptr: number, len: number, target: number) => number;
-  stringCompare: (ptr1: number, len1: number, ptr2: number, len2: number) => number;
-  stringEncode: (ptr: number, len: number) => number;
-}
+import init, { 
+  array_sort,
+  array_binary_search,
+  string_compare,
+  string_encode
+} from './dist/wasm_optimizations';
 
-let wasmModule: WasmModule | null = null;
+let initialized = false;
+let memory: WebAssembly.Memory;
 
 /**
  * Initializes the WebAssembly module
  */
 export async function initWasm(): Promise<void> {
-  if (wasmModule) return;
+  if (initialized) return;
 
   try {
-    const response = await fetch('/closure-next-wasm.wasm');
-    const buffer = await response.arrayBuffer();
-    const module = await WebAssembly.instantiate(buffer, {
-      env: {
-        memory: new WebAssembly.Memory({ initial: 256 })
-      }
-    });
-
-    wasmModule = module.instance.exports as unknown as WasmModule;
+    memory = new WebAssembly.Memory({ initial: 256 });
+    await init();
+    initialized = true;
   } catch (e) {
     console.warn('WebAssembly optimization not available:', e);
   }
@@ -46,7 +40,7 @@ export async function initWasm(): Promise<void> {
  * Sorts an array using WebAssembly for better performance
  */
 export function wasmSort<T>(array: T[]): T[] {
-  if (!wasmModule) return array.sort();
+  if (!initialized) return array.sort();
 
   // Convert array to numeric array for Wasm
   const numbers = new Float64Array(array.length);
@@ -54,23 +48,20 @@ export function wasmSort<T>(array: T[]): T[] {
     numbers[index] = typeof value === 'number' ? value : 0;
   });
 
-  // Copy to Wasm memory
-  const ptr = wasmModule.memory.buffer.byteLength;
-  new Float64Array(wasmModule.memory.buffer, ptr, array.length).set(numbers);
-
-  // Sort using Wasm
-  wasmModule.arraySort(ptr, array.length);
-
-  // Copy back to JS
-  const sorted = new Float64Array(wasmModule.memory.buffer, ptr, array.length);
-  return Array.from(sorted) as T[];
+  // Sort using Rust-generated Wasm
+  if (!memory) return array.sort();
+  const view = new Float64Array(memory.buffer);
+  view.set(numbers);
+  array_sort(view.byteOffset, array.length);
+  const result = new Float64Array(memory.buffer, view.byteOffset, array.length);
+  return Array.from(result) as T[];
 }
 
 /**
  * Performs binary search using WebAssembly for better performance
  */
 export function wasmBinarySearch<T>(array: T[], target: T): number {
-  if (!wasmModule) {
+  if (!initialized || !memory) {
     return array.findIndex(item => item === target);
   }
 
@@ -81,19 +72,17 @@ export function wasmBinarySearch<T>(array: T[], target: T): number {
   });
   const targetNum = typeof target === 'number' ? target : 0;
 
-  // Copy to Wasm memory
-  const ptr = wasmModule.memory.buffer.byteLength;
-  new Float64Array(wasmModule.memory.buffer, ptr, array.length).set(numbers);
-
-  // Search using Wasm
-  return wasmModule.arrayBinarySearch(ptr, array.length, targetNum);
+  // Search using Rust-generated Wasm
+  const view = new Float64Array(memory.buffer);
+  view.set(numbers);
+  return array_binary_search(view.byteOffset, array.length, targetNum);
 }
 
 /**
  * Compares strings using WebAssembly for better performance
  */
 export function wasmStringCompare(str1: string, str2: string): number {
-  if (!wasmModule) {
+  if (!initialized || !memory) {
     return str1.localeCompare(str2);
   }
 
@@ -102,21 +91,20 @@ export function wasmStringCompare(str1: string, str2: string): number {
   const bytes1 = encoder.encode(str1);
   const bytes2 = encoder.encode(str2);
 
-  // Copy to Wasm memory
-  const ptr1 = wasmModule.memory.buffer.byteLength;
-  const ptr2 = ptr1 + bytes1.length;
-  new Uint8Array(wasmModule.memory.buffer, ptr1, bytes1.length).set(bytes1);
-  new Uint8Array(wasmModule.memory.buffer, ptr2, bytes2.length).set(bytes2);
-
-  // Compare using Wasm
-  return wasmModule.stringCompare(ptr1, bytes1.length, ptr2, bytes2.length);
+  // Compare using Rust-generated Wasm
+  const view = new Uint8Array(memory.buffer);
+  const ptr1 = 0;
+  const ptr2 = bytes1.length;
+  view.set(bytes1, ptr1);
+  view.set(bytes2, ptr2);
+  return string_compare(ptr1, bytes1.length, ptr2, bytes2.length);
 }
 
 /**
  * Encodes a string using WebAssembly for better performance
  */
 export function wasmStringEncode(str: string): Uint8Array {
-  if (!wasmModule) {
+  if (!initialized || !memory) {
     return new TextEncoder().encode(str);
   }
 
@@ -124,11 +112,10 @@ export function wasmStringEncode(str: string): Uint8Array {
   const encoder = new TextEncoder();
   const bytes = encoder.encode(str);
 
-  // Copy to Wasm memory
-  const ptr = wasmModule.memory.buffer.byteLength;
-  new Uint8Array(wasmModule.memory.buffer, ptr, bytes.length).set(bytes);
-
-  // Encode using Wasm
-  const encodedPtr = wasmModule.stringEncode(ptr, bytes.length);
-  return new Uint8Array(wasmModule.memory.buffer, encodedPtr, bytes.length);
+  // Encode using Rust-generated Wasm
+  const view = new Uint8Array(memory.buffer);
+  view.set(bytes);
+  const encodedPtr = string_encode(view.byteOffset, bytes.length);
+  const result = new Uint8Array(memory.buffer, encodedPtr, bytes.length * 2);
+  return result.slice(); // Copy the result to prevent memory issues
 }
