@@ -20,13 +20,13 @@
   (type $compare_type (func (param $a f64) (param $b f64) (result i32)))
 
   ;; Helper function to compare two f64 values
-  (func $compare (type $compare_type)
-    (if (f64.lt (local.get 0) (local.get 1))
-      (then (return (i32.const -1)))
+  (func $compare (type $compare_type) (param $a f64) (param $b f64) (result i32)
+    (if (result i32) (f64.lt (local.get $a) (local.get $b))
+      (then (i32.const -1))
       (else
-        (if (f64.gt (local.get 0) (local.get 1))
-          (then (return (i32.const 1)))
-          (else (return (i32.const 0)))))))
+        (if (result i32) (f64.gt (local.get $a) (local.get $b))
+          (then (i32.const 1))
+          (else (i32.const 0))))))
 
   ;; Helper function to calculate array address
   (func $calcAddr (type $calc_addr_type) (param $arr i32) (param $idx i32) (result i32)
