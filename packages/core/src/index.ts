@@ -10,11 +10,11 @@ export { EventTarget } from './events';
 export { IdGenerator } from './id';
 
 // Export component types and interfaces
-export { ComponentState, ComponentEventType } from './component';
+export { ComponentState } from './component';
 export type {
   ComponentProps,
-  ComponentStateType,
-  ComponentEventType as ComponentEventTypeEnum,
+  ComponentStateInterface,
+  ComponentStateFlags,
   ComponentEventMap,
   ComponentConstructor,
   ComponentInterface,
