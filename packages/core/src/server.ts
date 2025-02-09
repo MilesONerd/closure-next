@@ -4,63 +4,44 @@
  */
 
 import { Component } from './component';
+import { DOMHelper } from './dom';
+import { EventType } from './events';
 
-export interface SSROptions {
-  hydration?: 'client-only' | 'server-first' | 'progressive';
-  ssr?: boolean;
-}
+export class ServerComponent extends Component {
+  protected ssrEnabled: boolean;
 
-/**
- * Renders a component to string for server-side rendering.
- */
-export async function renderToString(
-  component: Component,
-  props?: Record<string, unknown>,
-  options: SSROptions = {}
-): Promise<string> {
-  if (!options.ssr) {
-    return '';
+  constructor(domHelper: DOMHelper) {
+    super(domHelper);
+    this.ssrEnabled = true;
   }
 
-  // Apply props if provided
-  if (props) {
-    Object.assign(component, props);
-  }
-
-  // Create temporary container
-  const container = document.createElement('div');
-  await component.render(container);
-
-  return container.innerHTML;
-}
-
-/**
- * Hydrates a component on the client side.
- */
-export async function hydrateComponent(
-  component: Component,
-  container: HTMLElement,
-  props?: Record<string, unknown>,
-  options: SSROptions = {}
-): Promise<void> {
-  if (options.hydration === 'client-only') {
-    await component.render(container);
-    return;
-  }
-
-  // Apply props if provided
-  if (props) {
-    Object.assign(component, props);
-  }
-
-  if (options.hydration === 'progressive') {
-    // Use requestIdleCallback for progressive hydration
-    if ('requestIdleCallback' in window) {
-      window.requestIdleCallback(() => component.render(container));
-    } else {
-      setTimeout(() => component.render(container), 0);
+  async renderToString(): Promise<string> {
+    if (!this.element) {
+      this.element = this.domHelper.createElement('div');
+      if (this.id) {
+        this.element.id = this.id;
+      }
+      await this.createDom();
     }
-  } else {
-    await component.render(container);
+    return this.element.outerHTML;
+  }
+
+  async hydrate(container?: HTMLElement): Promise<void> {
+    if (!this.ssrEnabled) {
+      throw new Error('SSR not enabled for this component');
+    }
+    if (container) {
+      this.element = container.firstElementChild as HTMLElement;
+      if (!this.element) {
+        throw new Error('No element found for hydration');
+      }
+    } else if (this.id) {
+      const element = this.domHelper.getElementById(this.id);
+      if (element) {
+        this.element = element as HTMLElement;
+      }
+    }
+    await this.createDom();
+    this.emit(EventType.STATECHANGE);
   }
 }
