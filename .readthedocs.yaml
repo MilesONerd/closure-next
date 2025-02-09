@@ -4,9 +4,15 @@ build:
   os: ubuntu-20.04
 
   tools:
-    mkdocs: "1.2"  
+    python: "3.10"  
 
-commands:
-  - mkdocs build 
+python:
+  install:
+    - requirements: docs/requirements.txt 
 
-sphinx: false 
+sphinx:
+  configuration: false  
+
+mkdocs:
+  configuration: mkdocs.yml  
+
