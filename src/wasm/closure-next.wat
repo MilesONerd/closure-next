@@ -12,45 +12,49 @@
     (block $outer_done
       (loop $outer
         (local.set $j (i32.const 0))
+        (drop)  ;; Drop the i32 result from local.set
         
         ;; Inner loop
         (block $inner_done
           (loop $inner
-            (br_if $inner_done 
-              (i32.ge_u (local.get $j) 
-                (i32.sub (local.get $len) (i32.const 1))))
-            
-            ;; Compare adjacent elements
-            (if (f64.gt 
-                (f64.load (i32.add (local.get $ptr) 
-                  (i32.mul (local.get $j) (i32.const 8))))
-                (f64.load (i32.add (local.get $ptr)
-                  (i32.mul (i32.add (local.get $j) (i32.const 1)) 
-                    (i32.const 8)))))
+            (if (i32.lt_u (local.get $j) 
+                (i32.sub (local.get $len) (i32.const 1)))
               (then
-                ;; Swap elements
-                (local.set $temp 
-                  (f64.load (i32.add (local.get $ptr)
-                    (i32.mul (local.get $j) (i32.const 8)))))
-                (f64.store 
-                  (i32.add (local.get $ptr)
-                    (i32.mul (local.get $j) (i32.const 8)))
-                  (f64.load (i32.add (local.get $ptr)
-                    (i32.mul (i32.add (local.get $j) (i32.const 1))
-                      (i32.const 8)))))
-                (f64.store
-                  (i32.add (local.get $ptr)
-                    (i32.mul (i32.add (local.get $j) (i32.const 1))
-                      (i32.const 8)))
-                  (local.get $temp))
+                ;; Compare adjacent elements
+                (if (f64.gt 
+                    (f64.load (i32.add (local.get $ptr) 
+                      (i32.mul (local.get $j) (i32.const 8))))
+                    (f64.load (i32.add (local.get $ptr)
+                      (i32.mul (i32.add (local.get $j) (i32.const 1)) 
+                        (i32.const 8)))))
+                  (then
+                    ;; Swap elements
+                    (local.set $temp 
+                      (f64.load (i32.add (local.get $ptr)
+                        (i32.mul (local.get $j) (i32.const 8)))))
+                    (f64.store 
+                      (i32.add (local.get $ptr)
+                        (i32.mul (local.get $j) (i32.const 8)))
+                      (f64.load (i32.add (local.get $ptr)
+                        (i32.mul (i32.add (local.get $j) (i32.const 1))
+                          (i32.const 8)))))
+                    (f64.store
+                      (i32.add (local.get $ptr)
+                        (i32.mul (i32.add (local.get $j) (i32.const 1))
+                          (i32.const 8)))
+                      (local.get $temp))
+                  )
+                )
+                (local.set $j (i32.add (local.get $j) (i32.const 1)))
+                (drop)  ;; Drop the i32 result from local.set
+                (br $inner)
               )
             )
-            (local.set $j (i32.add (local.get $j) (i32.const 1)))
-            (br $inner)
           )
         )
         
         (local.set $i (i32.add (local.get $i) (i32.const 1)))
+        (drop)  ;; Drop the i32 result from local.set
         (br_if $outer_done (i32.ge_u (local.get $i) (local.get $len)))
         (br $outer)
       )
@@ -143,6 +147,7 @@
         )
         
         (local.set $i (i32.add (local.get $i) (i32.const 1)))
+        (drop)  ;; Drop the i32 result from local.set
         (br $compare)
       )
     )
@@ -181,7 +186,8 @@
               (i32.add (local.get $outPtr) (local.get $bytesWritten))
               (local.get $char))
             (local.set $bytesWritten 
-              (i32.add (local.get $bytesWritten) (i32.const 1))))
+              (i32.add (local.get $bytesWritten) (i32.const 1)))
+            (drop))  ;; Drop the i32 result from local.set
           (else
             ;; Multi-byte character (simplified)
             (i32.store8
@@ -196,10 +202,12 @@
                 (i32.const 0x80)
                 (i32.and (local.get $char) (i32.const 0x3F))))
             (local.set $bytesWritten 
-              (i32.add (local.get $bytesWritten) (i32.const 2))))
+              (i32.add (local.get $bytesWritten) (i32.const 2)))
+            (drop))  ;; Drop the i32 result from local.set
         )
         
         (local.set $i (i32.add (local.get $i) (i32.const 1)))
+        (drop)  ;; Drop the i32 result from local.set
         (br $encode)
       )
     )
