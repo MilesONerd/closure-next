@@ -3,51 +3,59 @@
   (memory 128)
   (export "memory" (memory 0))
 
+  ;; Function declarations
+  (type $get_element_type (func (param i32 i32) (result f64)))
+  (type $set_element_type (func (param i32 i32 f64)))
+  (type $swap_elements_type (func (param i32 i32 i32)))
+  (type $partition_type (func (param i32 i32 i32) (result i32)))
+  (type $quicksort_type (func (param i32 i32 i32)))
+  (type $array_sort_type (func (param i32 i32)))
+
   ;; Helper function to get array element at index
-  (func $getElement (param $ptr i32) (param $index i32) (result f64)
-    (f64.load (i32.add (local.get $ptr) 
-      (i32.mul (local.get $index) (i32.const 8)))))
+  (func $getElement (type $get_element_type)
+    (f64.load (i32.add (local.get 0) 
+      (i32.mul (local.get 1) (i32.const 8)))))
 
   ;; Helper function to set array element at index
-  (func $setElement (param $ptr i32) (param $index i32) (param $value f64)
+  (func $setElement (type $set_element_type)
     (f64.store 
-      (i32.add (local.get $ptr) 
-        (i32.mul (local.get $index) (i32.const 8)))
-      (local.get $value)))
+      (i32.add (local.get 0) 
+        (i32.mul (local.get 1) (i32.const 8)))
+      (local.get 2)))
 
   ;; Helper function to swap elements
-  (func $swapElements (param $ptr i32) (param $i i32) (param $j i32)
+  (func $swapElements (type $swap_elements_type)
     (local $temp f64)
-    (local.set $temp (call $getElement (local.get $ptr) (local.get $i)))
+    (local.set $temp (call $getElement (local.get 0) (local.get 1)))
     (call $setElement 
-      (local.get $ptr) 
-      (local.get $i) 
-      (call $getElement (local.get $ptr) (local.get $j)))
-    (call $setElement (local.get $ptr) (local.get $j) (local.get $temp)))
+      (local.get 0) 
+      (local.get 1) 
+      (call $getElement (local.get 0) (local.get 2)))
+    (call $setElement (local.get 0) (local.get 2) (local.get $temp)))
 
   ;; Partition function for quicksort
-  (func $partition (param $ptr i32) (param $low i32) (param $high i32) (result i32)
+  (func $partition (type $partition_type)
     (local $pivot f64)
     (local $i i32)
     (local $j i32)
     
     ;; Use last element as pivot
-    (local.set $pivot (call $getElement (local.get $ptr) (local.get $high)))
-    (local.set $i (i32.sub (local.get $low) (i32.const 1)))
+    (local.set $pivot (call $getElement (local.get 0) (local.get 2)))
+    (local.set $i (i32.sub (local.get 1) (i32.const 1)))
     
     ;; Partition array around pivot
-    (local.set $j (local.get $low))
+    (local.set $j (local.get 1))
     (block $partition_done
       (loop $partition_loop
-        (br_if $partition_done (i32.ge_s (local.get $j) (local.get $high)))
+        (br_if $partition_done (i32.ge_s (local.get $j) (local.get 2)))
         
         (if (f64.le 
-              (call $getElement (local.get $ptr) (local.get $j))
+              (call $getElement (local.get 0) (local.get $j))
               (local.get $pivot))
           (then
             (local.set $i (i32.add (local.get $i) (i32.const 1)))
             (call $swapElements 
-              (local.get $ptr) 
+              (local.get 0) 
               (local.get $i) 
               (local.get $j))))
         
@@ -56,32 +64,32 @@
     
     ;; Place pivot in correct position
     (local.set $i (i32.add (local.get $i) (i32.const 1)))
-    (call $swapElements (local.get $ptr) (local.get $i) (local.get $high))
+    (call $swapElements (local.get 0) (local.get $i) (local.get 2))
     (local.get $i))
 
   ;; Quicksort implementation
-  (func $quicksort (param $ptr i32) (param $low i32) (param $high i32)
+  (func $quicksort (type $quicksort_type)
     (local $pi i32)
-    (if (i32.lt_s (local.get $low) (local.get $high))
+    (if (i32.lt_s (local.get 1) (local.get 2))
       (then
         ;; Get partition index
         (local.set $pi 
           (call $partition 
-            (local.get $ptr) 
-            (local.get $low) 
-            (local.get $high)))
+            (local.get 0) 
+            (local.get 1) 
+            (local.get 2)))
         
         ;; Sort left partition
         (call $quicksort 
-          (local.get $ptr) 
-          (local.get $low) 
+          (local.get 0) 
+          (local.get 1) 
           (i32.sub (local.get $pi) (i32.const 1)))
         
         ;; Sort right partition
         (call $quicksort 
-          (local.get $ptr) 
+          (local.get 0) 
           (i32.add (local.get $pi) (i32.const 1)) 
-          (local.get $high)))))
+          (local.get 2)))))
 
   ;; Main array sort function (using quicksort)
   (func $arraySort (param $ptr i32) (param $len i32)

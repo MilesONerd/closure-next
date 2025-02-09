@@ -1,6 +1,6 @@
 import { initWasm, wasmSort, wasmBinarySearch, wasmStringCompare, wasmStringEncode } from '../src/index.js';
 import { describe, test, expect, beforeAll, jest } from '@jest/globals';
-import type { WasmExports } from '../src/index.js';
+import { WasmExports } from '../src/index.js';
 import { mockWasmModule } from './mockWasm.js';
 
 describe('WebAssembly Integration', () => {
