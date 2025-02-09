@@ -1,39 +1,33 @@
-/**
- * @fileoverview Enhanced event handling for Closure Next components.
- * @license Apache-2.0
- */
-
 import type { ComponentEventMap, EventHandler } from './types';
-import { Component } from './component';
 
 export class EventTarget {
-  protected readonly listeners: Map<string, Set<EventHandler>> = new Map();
+  protected readonly listeners: Map<keyof ComponentEventMap, Set<EventHandler>> = new Map();
 
   public addEventListener<K extends keyof ComponentEventMap>(
     type: K,
     listener: EventHandler<ComponentEventMap[K]>
   ): void {
-    if (!this.listeners.has(type as string)) {
-      this.listeners.set(type as string, new Set());
+    if (!this.listeners.has(type)) {
+      this.listeners.set(type, new Set());
     }
-    this.listeners.get(type as string)!.add(listener as EventHandler);
+    this.listeners.get(type)!.add(listener as EventHandler);
   }
 
   public removeEventListener<K extends keyof ComponentEventMap>(
     type: K,
     listener: EventHandler<ComponentEventMap[K]>
   ): void {
-    const listeners = this.listeners.get(type as string);
+    const listeners = this.listeners.get(type);
     if (listeners) {
       listeners.delete(listener as EventHandler);
       if (listeners.size === 0) {
-        this.listeners.delete(type as string);
+        this.listeners.delete(type);
       }
     }
   }
 
   public dispatchEvent(event: Event): boolean {
-    const typeListeners = this.listeners.get(event.type);
+    const typeListeners = this.listeners.get(event.type as keyof ComponentEventMap);
     let defaultPrevented = event.defaultPrevented;
 
     if (typeListeners) {
@@ -41,7 +35,7 @@ export class EventTarget {
       for (const listener of listeners) {
         try {
           const listenerEvent = this.cloneEvent(event);
-          listener.call(this as unknown as Component, listenerEvent);
+          listener.call(this, listenerEvent);
           if (listenerEvent.defaultPrevented) {
             defaultPrevented = true;
           }

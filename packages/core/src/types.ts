@@ -1,10 +1,4 @@
-/**
- * @fileoverview Type definitions for Closure Next core functionality.
- * @license Apache-2.0
- */
-
 import { Component } from './component';
-import { DomHelper } from './dom';
 
 /**
  * Generic component props type
@@ -18,20 +12,6 @@ export interface ComponentProps<T = unknown> {
  */
 export interface ComponentStateInterface<T = unknown> {
   [key: string]: T;
-}
-
-/**
- * Component state flags
- */
-export interface ComponentStateFlags {
-  readonly ALL: 0xFF;
-  readonly DISABLED: 0x01;
-  readonly HOVER: 0x02;
-  readonly ACTIVE: 0x04;
-  readonly SELECTED: 0x08;
-  readonly CHECKED: 0x10;
-  readonly FOCUSED: 0x20;
-  readonly OPENED: 0x40;
 }
 
 /**
@@ -68,11 +48,6 @@ export interface ComponentEventMap {
 }
 
 /**
- * Component constructor type
- */
-export type ComponentConstructor<T extends Component = Component> = new (domHelper?: DomHelper) => T;
-
-/**
  * Component interface
  */
 export interface ComponentInterface {
@@ -96,13 +71,4 @@ export interface ComponentInterface {
     listener: EventHandler<ComponentEventMap[K]>
   ): void;
   dispatchEvent(event: Event): boolean;
-}
-
-/**
- * Server-side rendering options
- */
-export interface SSROptions {
-  hydration?: 'client-only' | 'server-first' | 'progressive';
-  ssr?: boolean;
-  state?: Record<string, unknown>;
 }
