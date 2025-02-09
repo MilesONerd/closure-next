@@ -21,9 +21,9 @@ export class MobileComponent<T extends Component = Component> {
     return this.wrappedComponent.getElement();
   }
 
-  public render(container: HTMLElement): void {
+  public async render(container: HTMLElement): Promise<void> {
     // Render the wrapped component
-    this.wrappedComponent.render(container);
+    await this.wrappedComponent.render(container);
     
     // Apply mobile enhancements after render
     const element = this.getElement();
