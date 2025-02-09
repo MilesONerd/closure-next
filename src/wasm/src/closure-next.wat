@@ -60,21 +60,20 @@
     
     ;; Store swapped values
     (f64.store (local.get $addr1) (local.get $val2))
-    (f64.store (local.get $addr2) (local.get $val1))
-    
-    ;; Return success
-    (i32.const 0))
+    (f64.store (local.get $addr2) (local.get $val1)))
 
   ;; Partition function for quicksort
   (func $partition (type $partition_type)
-    (local $pivot_val f64)
-    (local $curr_val f64)
     (local $i i32)
     (local $j i32)
-    (local $cmp i32)
+    (local $pivot_addr i32)
+    (local $curr_addr i32)
+    (local $pivot_val f64)
+    (local $curr_val f64)
     
-    ;; Load pivot value
-    (local.set $pivot_val (f64.load (call $calcAddr (local.get 0) (local.get 2))))
+    ;; Calculate pivot address and load value
+    (local.set $pivot_addr (call $calcAddr (local.get 0) (local.get 2)))
+    (local.set $pivot_val (f64.load (local.get $pivot_addr)))
     
     ;; Initialize indices
     (local.set $i (i32.sub (local.get 1) (i32.const 1)))
@@ -84,20 +83,21 @@
       (loop $partition_loop
         (br_if $partition_done (i32.ge_s (local.get $j) (local.get 2)))
         
-        ;; Load current value
-        (local.set $curr_val 
-          (f64.load (call $calcAddr (local.get 0) (local.get $j))))
+        ;; Calculate current address and load value
+        (local.set $curr_addr (call $calcAddr (local.get 0) (local.get $j)))
+        (local.set $curr_val (f64.load (local.get $curr_addr)))
         
         ;; Compare values
-        (local.set $cmp (call $compare (local.get $curr_val) (local.get $pivot_val)))
-        
-        (if (i32.le_s (local.get $cmp) (i32.const 0))
+        (if (f64.le (local.get $curr_val) (local.get $pivot_val))
           (then
             (local.set $i (i32.add (local.get $i) (i32.const 1)))
             (call $swapElements (local.get 0) (local.get $i) (local.get $j))))
         
         (local.set $j (i32.add (local.get $j) (i32.const 1)))
         (br $partition_loop)))
+    
+    ;; Return partition index
+    (i32.add (local.get $i) (i32.const 1)))
     
     ;; Place pivot in correct position
     (local.set $i (i32.add (local.get $i) (i32.const 1)))
@@ -142,10 +142,9 @@
     (local $left i32)
     (local $right i32)
     (local $mid i32)
+    (local $curr_addr i32)
     (local $curr_val f64)
     (local $target_val f64)
-    (local $addr i32)
-    (local $cmp i32)
     
     ;; Store target value
     (local.set $target_val (local.get 2))
@@ -166,17 +165,15 @@
             (i32.const 2)))
         
         ;; Calculate address and load value
-        (local.set $addr (call $calcAddr (local.get 0) (local.get $mid)))
-        (local.set $curr_val (f64.load (local.get $addr)))
+        (local.set $curr_addr (call $calcAddr (local.get 0) (local.get $mid)))
+        (local.set $curr_val (f64.load (local.get $curr_addr)))
         
         ;; Compare values
-        (local.set $cmp (call $compare (local.get $curr_val) (local.get $target_val)))
-        
-        (if (i32.eq (local.get $cmp) (i32.const 0))
+        (if (f64.eq (local.get $curr_val) (local.get $target_val))
           (then 
             (return (local.get $mid)))
           (else
-            (if (i32.lt_s (local.get $cmp) (i32.const 0))
+            (if (f64.lt (local.get $curr_val) (local.get $target_val))
               (then
                 (local.set $left 
                   (i32.add (local.get $mid) (i32.const 1))))
