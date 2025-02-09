@@ -1,132 +1,95 @@
-import { Component, ComponentState, ComponentInterface, ComponentStateType } from '../src/component';
-import { DomHelper } from '../src';
-import { describe, test, expect, jest, beforeEach, afterEach } from '@jest/globals';
+import { JSDOM } from 'jsdom';
+import { Component } from '../src/component';
+import { DOMHelper } from '../src/dom';
+import { EventType } from '../src/events';
+import type { ComponentInterface } from '../src/types';
 
-/**
- * Test component that extends the base Component class.
- * All public methods are inherited from Component.
- */
-class TestComponent extends Component implements ComponentInterface {
-  private state: ComponentStateType = ComponentState.ALL;
-  
-  constructor(domHelper?: DomHelper) {
+class TestComponent extends Component {
+  protected content: string;
+
+  constructor(domHelper: DOMHelper, content: string = 'Test Content') {
     super(domHelper);
-  }
-  
-  getState(): ComponentStateType {
-    return this.state;
-  }
-  
-  setState(state: ComponentStateType): void {
-    this.state = state;
+    this.content = content;
   }
 
-  public override createDom(): void {
-    if (!this.element) {
-      super.createDom();
-      const element = this.getElement();
-      if (element) {
-        element.setAttribute('data-testid', 'test-component');
-      }
+  protected override async createDom(): Promise<void> {
+    await super.createDom();
+    if (this.element) {
+      this.element.textContent = this.content;
     }
+  }
+
+  getContent(): string {
+    return this.content;
+  }
+
+  async setContent(content: string): Promise<void> {
+    this.content = content;
+    await this.setState({ content });
   }
 }
 
 describe('Component', () => {
-  let component: TestComponent;
-  let container: HTMLElement;
+  let jsdom: JSDOM;
+  let document: Document;
+  let domHelper: DOMHelper;
 
   beforeEach(() => {
-    container = document.createElement('div');
-    document.body.appendChild(container);
-    component = new TestComponent();
+    jsdom = new JSDOM('<!DOCTYPE html><html><body></body></html>');
+    document = jsdom.window.document;
+    domHelper = new DOMHelper(document);
+    (global as any).window = jsdom.window;
+    (global as any).document = document;
   });
 
-  afterEach(() => {
-    component.dispose();
-    container.remove();
+  test('creates element on render', async () => {
+    const component = new TestComponent(domHelper);
+    const container = domHelper.createElement('div');
+    await component.render(container);
+    expect(container.textContent).toBe('Test Content');
   });
 
-  test('should render into container', () => {
-    component.render(container);
-    expect(component.getElement()).not.toBeNull();
-    expect(component.isInDocument()).toBe(true);
+  test('handles state management', async () => {
+    const component = new TestComponent(domHelper);
+    const container = domHelper.createElement('div');
+    await component.render(container);
+
+    const stateListener = jest.fn();
+    component.addEventListener(EventType.STATECHANGE, stateListener);
+
+    await component.setState({ content: 'Updated Content' });
+    expect(stateListener).toHaveBeenCalled();
+    expect(component.getState()).toEqual({ content: 'Updated Content' });
   });
 
-  test('should handle state changes', () => {
-    component.setState(ComponentState.ACTIVE);
-    expect(component.getState()).toBe(ComponentState.ACTIVE);
+  test('manages parent-child relationships', async () => {
+    const parent = new TestComponent(domHelper);
+    const child = new TestComponent(domHelper);
+    parent.addChild(child);
+
+    expect(child.getParent()).toBe(parent);
+    expect(parent.getChildren()).toContain(child);
+
+    parent.removeChild(child);
+    expect(child.getParent()).toBeNull();
+    expect(parent.getChildren()).not.toContain(child);
   });
 
-  test('should handle events', () => {
-    const handler = jest.fn();
-    
-    // First render the component
-    component.render(container);
-    expect(component.getElement()).not.toBeNull();
-    expect(component.isInDocument()).toBe(true);
-    
-    // Then add the event listener
-    component.addEventListener('click', handler);
-    
-    // Create and dispatch the event
-    const event = new CustomEvent('click', {
-      bubbles: true,
-      cancelable: true,
-      detail: { clicked: true }
-    });
-    component.dispatchEvent(event);
-    
-    // Verify the handler was called
-    expect(handler).toHaveBeenCalled();
-    expect(handler).toHaveBeenCalledWith(expect.any(Event));
-  });
+  test('handles component disposal', async () => {
+    const component = new TestComponent(domHelper);
+    const container = domHelper.createElement('div');
+    await component.render(container);
 
-  test('should clean up on dispose', () => {
-    component.render(container);
-    const element = component.getElement();
-    
     component.dispose();
     expect(component.getElement()).toBeNull();
-    expect(element?.isConnected).toBe(false);
   });
 
-  test('should handle parent-child relationships', () => {
-    const parent = new TestComponent();
-    const child = new TestComponent();
-    
-    // First render parent
-    parent.render(container);
-    expect(parent.getElement()).not.toBeNull();
-    expect(parent.isInDocument()).toBe(true);
-    
-    // Then add child
-    parent.addChild(child);
-    expect(child.getParent()).toBe(parent);
-    expect(child.getElement()).not.toBeNull();
-    
-    // Now render parent which should also render child
-    parent.render(container);
-    expect(parent.isInDocument()).toBe(true);
-    expect(parent.getElement()!.isConnected).toBe(true);
-    
-    // Verify child state
-    const childElement = child.getElement();
-    expect(childElement).not.toBeNull();
-    expect(childElement!.parentElement).toBe(parent.getElement());
-    expect(child.isInDocument()).toBe(true);
-    expect(childElement!.isConnected).toBe(true);
-    
-    // Dispose parent
-    parent.dispose();
-    
-    // Verify parent cleanup
-    expect(parent.getElement()).toBeNull();
-    expect(parent.isInDocument()).toBe(false);
-    
-    // Verify child cleanup
-    expect(child.getParent()).toBeNull();
-    expect(child.getElement()).toBeNull();
-    expect(child.isInDocument()).toBe(false);
+  test('manages component ID', async () => {
+    const component = new TestComponent(domHelper);
+    component.setId('test-id');
+    await component.render(domHelper.createElement('div'));
+
+    expect(component.getId()).toBe('test-id');
+    expect(component.getElement()?.id).toBe('test-id');
   });
 });

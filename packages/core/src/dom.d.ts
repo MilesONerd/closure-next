@@ -1,48 +1,23 @@
 /**
- * @fileoverview DOM helper utilities for Closure Next.
+ * @fileoverview DOM helper implementation for Closure Next.
  * @license Apache-2.0
  */
-/**
- * Helper class for DOM manipulation
- */
-export declare class DomHelper {
-    private readonly document;
-    constructor(opt_document?: Document);
-    /**
-     * Creates an element
-     */
+export declare class DOMHelper {
+    private document;
+    constructor(document?: Document);
     createElement(tagName: string): HTMLElement;
-    /**
-     * Gets an element by ID
-     */
-    getElement(id: string): HTMLElement | null;
-    /**
-     * Gets elements by class name
-     */
-    getElementsByClass(className: string, opt_element?: HTMLElement): HTMLElement[];
-    /**
-     * Gets the first element with the given class name
-     */
-    getElementByClass(className: string, opt_element?: HTMLElement): HTMLElement | null;
-    /**
-     * Removes an element from its parent
-     */
-    removeNode(element: HTMLElement): void;
-    /**
-     * Appends a child element
-     */
-    appendChild(parent: HTMLElement, child: HTMLElement): void;
-    /**
-     * Adds an event listener to an element
-     */
-    addEventListener(element: HTMLElement, type: string, listener: (evt: Event) => void, useCapture?: boolean): void;
-    /**
-     * Removes an event listener from an element
-     */
-    removeEventListener(element: HTMLElement, type: string, listener: (evt: Event) => void, useCapture?: boolean): void;
-    /**
-     * Returns the document object being used
-     */
-    getDocument(): Document;
+    createTextNode(text: string): Text;
+    getElementById(id: string): Element | null;
+    getElementsByTagName(tagName: string): HTMLCollectionOf<Element>;
+    getElementsByClassName(className: string): HTMLCollectionOf<Element>;
+    querySelector(selector: string): Element | null;
+    querySelectorAll(selector: string): NodeListOf<Element>;
+    setAttribute(element: Element, name: string, value: string): void;
+    getAttribute(element: Element, name: string): string | null;
+    removeAttribute(element: Element, name: string): void;
+    appendChild(parent: Node, child: Node): void;
+    removeChild(parent: Node, child: Node): void;
+    insertBefore(parent: Node, newNode: Node, referenceNode: Node | null): void;
+    replaceChild(parent: Node, newChild: Node, oldChild: Node): void;
 }
 //# sourceMappingURL=dom.d.ts.map

@@ -1,32 +1,31 @@
-import { DomHelper } from './dom';
+/**
+ * @fileoverview Component implementation for Closure Next.
+ * @license Apache-2.0
+ */
+import { DOMHelper } from './dom';
 import { EventTarget } from './events';
-import { ComponentStateFlags } from './types';
-import type { ComponentProps, ComponentStateInterface } from './types';
-export declare class Component<P extends ComponentProps = ComponentProps, S extends ComponentStateInterface = ComponentStateInterface> extends EventTarget {
-    protected readonly domHelper: DomHelper;
-    protected stateFlags: ComponentStateFlags;
+import type { ComponentInterface, ComponentState } from './types';
+export declare class Component extends EventTarget implements ComponentInterface {
+    protected domHelper: DOMHelper;
     protected element: HTMLElement | null;
-    protected children: Component[];
-    protected childIndex: number;
-    protected parent: Component | null;
-    protected props: P;
-    protected state: S;
-    constructor(domHelper: DomHelper);
+    protected id: string;
+    protected parent: ComponentInterface | null;
+    protected children: Set<ComponentInterface>;
+    protected state: ComponentState;
+    constructor(domHelper: DOMHelper);
     getId(): string;
     setId(id: string): void;
     getElement(): HTMLElement | null;
-    isInDocument(): boolean;
-    getParent(): Component | null;
-    render(opt_parentElement?: HTMLElement): void;
+    addChild(child: ComponentInterface): void;
+    removeChild(child: ComponentInterface): void;
+    getParent(): ComponentInterface | null;
+    getChildren(): ComponentInterface[];
+    getState(): ComponentState;
+    setState(state: ComponentState): Promise<void>;
+    protected createDom(): Promise<void>;
+    render(container: HTMLElement): Promise<void>;
+    renderToString(): Promise<string>;
+    hydrate(container?: HTMLElement): Promise<void>;
     dispose(): void;
-    enterDocument(): void;
-    exitDocument(): void;
-    addChild(child: Component): void;
-    removeChild(child: Component): void;
-    protected createDom(): void;
-    protected setState(state: Partial<S>): void;
-    protected getState(): S;
-    protected setProps(props: Partial<P>): void;
-    protected getProps(): P;
 }
 //# sourceMappingURL=component.d.ts.map

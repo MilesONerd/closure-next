@@ -1,92 +1,50 @@
 /**
- * Bundle optimization utilities
+ * @fileoverview Bundle implementation for Closure Next.
+ * @license Apache-2.0
  */
 
-export interface ChunkConfig {
-  name: string;
-  test: RegExp;
-  priority: number;
-}
+import { BundleInterface } from './types';
 
-export const defaultChunks: ChunkConfig[] = [
-  {
-    name: 'framework',
-    test: /[\\/]node_modules[\\/](react|vue|angular|svelte)[\\/]/,
-    priority: 40
-  },
-  {
-    name: 'core',
-    test: /[\\/]packages[\\/]core[\\/]/,
-    priority: 30
-  },
-  {
-    name: 'wasm',
-    test: /\.wasm$/,
-    priority: 20
-  },
-  {
-    name: 'vendor',
-    test: /[\\/]node_modules[\\/]/,
-    priority: 10
+export class Bundle implements BundleInterface {
+  private modules: Map<string, any>;
+  private loaded: boolean;
+
+  constructor() {
+    this.modules = new Map();
+    this.loaded = false;
   }
-];
 
-export interface BundleConfig {
-  chunks?: ChunkConfig[];
-  minChunkSize?: number;
-  maxAsyncRequests?: number;
-  maxInitialRequests?: number;
-}
-
-/**
- * Creates a webpack configuration for optimized bundling
- */
-export function createBundleConfig(config: BundleConfig = {}): any {
-  const {
-    chunks = defaultChunks,
-    minChunkSize = 20000,
-    maxAsyncRequests = 30,
-    maxInitialRequests = 30
-  } = config;
-
-  return {
-    optimization: {
-      splitChunks: {
-        chunks: 'all',
-        minSize: minChunkSize,
-        maxAsyncRequests,
-        maxInitialRequests,
-        cacheGroups: chunks.reduce((acc, chunk) => {
-          acc[chunk.name] = {
-            test: chunk.test,
-            priority: chunk.priority,
-            reuseExistingChunk: true
-          };
-          return acc;
-        }, {} as any)
-      }
+  async load(): Promise<void> {
+    if (this.loaded) {
+      return;
     }
-  };
-}
+    this.loaded = true;
+  }
 
-/**
- * Creates a rollup configuration for optimized bundling
- */
-export function createRollupConfig(config: BundleConfig = {}): any {
-  const {
-    chunks = defaultChunks,
-    minChunkSize = 20000
-  } = config;
-
-  return {
-    output: {
-      manualChunks(id: string) {
-        for (const chunk of chunks) {
-          if (chunk.test.test(id)) {
-            return chunk.name;
-          }
-        }
-      }
+  async unload(): Promise<void> {
+    if (!this.loaded) {
+      return;
     }
-  };
+    this.modules.clear();
+    this.loaded = false;
+  }
+
+  isLoaded(): boolean {
+    return this.loaded;
+  }
+
+  async getModule<T>(name: string): Promise<T> {
+    if (!this.loaded) {
+      throw new Error('Bundle not loaded');
+    }
+    const module = this.modules.get(name);
+    if (!module) {
+      throw new Error(`Module ${name} not found`);
+    }
+    return module;
+  }
+
+  hasModule(name: string): boolean {
+    return this.modules.has(name);
+  }
 }

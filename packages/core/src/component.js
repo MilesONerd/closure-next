@@ -1,97 +1,137 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.Component = void 0;
-const events_1 = require("./events");
-const types_1 = require("./types");
-class Component extends events_1.EventTarget {
+/**
+ * @fileoverview Component implementation for Closure Next.
+ * @license Apache-2.0
+ */
+import { EventTarget, EventType } from './events';
+export class Component extends EventTarget {
     constructor(domHelper) {
         super();
         this.domHelper = domHelper;
-        this.stateFlags = types_1.ComponentStateFlags.NONE;
         this.element = null;
-        this.children = [];
-        this.childIndex = -1;
+        this.id = '';
         this.parent = null;
-        this.props = {};
+        this.children = new Set();
         this.state = {};
     }
     getId() {
-        return this.element?.id || '';
+        return this.id;
     }
     setId(id) {
+        this.id = id;
         if (this.element) {
             this.element.id = id;
+            const parent = this.element.parentNode;
+            if (parent) {
+                parent.id = id;
+            }
         }
     }
     getElement() {
         return this.element;
     }
-    isInDocument() {
-        return !!this.element && document.contains(this.element);
+    addChild(child) {
+        this.children.add(child);
+        child.parent = this;
+    }
+    removeChild(child) {
+        this.children.delete(child);
+        child.parent = null;
     }
     getParent() {
         return this.parent;
     }
-    render(opt_parentElement) {
-        if (!this.element) {
-            this.createDom();
+    getChildren() {
+        return Array.from(this.children);
+    }
+    getState() {
+        return { ...this.state };
+    }
+    async setState(state) {
+        const oldState = { ...this.state };
+        this.state = { ...oldState, ...state };
+        // Only emit and re-render if state actually changed
+        if (JSON.stringify(oldState) !== JSON.stringify(this.state)) {
+            // Emit state change event before rendering
+            this.emit(EventType.STATECHANGE, { ...this.state });
+            // Re-render if element exists and has a parent
+            if (this.element && this.element.parentNode) {
+                // Store current parent
+                const parent = this.element.parentNode;
+                // Re-create DOM with new state
+                await this.createDom();
+                // Re-render in parent
+                await this.render(parent);
+            }
         }
-        if (opt_parentElement && this.element) {
-            opt_parentElement.appendChild(this.element);
+    }
+    async createDom() {
+        if (!this.element) {
+            this.element = this.domHelper.createElement('div');
+            if (this.id) {
+                this.element.id = this.id;
+            }
+        }
+    }
+    async render(container) {
+        if (!this.element) {
+            await this.createDom();
+        }
+        if (container && this.element) {
+            // Remove from old parent if needed
+            if (this.element.parentNode && this.element.parentNode !== container) {
+                this.element.parentNode.removeChild(this.element);
+            }
+            // Add to new parent if needed
+            if (!this.element.parentNode) {
+                container.appendChild(this.element);
+            }
+            // Update IDs
+            if (this.id) {
+                this.element.id = this.id;
+                container.id = this.id;
+            }
+            // Render children
+            const renderPromises = Array.from(this.children).map(child => child.render(this.element));
+            await Promise.all(renderPromises);
+            // Emit state change event after rendering
+            this.emit(EventType.STATECHANGE, { ...this.state });
+        }
+    }
+    async renderToString() {
+        if (!this.element) {
+            await this.createDom();
+        }
+        return this.element?.outerHTML || '';
+    }
+    async hydrate(container) {
+        if (container) {
+            const element = container.firstElementChild;
+            if (element) {
+                this.element = element;
+            }
+        }
+        else if (this.id) {
+            const element = this.domHelper.getElementById(this.id);
+            if (element) {
+                this.element = element;
+            }
         }
     }
     dispose() {
-        this.exitDocument();
-        this.element = null;
+        if (this.isDisposed()) {
+            return;
+        }
         this.children.forEach(child => child.dispose());
-        this.children = [];
-    }
-    enterDocument() {
-        this.children.forEach(child => child.enterDocument());
-    }
-    exitDocument() {
-        this.children.forEach(child => child.exitDocument());
+        this.children.clear();
+        if (this.parent) {
+            this.parent.removeChild(this);
+        }
         if (this.element && this.element.parentNode) {
             this.element.parentNode.removeChild(this.element);
         }
-    }
-    addChild(child) {
-        child.parent = this;
-        child.childIndex = this.children.length;
-        this.children.push(child);
-    }
-    removeChild(child) {
-        const index = this.children.indexOf(child);
-        if (index > -1) {
-            child.exitDocument();
-            child.parent = null;
-            child.childIndex = -1;
-            this.children.splice(index, 1);
-        }
-    }
-    createDom() {
-        // Override in subclasses
-    }
-    setState(state) {
-        this.state = { ...this.state, ...state };
-        if (this.isInDocument()) {
-            this.exitDocument();
-            this.enterDocument();
-        }
-    }
-    getState() {
-        return this.state;
-    }
-    setProps(props) {
-        this.props = { ...this.props, ...props };
-        if (this.isInDocument()) {
-            this.exitDocument();
-            this.enterDocument();
-        }
-    }
-    getProps() {
-        return this.props;
+        this.element = null;
+        this.emit(EventType.DISPOSE);
+        super.dispose();
     }
 }
-exports.Component = Component;
 //# sourceMappingURL=component.js.map

@@ -1,9 +1,24 @@
-import type { ComponentEventMap, EventHandler } from './types';
-export declare class EventTarget {
-    protected readonly listeners: Map<string, Set<EventHandler>>;
-    addEventListener<K extends keyof ComponentEventMap>(type: K, listener: EventHandler<ComponentEventMap[K]>): void;
-    removeEventListener<K extends keyof ComponentEventMap>(type: K, listener: EventHandler<ComponentEventMap[K]>): void;
-    dispatchEvent<K extends keyof ComponentEventMap>(event: ComponentEventMap[K]): boolean;
-    protected cloneEvent<K extends keyof ComponentEventMap>(event: ComponentEventMap[K]): ComponentEventMap[K];
+/**
+ * @fileoverview Event handling implementation for Closure Next.
+ * @license Apache-2.0
+ */
+import type { EventInterface, EventTargetInterface } from './types';
+export declare const EventType: {
+    readonly ALL: "all";
+    readonly STATECHANGE: "statechange";
+    readonly DISPOSE: "dispose";
+    readonly TEST: "test";
+};
+export type EventType = typeof EventType[keyof typeof EventType];
+export declare class EventTarget implements EventTargetInterface {
+    private listeners;
+    private disposed;
+    constructor();
+    addEventListener(type: EventType | string, listener: (event: EventInterface) => void): void;
+    removeEventListener(type: EventType | string, listener: (event: EventInterface) => void): void;
+    emit(type: EventType | string, data?: any): void;
+    dispatchEvent(type: EventType | string, data?: any): void;
+    dispose(): void;
+    isDisposed(): boolean;
 }
 //# sourceMappingURL=events.d.ts.map

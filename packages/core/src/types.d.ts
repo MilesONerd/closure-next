@@ -1,91 +1,42 @@
-import { Component } from './component';
 /**
- * Component state flags
+ * @fileoverview Type definitions for Closure Next.
+ * @license Apache-2.0
  */
-export declare enum ComponentStateFlags {
-    NONE = 0,
-    DISABLED = 1,
-    HIDDEN = 2,
-    FOCUSED = 4,
-    ACTIVE = 8,
-    SELECTED = 16,
-    CHECKED = 32,
-    OPENED = 64,
-    HIGHLIGHTED = 128
+import { EventType } from './events';
+export interface EventInterface {
+    type: EventType | string;
+    target: EventTargetInterface;
+    data?: any;
 }
-/**
- * Generic component props type
- */
-export interface ComponentProps<T = unknown> {
-    [key: string]: T;
+export interface EventTargetInterface {
+    addEventListener(type: EventType | string, listener: (event: any) => void): void;
+    removeEventListener(type: EventType | string, listener: (event: any) => void): void;
+    dispatchEvent(type: EventType | string, event?: any): void;
+    emit(type: EventType | string, data?: any): void;
+    dispose(): void;
+    isDisposed(): boolean;
 }
-/**
- * Component state interface
- */
-export interface ComponentStateInterface<T = unknown> {
-    [key: string]: T;
+export interface ComponentState {
+    [key: string]: any;
 }
-/**
- * Event handler type with proper 'this' binding
- */
-export type EventHandler<T extends Event = Event> = (this: Component, event: T) => void;
-/**
- * Component event map for type-safe event handling
- */
-export interface ComponentEventMap {
-    beforeshow: CustomEvent<void>;
-    show: CustomEvent<void>;
-    hide: CustomEvent<void>;
-    disable: CustomEvent<void>;
-    enable: CustomEvent<void>;
-    highlight: CustomEvent<void>;
-    unhighlight: CustomEvent<void>;
-    activate: CustomEvent<void>;
-    deactivate: CustomEvent<void>;
-    select: CustomEvent<void>;
-    unselect: CustomEvent<void>;
-    check: CustomEvent<void>;
-    uncheck: CustomEvent<void>;
-    focus: FocusEvent;
-    blur: FocusEvent;
-    open: CustomEvent<void>;
-    close: CustomEvent<void>;
-    enter: CustomEvent<void>;
-    leave: CustomEvent<void>;
-    action: CustomEvent<unknown>;
-    change: CustomEvent<unknown>;
-    [key: string]: Event;
-}
-/**
- * Component interface
- */
-export interface ComponentInterface {
+export interface ComponentInterface extends EventTargetInterface {
     getId(): string;
     setId(id: string): void;
-    getElement(): HTMLElement | null;
-    isInDocument(): boolean;
-    getParent(): Component | null;
-    render(opt_parentElement?: HTMLElement): void;
-    dispose(): void;
-    enterDocument(): void;
-    exitDocument(): void;
-    addChild(child: Component): void;
-    removeChild(child: Component): void;
-    addEventListener<K extends keyof ComponentEventMap>(type: K, listener: EventHandler<ComponentEventMap[K]>): void;
-    removeEventListener<K extends keyof ComponentEventMap>(type: K, listener: EventHandler<ComponentEventMap[K]>): void;
-    dispatchEvent(event: Event): boolean;
+    addChild(child: ComponentInterface): void;
+    removeChild(child: ComponentInterface): void;
+    getParent(): ComponentInterface | null;
+    getChildren(): ComponentInterface[];
+    getState(): ComponentState;
+    setState(state: ComponentState): Promise<void>;
+    render(container: HTMLElement): Promise<void>;
+    renderToString(): Promise<string>;
+    hydrate(): Promise<void>;
 }
-/**
- * Component constructor type
- */
-export interface ComponentConstructor<T extends Component = Component> {
-    new (...args: any[]): T;
-}
-/**
- * SSR options interface
- */
-export interface SSROptions {
-    hydration?: 'client-only' | 'server-first' | 'progressive';
-    ssr?: boolean;
+export interface BundleInterface {
+    load(): Promise<void>;
+    unload(): Promise<void>;
+    isLoaded(): boolean;
+    getModule<T>(name: string): Promise<T>;
+    hasModule(name: string): boolean;
 }
 //# sourceMappingURL=types.d.ts.map

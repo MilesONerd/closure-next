@@ -1,10 +1,10 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.EventTarget = exports.DomHelper = exports.Component = void 0;
-var component_1 = require("./component");
-Object.defineProperty(exports, "Component", { enumerable: true, get: function () { return component_1.Component; } });
-var dom_1 = require("./dom");
-Object.defineProperty(exports, "DomHelper", { enumerable: true, get: function () { return dom_1.DomHelper; } });
-var events_1 = require("./events");
-Object.defineProperty(exports, "EventTarget", { enumerable: true, get: function () { return events_1.EventTarget; } });
+/**
+ * @fileoverview Entry point for Closure Next core package.
+ * @license Apache-2.0
+ */
+export { DOMHelper } from './dom';
+export { EventTarget, EventType } from './events';
+export { Component } from './component';
+export { Bundle } from './bundle';
+export { Lazy } from './lazy';
 //# sourceMappingURL=index.js.map
