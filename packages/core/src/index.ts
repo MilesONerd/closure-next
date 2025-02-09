@@ -1,29 +1,13 @@
-/**
- * @fileoverview Entry point for Closure Next core functionality.
- * @license Apache-2.0
- */
-
-// Export base classes and utilities
 export { Component } from './component';
 export { DomHelper } from './dom';
 export { EventTarget } from './events';
-export { IdGenerator } from './id';
-
-// Export component types and interfaces
-export { ComponentState } from './component';
-export type {
-  ComponentProps,
-  ComponentStateInterface,
-  ComponentStateFlags,
-  ComponentEventMap,
-  ComponentConstructor,
-  ComponentInterface,
-  EventHandler,
-  SSROptions
+export {
+  type ComponentProps,
+  type ComponentStateInterface,
+  type ComponentStateFlags,
+  type ComponentEventMap,
+  type EventHandler,
+  type ComponentInterface,
+  type ComponentConstructor,
+  type SSROptions
 } from './types';
-
-// Export SSR-specific utilities
-export { renderToString, hydrateComponent } from './server';
-
-// Export utility functions
-export * from './utils';
