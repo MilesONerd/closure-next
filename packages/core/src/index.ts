@@ -11,10 +11,18 @@ export { IdGenerator } from './id';
 
 // Export component types and interfaces
 export { ComponentState, ComponentEventType } from './component';
-export type { ComponentInterface, ComponentConstructor } from './component';
+export type {
+  ComponentProps,
+  ComponentStateType,
+  ComponentEventType as ComponentEventTypeEnum,
+  ComponentEventMap,
+  ComponentConstructor,
+  ComponentInterface,
+  EventHandler,
+  SSROptions
+} from './types';
 
-// Export SSR-specific types and utilities
-export type { SSROptions } from './server';
+// Export SSR-specific utilities
 export { renderToString, hydrateComponent } from './server';
 
 // Export utility functions

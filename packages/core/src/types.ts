@@ -13,31 +13,55 @@ export interface ComponentProps<T = unknown> {
 }
 
 /**
- * Generic component state type
+ * Component state type
  */
-export interface ComponentState<T = unknown> {
-  [key: string]: T;
-}
+export type ComponentStateType = {
+  ALL: 0xFF;
+  DISABLED: 0x01;
+  HOVER: 0x02;
+  ACTIVE: 0x04;
+  SELECTED: 0x08;
+  CHECKED: 0x10;
+  FOCUSED: 0x20;
+  OPENED: 0x40;
+};
+
+/**
+ * Component event type
+ */
+export type ComponentEventType = {
+  BEFORE_SHOW: 'beforeshow';
+  SHOW: 'show';
+  HIDE: 'hide';
+  DISABLE: 'disable';
+  ENABLE: 'enable';
+  HIGHLIGHT: 'highlight';
+  UNHIGHLIGHT: 'unhighlight';
+  ACTIVATE: 'activate';
+  DEACTIVATE: 'deactivate';
+  SELECT: 'select';
+  UNSELECT: 'unselect';
+  CHECK: 'check';
+  UNCHECK: 'uncheck';
+  FOCUS: 'focus';
+  BLUR: 'blur';
+  OPEN: 'open';
+  CLOSE: 'close';
+  ENTER: 'enter';
+  LEAVE: 'leave';
+  ACTION: 'action';
+  CHANGE: 'change';
+};
 
 /**
  * Event handler type with proper 'this' binding
  */
-export type EventHandler<T = Event> = (this: Component, event: T) => void;
+export type EventHandler<T extends Event = Event> = (this: Component, event: T) => void;
 
 /**
- * Component event options
+ * Component event map for type-safe event handling
  */
-export interface ComponentEventOptions {
-  bubbles?: boolean;
-  cancelable?: boolean;
-  composed?: boolean;
-  detail?: unknown;
-}
-
-/**
- * Component event types with proper typing
- */
-export type ComponentEventMap = {
+export interface ComponentEventMap {
   beforeshow: CustomEvent<void>;
   show: CustomEvent<void>;
   hide: CustomEvent<void>;
@@ -60,18 +84,37 @@ export type ComponentEventMap = {
   action: CustomEvent<unknown>;
   change: CustomEvent<unknown>;
   [key: string]: Event;
-};
+}
 
 /**
- * Component lifecycle hooks
+ * Component constructor type
  */
-export interface ComponentLifecycle {
-  onInit?(): void | Promise<void>;
-  onDestroy?(): void | Promise<void>;
-  onBeforeRender?(): void | Promise<void>;
-  onAfterRender?(): void | Promise<void>;
-  onEnterDocument?(): void | Promise<void>;
-  onExitDocument?(): void | Promise<void>;
+export type ComponentConstructor<T extends Component = Component> = new (domHelper?: DomHelper) => T;
+
+/**
+ * Component interface
+ */
+export interface ComponentInterface {
+  getId(): string;
+  setId(id: string): void;
+  getElement(): HTMLElement | null;
+  isInDocument(): boolean;
+  getParent(): Component | null;
+  render(opt_parentElement?: HTMLElement): void;
+  dispose(): void;
+  enterDocument(): void;
+  exitDocument(): void;
+  addChild(child: Component): void;
+  removeChild(child: Component): void;
+  addEventListener<K extends keyof ComponentEventMap>(
+    type: K,
+    listener: EventHandler<ComponentEventMap[K]>
+  ): void;
+  removeEventListener<K extends keyof ComponentEventMap>(
+    type: K,
+    listener: EventHandler<ComponentEventMap[K]>
+  ): void;
+  dispatchEvent(event: Event): boolean;
 }
 
 /**
