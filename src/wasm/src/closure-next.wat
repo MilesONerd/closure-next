@@ -17,6 +17,16 @@
   (type $get_attribute_type (func (param i32 i32 i32) (result i32)))
   (type $dispatch_event_type (func (param i32 i32 i32) (result i32)))
   (type $calc_addr_type (func (param i32 i32) (result i32)))
+  (type $compare_type (func (param f64 f64) (result i32)))
+
+  ;; Helper function to compare two f64 values
+  (func $compare (type $compare_type)
+    (if (f64.lt (local.get 0) (local.get 1))
+      (then (return (i32.const -1)))
+      (else
+        (if (f64.gt (local.get 0) (local.get 1))
+          (then (return (i32.const 1)))
+          (else (return (i32.const 0)))))))
 
   ;; Helper function to calculate array address
   (func $calcAddr (type $calc_addr_type)
@@ -50,7 +60,10 @@
     
     ;; Store swapped values
     (f64.store (local.get $addr1) (local.get $val2))
-    (f64.store (local.get $addr2) (local.get $val1)))
+    (f64.store (local.get $addr2) (local.get $val1))
+    
+    ;; Return success
+    (i32.const 0))
 
   ;; Partition function for quicksort
   (func $partition (type $partition_type)
@@ -58,6 +71,7 @@
     (local $curr_val f64)
     (local $i i32)
     (local $j i32)
+    (local $cmp i32)
     
     ;; Load pivot value
     (local.set $pivot_val (f64.load (call $calcAddr (local.get 0) (local.get 2))))
@@ -74,7 +88,10 @@
         (local.set $curr_val 
           (f64.load (call $calcAddr (local.get 0) (local.get $j))))
         
-        (if (f64.le (local.get $curr_val) (local.get $pivot_val))
+        ;; Compare values
+        (local.set $cmp (call $compare (local.get $curr_val) (local.get $pivot_val)))
+        
+        (if (i32.le_s (local.get $cmp) (i32.const 0))
           (then
             (local.set $i (i32.add (local.get $i) (i32.const 1)))
             (call $swapElements (local.get 0) (local.get $i) (local.get $j))))
@@ -128,6 +145,7 @@
     (local $curr_val f64)
     (local $target_val f64)
     (local $addr i32)
+    (local $cmp i32)
     
     ;; Store target value
     (local.set $target_val (local.get 2))
@@ -151,11 +169,14 @@
         (local.set $addr (call $calcAddr (local.get 0) (local.get $mid)))
         (local.set $curr_val (f64.load (local.get $addr)))
         
-        (if (f64.eq (local.get $curr_val) (local.get $target_val))
+        ;; Compare values
+        (local.set $cmp (call $compare (local.get $curr_val) (local.get $target_val)))
+        
+        (if (i32.eq (local.get $cmp) (i32.const 0))
           (then 
             (return (local.get $mid)))
           (else
-            (if (f64.lt (local.get $curr_val) (local.get $target_val))
+            (if (i32.lt_s (local.get $cmp) (i32.const 0))
               (then
                 (local.set $left 
                   (i32.add (local.get $mid) (i32.const 1))))
