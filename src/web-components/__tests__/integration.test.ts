@@ -1,9 +1,9 @@
 import { jest, expect, beforeEach, afterEach } from '@jest/globals';
-import { Component, DomHelper } from '@closure-next/core';
+import { Component, DOMHelper, type EventInterface } from '@closure-next/core';
 import { defineClosureElement, createClosureTemplate } from '../index.js';
 
 // Import DomHelper from core package
-const domHelper = new DomHelper(document);
+const domHelper = new DOMHelper(document);
 import '@testing-library/jest-dom';
 
 // Increase test timeout
@@ -33,7 +33,7 @@ class TestComponent extends Component {
     return this.title;
   }
 
-  public override createDom(): void {
+  protected override async createDom(): Promise<void> {
     if (!this.element) {
       super.createDom();
       const element = this.getElement();
@@ -49,12 +49,9 @@ class TestComponent extends Component {
     return super.getElement();
   }
 
-  public override isInDocument(): boolean {
-    return super.isInDocument();
-  }
-
   public override getParent(): Component | null {
-    return super.getParent();
+    const parent = super.getParent();
+    return parent as Component | null;
   }
 
   public override getId(): string {
@@ -65,20 +62,20 @@ class TestComponent extends Component {
     super.setId(id);
   }
 
-  public override render(opt_parentElement?: HTMLElement): void {
-    super.render(opt_parentElement);
+  public override async render(container: HTMLElement): Promise<void> {
+    await super.render(container);
   }
 
   public override dispose(): void {
     super.dispose();
   }
 
-  public override enterDocument(): void {
-    super.enterDocument();
+  protected async onEnterDocument(): Promise<void> {
+    // Implementation will be provided by derived classes
   }
 
-  public override exitDocument(): void {
-    super.exitDocument();
+  protected async onExitDocument(): Promise<void> {
+    // Implementation will be provided by derived classes
   }
 
   public override addChild(child: Component): void {
@@ -89,16 +86,16 @@ class TestComponent extends Component {
     super.removeChild(child);
   }
 
-  public override addEventListener(type: string, listener: (this: unknown, evt: Event) => void): void {
+  public override addEventListener(type: string, listener: (event: EventInterface) => void): void {
     super.addEventListener(type, listener);
   }
 
-  public override removeEventListener(type: string, listener: (this: unknown, evt: Event) => void): void {
+  public override removeEventListener(type: string, listener: (event: EventInterface) => void): void {
     super.removeEventListener(type, listener);
   }
 
-  public override dispatchEvent(event: Event): boolean {
-    return super.dispatchEvent(event);
+  public override dispatchEvent(type: string, data?: any): void {
+    super.dispatchEvent(type, data);
   }
 }
 
