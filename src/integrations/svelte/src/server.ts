@@ -1,99 +1,50 @@
-/**
- * @fileoverview Server-side rendering support for Svelte integration.
- * @license Apache-2.0
- */
+import { Component, DOMHelper } from '@closure-next/core';
+import type { ComponentInterface } from '@closure-next/core';
 
-import { Component, renderToString, hydrateComponent, type SSROptions } from '@closure-next/core';
-import type { ComponentType } from 'svelte';
+export class ServerComponent extends Component implements ComponentInterface {
+  private ssrEnabled: boolean = true;
 
-/**
- * Renders a Closure Next component to string for server-side rendering.
- */
-export async function renderClosureComponent<T extends Component>(
-  ComponentClass: new () => T,
-  props: Record<string, unknown> = {},
-  options: SSROptions = {}
-): Promise<string> {
-  const instance = new ComponentClass();
-  Object.assign(instance, props);
-  return renderToString(instance, props, options);
-}
+  constructor(domHelper: DOMHelper) {
+    super(domHelper);
+  }
 
-/**
- * Hydrates a Closure Next component on the client side.
- */
-export async function hydrateClosureComponent<T extends Component>(
-  ComponentClass: new () => T,
-  container: HTMLElement,
-  props: Record<string, unknown> = {},
-  options: SSROptions = {}
-): Promise<void> {
-  const instance = new ComponentClass();
-  Object.assign(instance, props);
-  await hydrateComponent(instance, container, props, options);
-}
+  async renderToString(): Promise<string> {
+    if (!this.ssrEnabled) {
+      throw new Error('SSR not enabled for this component');
+    }
+    if (!this.element) {
+      await this.createDom();
+    }
+    return this.element?.outerHTML || '';
+  }
 
-/**
- * Creates a Svelte component that wraps a Closure Next component with SSR support.
- */
-export function createSSRComponent<T extends Component>(
-  ComponentClass: new () => T,
-  options: SSROptions = {}
-): ComponentType {
-  return class SSRWrapper {
-    private instance: T | null = null;
-    private container: HTMLElement | null = null;
-
-    constructor(options: { target: HTMLElement; props?: Record<string, unknown> }) {
-      this.container = options.target;
-      this.instance = new ComponentClass();
-
-      if (options.props) {
-        Object.assign(this.instance, options.props);
+  async hydrate(container?: HTMLElement): Promise<void> {
+    if (!this.ssrEnabled) {
+      throw new Error('SSR not enabled for this component');
+    }
+    if (container) {
+      this.element = container.firstElementChild as HTMLElement;
+      if (!this.element) {
+        throw new Error('No element found for hydration');
       }
-
-      // Store reference to Closure component
-      Object.defineProperty(this.container, '_closureComponent', {
-        value: this.instance,
-        configurable: true,
-        enumerable: false
-      });
-
-      // Handle hydration based on options
-      if (options.hydration === 'progressive') {
-        if ('requestIdleCallback' in window) {
-          window.requestIdleCallback(() => this.hydrate());
-        } else {
-          setTimeout(() => this.hydrate(), 0);
-        }
-      } else if (options.hydration !== 'client-only') {
-        this.hydrate();
-      } else {
-        this.instance.render(this.container);
+    } else if (this.id) {
+      const element = this.domHelper.getElementById(this.id);
+      if (element) {
+        this.element = element as HTMLElement;
       }
     }
+    await this.createDom();
+  }
 
-    private async hydrate(): Promise<void> {
-      if (this.instance && this.container) {
-        await hydrateClosureComponent(
-          ComponentClass,
-          this.container,
-          {},
-          options
-        );
-      }
-    }
+  enableSSR(): void {
+    this.ssrEnabled = true;
+  }
 
-    $destroy() {
-      if (this.instance) {
-        this.instance.dispose();
-        this.instance = null;
-      }
+  disableSSR(): void {
+    this.ssrEnabled = false;
+  }
 
-      if (this.container) {
-        delete (this.container as any)._closureComponent;
-        this.container = null;
-      }
-    }
-  };
+  isSSREnabled(): boolean {
+    return this.ssrEnabled;
+  }
 }
