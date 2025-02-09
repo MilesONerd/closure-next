@@ -1,13 +1,31 @@
-export { Component } from './component';
-export { DomHelper } from './dom';
-export { EventTarget } from './events';
-export {
-  type ComponentProps,
-  type ComponentStateInterface,
-  type ComponentStateFlags,
-  type ComponentEventMap,
-  type EventHandler,
-  type ComponentInterface,
-  type ComponentConstructor,
-  type SSROptions
+export * from './component';
+export * from './dom';
+export * from './events';
+export * from './types';
+export * from './lazy';
+export * from './cache';
+export * from './bundle';
+
+// Re-export commonly used types and utilities
+export type {
+  Component,
+  ComponentProps,
+  DomHelper,
+  EventHandler,
+  LazyLoadOptions,
+  ModuleCache,
+  Cache,
+  ComponentPool,
+  ResourcePreloader,
+  ChunkConfig,
+  BundleConfig
 } from './types';
+
+export {
+  globalCache,
+  globalComponentPool,
+  globalResourcePreloader,
+  defaultChunks,
+  createBundleConfig,
+  createRollupConfig
+} from './cache';
