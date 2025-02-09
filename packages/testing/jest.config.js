@@ -4,8 +4,7 @@ module.exports = {
   testEnvironment: 'jsdom',
   transform: {
     '^.+\\.tsx?$': ['ts-jest', {
-      tsconfig: 'tsconfig.test.json',
-      useESM: true
+      tsconfig: 'tsconfig.test.json'
     }]
   },
   moduleNameMapper: {
@@ -14,6 +13,5 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   transformIgnorePatterns: [
     'node_modules/(?!(@closure-next)/)'
-  ],
-  extensionsToTreatAsEsm: ['.ts', '.tsx']
+  ]
 };

@@ -1,4 +1,4 @@
-import { Component } from '@closure-next/core';
+import { Component, DomHelper } from '@closure-next/core';
 import { createTestComponent, createTestContainer, simulateEvent, waitForComponent } from '../../src/component';
 
 class TestComponent extends Component {
