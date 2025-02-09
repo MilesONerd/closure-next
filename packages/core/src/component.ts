@@ -6,12 +6,12 @@
 import { EventTarget } from './events';
 import { DomHelper } from './dom';
 import { IdGenerator } from './id';
-import type { ComponentEventMap, ComponentProps, ComponentState, EventHandler } from './types';
+import type { ComponentEventMap, ComponentProps, ComponentStateInterface, ComponentStateFlags, EventHandler } from './types';
 
 /**
  * Component states that affect rendering and behavior
  */
-export const ComponentState = {
+export const ComponentState: ComponentStateFlags = {
   ALL: 0xFF,
   DISABLED: 0x01,
   HOVER: 0x02,
@@ -20,9 +20,7 @@ export const ComponentState = {
   CHECKED: 0x10,
   FOCUSED: 0x20,
   OPENED: 0x40
-} as const;
-
-export type ComponentStateValue = typeof ComponentState[keyof typeof ComponentState];
+};
 
 /**
  * Events dispatched by components
@@ -56,7 +54,7 @@ export type ComponentEventTypeValue = typeof ComponentEventType[keyof typeof Com
 /**
  * Base component class with lifecycle management and DOM manipulation.
  */
-export class Component<P extends ComponentProps = ComponentProps, S extends Record<string, unknown> = Record<string, unknown>> extends EventTarget {
+export class Component<P extends ComponentProps = ComponentProps, S extends ComponentStateInterface = ComponentStateInterface> extends EventTarget {
   // Protected properties
   protected element: HTMLElement | null = null;
   protected children: Component[] = [];

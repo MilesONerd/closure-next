@@ -14,16 +14,16 @@ export interface ComponentProps<T = unknown> {
 }
 
 /**
- * Component state type
+ * Component state interface
  */
-export interface ComponentState<T = unknown> {
+export interface ComponentStateInterface<T = unknown> {
   [key: string]: T;
 }
 
 /**
  * Component state flags
  */
-export type ComponentStateType = {
+export interface ComponentStateFlags {
   readonly ALL: 0xFF;
   readonly DISABLED: 0x01;
   readonly HOVER: 0x02;
@@ -32,34 +32,7 @@ export type ComponentStateType = {
   readonly CHECKED: 0x10;
   readonly FOCUSED: 0x20;
   readonly OPENED: 0x40;
-};
-
-/**
- * Component event type
- */
-export type ComponentEventType = {
-  readonly BEFORE_SHOW: 'beforeshow';
-  readonly SHOW: 'show';
-  readonly HIDE: 'hide';
-  readonly DISABLE: 'disable';
-  readonly ENABLE: 'enable';
-  readonly HIGHLIGHT: 'highlight';
-  readonly UNHIGHLIGHT: 'unhighlight';
-  readonly ACTIVATE: 'activate';
-  readonly DEACTIVATE: 'deactivate';
-  readonly SELECT: 'select';
-  readonly UNSELECT: 'unselect';
-  readonly CHECK: 'check';
-  readonly UNCHECK: 'uncheck';
-  readonly FOCUS: 'focus';
-  readonly BLUR: 'blur';
-  readonly OPEN: 'open';
-  readonly CLOSE: 'close';
-  readonly ENTER: 'enter';
-  readonly LEAVE: 'leave';
-  readonly ACTION: 'action';
-  readonly CHANGE: 'change';
-};
+}
 
 /**
  * Event handler type with proper 'this' binding
