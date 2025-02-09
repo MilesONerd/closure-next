@@ -1,5 +1,48 @@
 # Implementation Details
 
+## Performance Optimizations
+
+### Lazy Loading
+```typescript
+import { createLazyComponent } from '@closure-next/core';
+
+const MyLazyComponent = createLazyComponent(() => import('./MyComponent'));
+
+// Usage
+const component = await MyLazyComponent.get();
+// or preload
+MyLazyComponent.preload();
+```
+
+### Caching
+```typescript
+import { Cache, ComponentPool, ResourcePreloader } from '@closure-next/core';
+
+// Component caching
+const cache = new Cache({ maxSize: 100, ttl: 5 * 60 * 1000 });
+cache.set('myComponent', component);
+
+// Component pooling
+const pool = new ComponentPool(50);
+const component = pool.acquire();
+pool.release(component);
+
+// Resource preloading
+const preloader = new ResourcePreloader();
+await preloader.preloadScript('/path/to/script.js');
+```
+
+### Bundle Optimization
+```typescript
+import { createBundleConfig, defaultChunks } from '@closure-next/core';
+
+const config = createBundleConfig({
+  chunks: defaultChunks,
+  minChunkSize: 20000,
+  maxAsyncRequests: 30
+});
+```
+
 ## Framework Integration
 
 For detailed framework integration guides, see:
@@ -12,11 +55,6 @@ For detailed framework integration guides, see:
 
 For detailed SSR implementation details, see:
 - [SSR Guide](../guides/ssr/README.md)
-
-## Performance Optimization
-
-For detailed performance optimization guides, see:
-- [Performance Guide](../guides/performance/README.md)
 
 ## Architecture Overview
 
@@ -103,3 +141,7 @@ await simulateEvent(component.getElement(), 'click');
 - ✅ WebAssembly Optimizations
 - ✅ SSR Support
 - ✅ Testing Utilities
+- ✅ Performance Optimizations
+  - ✅ Lazy Loading
+  - ✅ Caching
+  - ✅ Bundle Size Optimization
