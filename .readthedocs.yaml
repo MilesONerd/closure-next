@@ -1,4 +1,5 @@
 version: 2
+
 build:
   os: ubuntu-20.04
   language: nodejs
@@ -7,6 +8,9 @@ build:
     install:
       - pip install mkdocs
       - pip install mkdocs-github
-  tools:
-    mkdocs: "1.2"
+
+tools:
+  python: "3.9"  
+
 sphinx: false
+
