@@ -42,12 +42,16 @@ describe('Component', () => {
 
   test('handles state management', async () => {
     const component = new TestComponent(domHelper);
+    const container = domHelper.createElement('div');
+    await component.render(container);
+
     const stateListener = jest.fn();
     component.addEventListener(EventType.STATECHANGE, stateListener);
 
-    await component.setState({ test: 'value', content: 'Test Content' });
+    await component.setState({ test: 'value', content: 'Updated Content' });
     expect(stateListener).toHaveBeenCalled();
-    expect(component.getState()).toEqual({ test: 'value', content: 'Test Content' });
+    expect(component.getState()).toEqual({ test: 'value', content: 'Updated Content' });
+    expect(container.textContent).toBe('Updated Content');
   });
 
   test('manages parent-child relationships', async () => {

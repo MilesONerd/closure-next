@@ -2,7 +2,7 @@ import { JSDOM } from 'jsdom';
 import { Component } from '../src/component';
 import { DOMHelper } from '../src/dom';
 import { EventType } from '../src/events';
-import type { ComponentInterface } from '../src/types';
+import type { ComponentInterface, ComponentState } from '../src/types';
 
 class TestComponent extends Component {
   protected content: string;
@@ -15,7 +15,7 @@ class TestComponent extends Component {
   protected override async createDom(): Promise<void> {
     await super.createDom();
     if (this.element) {
-      this.element.textContent = this.content;
+      this.element.textContent = this.state.content || this.content;
     }
   }
 
@@ -26,6 +26,13 @@ class TestComponent extends Component {
   async setContent(content: string): Promise<void> {
     this.content = content;
     await this.setState({ content });
+  }
+
+  override async setState(state: ComponentState): Promise<void> {
+    if ('content' in state) {
+      this.content = state.content;
+    }
+    await super.setState(state);
   }
 }
 

@@ -1,4 +1,5 @@
-import { initWasm, wasmSort, wasmBinarySearch, wasmStringCompare, wasmStringEncode } from '../index.js';
+import { WasmComponent } from '../index';
+import { DOMHelper } from '@closure-next/core';
 
 async function runBenchmark(name: string, iterations: number, fn: () => Promise<void>) {
   console.log(`Running benchmark: ${name}`);
@@ -16,69 +17,58 @@ async function runBenchmark(name: string, iterations: number, fn: () => Promise<
   return avg;
 }
 
-async function benchmarkArrayOperations() {
-  // Generate large array for sorting
-  const largeArray = Array.from({ length: 1000000 }, () => Math.random());
-  const sortedArray = [...largeArray].sort((a, b) => a - b);
-  
-  // Test native sort
-  await runBenchmark('Native Sort (1M items)', 5, async () => {
-    [...largeArray].sort((a, b) => a - b);
-  });
-  
-  // Test WebAssembly sort
-  await runBenchmark('WebAssembly Sort (1M items)', 5, async () => {
-    await wasmSort(largeArray);
-  });
-  
-  // Test native binary search
-  await runBenchmark('Native Binary Search', 1000, async () => {
-    sortedArray.findIndex(x => x === 0.5);
-  });
-  
-  // Test WebAssembly binary search
-  await runBenchmark('WebAssembly Binary Search', 1000, async () => {
-    await wasmBinarySearch(sortedArray, 0.5);
-  });
-}
+async function benchmarkDOMOperations() {
+  const domHelper = new DOMHelper(document);
+  const component = new WasmComponent(domHelper);
+  const container = document.createElement('div');
+  document.body.appendChild(container);
+  await component.render(container);
 
-async function benchmarkStringOperations() {
-  const str1 = 'a'.repeat(10000);
-  const str2 = 'b'.repeat(10000);
-  
-  // Test native string compare
-  await runBenchmark('Native String Compare', 1000, async () => {
-    str1.localeCompare(str2);
+  // Test native DOM traversal
+  await runBenchmark('Native DOM Traversal', 1000, async () => {
+    const elements = container.querySelectorAll('*');
+    elements.forEach(el => el.getAttribute('data-test'));
   });
-  
-  // Test WebAssembly string compare
-  await runBenchmark('WebAssembly String Compare', 1000, async () => {
-    await wasmStringCompare(str1, str2);
+
+  // Test WebAssembly DOM traversal
+  await runBenchmark('WebAssembly DOM Traversal', 1000, async () => {
+    await component.traverseDOM();
   });
-  
-  // Test native string encode
-  await runBenchmark('Native String Encode', 1000, async () => {
-    new TextEncoder().encode(str1);
+
+  // Test native attribute handling
+  await runBenchmark('Native Attribute Handling', 1000, async () => {
+    const elements = container.querySelectorAll('*');
+    elements.forEach(el => {
+      el.setAttribute('data-test', 'value');
+      el.getAttribute('data-test');
+      el.removeAttribute('data-test');
+    });
   });
-  
-  // Test WebAssembly string encode
-  await runBenchmark('WebAssembly String Encode', 1000, async () => {
-    await wasmStringEncode(str1);
+
+  // Test WebAssembly attribute handling
+  await runBenchmark('WebAssembly Attribute Handling', 1000, async () => {
+    await component.handleAttributes();
+  });
+
+  // Test native event dispatch
+  await runBenchmark('Native Event Dispatch', 1000, async () => {
+    const elements = container.querySelectorAll('*');
+    elements.forEach(el => {
+      const event = new Event('test');
+      el.dispatchEvent(event);
+    });
+  });
+
+  // Test WebAssembly event dispatch
+  await runBenchmark('WebAssembly Event Dispatch', 1000, async () => {
+    await component.dispatchEvents();
   });
 }
 
 async function main() {
-  await initWasm();
-  
   console.log('Starting benchmarks...\n');
-  
-  await benchmarkArrayOperations();
-  await benchmarkStringOperations();
-  
+  await benchmarkDOMOperations();
   console.log('\nBenchmarks complete.');
-  
-  // TODO: Add DOM operation benchmarks once implemented
-  // TODO: Add event handling benchmarks once implemented
 }
 
 main().catch(console.error);
