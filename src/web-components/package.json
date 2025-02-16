@@ -1,5 +1,19 @@
 {
   "name": "@closure-next/web-components",
+  "homepage": "https://closure-next.github.io",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MilesONerd/closure-next"
+  },
+  "keywords": [
+    "closure",
+    "closure-next",
+    "closure-library",
+    "typescript",
+    "javascript",
+    "milesonerd",
+    "web-components"
+  ],
   "version": "1.0.13",
   "description": "Web Components integration for Closure Next",
   "type": "module",
