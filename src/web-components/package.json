@@ -3,18 +3,18 @@
   "homepage": "https://closure-next.github.io",
   "repository": {
     "type": "git",
-    "url": "https://github.com/MilesONerd/closure-next"
+    "url": "https://github.com/MilesONerd/closure-next.git"
   },
   "keywords": [
-    "closure",
-    "closure-next",
-    "closure-library",
-    "typescript",
-    "javascript",
-    "milesonerd",
-    "web-components"
+    "Closure",
+    "TypeScript",
+    "JavaScript",
+    "Closure Library",
+    "MilesONerd",
+    "Closure Next",
+    "Web Components"
   ],
-  "version": "1.0.13",
+  "version": "1.0.14",
   "description": "Web Components integration for Closure Next",
   "type": "module",
   "main": "dist/index.js",
@@ -31,21 +31,8 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules jest",
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch"
   },
-  "keywords": [
-    "Closure",
-    "TypeScript",
-    "JavaScript",
-    "Closure Library",
-    "MilesONerd",
-    "Closure Next",
-    "Web Components"
-  ],
   "author": "Closure Next Team",
   "license": "Apache-2.0",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/MilesONerd/closure-next.git"
-  },
   "peerDependencies": {
     "@closure-next/core": "^1.0.0"
   },

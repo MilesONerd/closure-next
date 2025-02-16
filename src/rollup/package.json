@@ -3,18 +3,17 @@
   "homepage": "https://closure-next.github.io",
   "repository": {
     "type": "git",
-    "url": "https://github.com/MilesONerd/closure-next"
+    "url": "https://github.com/MilesONerd/closure-next.git"
   },
   "keywords": [
-    "closure",
-    "closure-next",
-    "closure-library",
-    "typescript",
-    "javascript",
-    "milesonerd",
-    "rollup"
+    "Closure",
+    "TypeScript",
+    "JavaScript",
+    "Closure Library",
+    "MilesONerd",
+    "Closure Next"
   ],
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Rollup plugin for Closure Next",
   "type": "module",
   "main": "./dist/index.js",
@@ -31,20 +30,8 @@
     "build": "tsc -p tsconfig.build.json",
     "test": "NODE_OPTIONS='--experimental-vm-modules' jest"
   },
-  "keywords": [
-    "Closure",
-    "TypeScript",
-    "JavaScript",
-    "Closure Library",
-    "MilesONerd",
-    "Closure Next"
-  ],
   "author": "Closure Next Team",
   "license": "Apache-2.0",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/MilesONerd/closure-next.git"
-  },
   "peerDependencies": {
     "rollup": "^4.0.0"
   },

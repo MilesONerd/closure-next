@@ -13,7 +13,7 @@
     "javascript",
     "milesonerd"
   ],
-  "version": "1.0.14",
+  "version": "1.0.15",
   "description": "Core package for Closure Next",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -3,18 +3,19 @@
   "homepage": "https://closure-next.github.io",
   "repository": {
     "type": "git",
-    "url": "https://github.com/MilesONerd/closure-next"
+    "url": "https://github.com/MilesONerd/closure-next.git"
   },
   "keywords": [
-    "closure",
-    "closure-next",
-    "closure-library",
-    "typescript",
-    "javascript",
-    "milesonerd",
-    "next"
+    "Closure",
+    "TypeScript",
+    "JavaScript",
+    "Closure Library",
+    "MilesONerd",
+    "Closure Next",
+    "Next",
+    "Next.js"
   ],
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Next.js integration for Closure Next",
   "type": "module",
   "main": "dist/index.js",
@@ -31,22 +32,8 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --config=jest.config.mjs",
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --config=jest.config.mjs --watch"
   },
-  "keywords": [
-    "Closure",
-    "TypeScript",
-    "JavaScript",
-    "Closure Library",
-    "MilesONerd",
-    "Closure Next",
-    "Next",
-    "Next.js"
-  ],
   "author": "Closure Next Team",
   "license": "Apache-2.0",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/MilesONerd/closure-next.git"
-  },
   "peerDependencies": {
     "@closure-next/core": "^1.0.0",
     "next": "^14.0.0",

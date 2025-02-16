@@ -3,26 +3,7 @@
   "homepage": "https://closure-next.github.io",
   "repository": {
     "type": "git",
-    "url": "https://github.com/MilesONerd/closure-next"
-  },
-  "keywords": [
-    "closure",
-    "closure-next",
-    "closure-library",
-    "typescript",
-    "javascript",
-    "milesonerd",
-    "vite"
-  ],
-  "version": "1.0.4",
-  "description": "Vite plugin for Closure Next",
-  "type": "module",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
-  "scripts": {
-    "build": "tsc -p tsconfig.build.json",
-    "test": "NODE_OPTIONS='--experimental-vm-modules' jest"
+    "url": "https://github.com/MilesONerd/closure-next.git"
   },
   "keywords": [
     "Closure",
@@ -33,12 +14,18 @@
     "Closure Next",
     "Vite"
   ],
+  "version": "1.0.5",
+  "description": "Vite plugin for Closure Next",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest"
+  },
   "author": "Closure Next Team",
   "license": "Apache-2.0",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/MilesONerd/closure-next.git"
-  },
   "peerDependencies": {
     "vite": "^5.0.0"
   },
