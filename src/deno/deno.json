@@ -1,0 +1,28 @@
+{
+  "name": "@closure-next/deno",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MilesONerd/closure-next.git"
+  },
+  "homepage": "https://closure-next.github.io",
+  "keywords": [
+    "Closure",
+    "TypeScript",
+    "JavaScript",
+    "Closure Library",
+    "MilesONerd",
+    "Closure Next",
+    "Deno"
+  ],
+  "version": "1.1.0",
+  "description": "Deno compatibility layer for Closure Next",
+  "exports": "./mod.ts",
+  "publish": {
+    "include": [
+      "README.md"
+    ]
+  },
+  "author": "Closure Next Team",
+  "license": "Apache-2.0"
+}
+
