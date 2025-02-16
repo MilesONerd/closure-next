@@ -1,6 +1,21 @@
 {
   "name": "@closure-next/nuxt",
-  "version": "1.0.5",
+  "homepage": "https://closure-next.github.io",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MilesONerd/closure-next.git"
+  },
+  "keywords": [
+    "Closure",
+    "TypeScript",
+    "JavaScript",
+    "Closure Library",
+    "MilesONerd",
+    "Closure Next",
+    "Nuxt",
+    "Nuxt.js"
+  ],
+  "version": "1.1.0",
   "description": "Nuxt.js integration for Closure Next",
   "type": "module",
   "main": "dist/index.js",
@@ -16,22 +31,8 @@
     "build": "tsc -p tsconfig.build.json",
     "test": "NODE_OPTIONS='--experimental-vm-modules' jest --config=jest.config.mjs"
   },
-  "keywords": [
-    "Closure",
-    "TypeScript",
-    "JavaScript",
-    "Closure Library",
-    "MilesONerd",
-    "Closure Next",
-    "Nuxt",
-    "Nuxt.js"
-  ],
   "author": "Closure Next Team",
   "license": "Apache-2.0",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/MilesONerd/closure-next.git"
-  },
   "peerDependencies": {
     "nuxt": "^3.0.0",
     "vue": "^3.0.0",

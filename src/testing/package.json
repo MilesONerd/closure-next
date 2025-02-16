@@ -1,6 +1,6 @@
 {
   "name": "@closure-next/testing",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "Testing utilities for Closure Next",
   "type": "module",
   "main": "dist/index.js",
