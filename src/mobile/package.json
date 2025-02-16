@@ -14,7 +14,7 @@
     "Closure Next",
     "Mobile"
   ],
-  "version": "1.0.4",
+  "version": "1.1.0",
   "description": "Mobile/hybrid platform integration for Closure Next",
   "type": "module",
   "main": "./dist/index.js",

@@ -14,7 +14,7 @@
     "Closure Next",
     "Webpack"
   ],
-  "version": "1.0.4",
+  "version": "1.1.0",
   "description": "Webpack plugin for Closure Next",
   "type": "module",
   "main": "dist/index.js",

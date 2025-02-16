@@ -14,7 +14,7 @@
     "Closure Next",
     "Web Components"
   ],
-  "version": "1.0.14",
+  "version": "1.1.0",
   "description": "Web Components integration for Closure Next",
   "type": "module",
   "main": "dist/index.js",

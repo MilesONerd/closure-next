@@ -15,7 +15,7 @@
     "Next",
     "Next.js"
   ],
-  "version": "1.0.4",
+  "version": "1.1.0",
   "description": "Next.js integration for Closure Next",
   "type": "module",
   "main": "dist/index.js",

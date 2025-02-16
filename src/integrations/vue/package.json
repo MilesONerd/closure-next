@@ -14,7 +14,7 @@
     "milesonerd",
     "vue"
   ],
-  "version": "1.0.7",
+  "version": "1.1.0",
   "description": "Vue integration for Closure Next",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

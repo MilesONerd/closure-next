@@ -14,7 +14,7 @@
     "Closure Next",
     "Vite"
   ],
-  "version": "1.0.5",
+  "version": "1.1.0",
   "description": "Vite plugin for Closure Next",
   "type": "module",
   "main": "dist/index.js",
