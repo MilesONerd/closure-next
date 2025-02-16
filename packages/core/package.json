@@ -1,5 +1,18 @@
 {
   "name": "@closure-next/core",
+  "homepage": "https://closure-next.github.io",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MilesONerd/closure-next"
+  },
+  "keywords": [
+    "closure",
+    "closure-next",
+    "closure-library",
+    "typescript",
+    "javascript",
+    "milesonerd"
+  ],
   "version": "1.0.14",
   "description": "Core package for Closure Next",
   "main": "dist/index.js",

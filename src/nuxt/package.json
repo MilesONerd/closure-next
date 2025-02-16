@@ -1,5 +1,19 @@
 {
   "name": "@closure-next/nuxt",
+  "homepage": "https://closure-next.github.io",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MilesONerd/closure-next"
+  },
+  "keywords": [
+    "closure",
+    "closure-next",
+    "closure-library",
+    "typescript",
+    "javascript",
+    "milesonerd",
+    "nuxt"
+  ],
   "version": "1.0.5",
   "description": "Nuxt.js integration for Closure Next",
   "type": "module",

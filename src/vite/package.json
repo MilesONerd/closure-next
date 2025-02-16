@@ -1,5 +1,19 @@
 {
   "name": "@closure-next/vite",
+  "homepage": "https://closure-next.github.io",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MilesONerd/closure-next"
+  },
+  "keywords": [
+    "closure",
+    "closure-next",
+    "closure-library",
+    "typescript",
+    "javascript",
+    "milesonerd",
+    "vite"
+  ],
   "version": "1.0.4",
   "description": "Vite plugin for Closure Next",
   "type": "module",

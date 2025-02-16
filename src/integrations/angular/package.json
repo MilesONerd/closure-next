@@ -1,5 +1,19 @@
 {
   "name": "@closure-next/angular",
+  "homepage": "https://closure-next.github.io",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MilesONerd/closure-next"
+  },
+  "keywords": [
+    "closure",
+    "closure-next",
+    "closure-library",
+    "typescript",
+    "javascript",
+    "milesonerd",
+    "angular"
+  ],
   "version": "1.0.8",
   "description": "Angular integration for Closure Next",
   "main": "dist/index.js",
