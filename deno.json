@@ -16,7 +16,7 @@
   ],
   "version": "1.1.0",
   "description": "Deno compatibility layer for Closure Next",
-  "exports": "./src/mod.ts",
+  "exports": "./src/deno/mod.ts",
   "publish": {
     "include": [
       "src/deno/README.md"
