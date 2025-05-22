@@ -37,7 +37,8 @@
 
 # Documentation
 
-[Closure Next Documentation](https://closure-next.readthedocs.io/en/latest/)
+[ReadTheDocs - Documentation](https://closure-next.readthedocs.io/en/latest/)
+[DeepWiki - Documentation](https://deepwiki.com/MilesONerd/closure-next)
 
 # Installation
 
