@@ -50,10 +50,11 @@ Stay connected and follow **Closure Next** on social media:
 [![Telegram](https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/closure_next)
 [![X/Twitter](https://img.shields.io/badge/X-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/closure_next)
 
-Also, check out the official site and repository:
+Also, check out the official site, repository and DeepWiki documentation:
 
 - **Website**: [https://closure-next.github.io/](https://closure-next.github.io/)
 - **GitHub Repository**: [https://github.com/MilesONerd/closure-next](https://github.com/MilesONerd/closure-next)
+- **DeepWiki Documentation**: [https://deepwiki.com/MilesONerd/closure-next](https://deepwiki.com/MilesONerd/closure-next)
 
 Join the community and stay up to date with the latest news, releases, and updates. 💬
 
